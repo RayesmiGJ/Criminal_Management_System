@@ -109,7 +109,9 @@
     <!-- Modal for full details -->
     <div class="modal" id="detailsModal">
         <div class="modal-content">
+            <center>
             <div class="modal-header">FIR Details</div>
+            </center>
             <div id="modalBody"></div>
             <div class="modal-footer">
                 <button class="btn btn-primary" onclick="closeModal()">OK</button>
@@ -209,6 +211,8 @@
                 <p><strong>Victim Contact:</strong> ${record.victimContact || ''}</p>
                 <p><strong>Victim Address:</strong> ${record.victimAddress || ''}</p>
                 <p><strong>Complaint:</strong> ${record.complaint || ''}</p>
+                <p><strong>Criminal Details:</strong> ${record.criminalKnown || ''}</p>
+                <p><strong>Suspect Details:</strong> ${record.suspectKnown || ''}</p>
             `;
             if (record.criminalKnown === "Yes") {
                 body += `
@@ -219,6 +223,18 @@
                     <p><strong>Additional Details:</strong> ${record.criminalDetails?.cExtra || record.criminalExtra || ''}</p>
                 `;
             }
+
+            if ( record.suspectKnown === "Yes") {
+            body += `
+                    <p><strong>Suspect Name:</strong> ${record.suspectDetails?.sName || record.suspectName || ''}</p>
+                    <p><strong>Suspect Age:</strong> ${record.suspectDetails?.sAge || record.suspectAge || ''}</p>
+                    <p><strong>Suspect Address:</strong> ${record.suspectDetails?.sAddress || record.suspectAddress || ''}</p>
+                    <p><strong>Identification Marks:</strong> ${record.suspectDetails?.sMarks || record.suspectMarks || ''}</p>
+                    <p><strong>Additional Details:</strong> ${record.suspectDetails?.sExtra || record.suspectExtra || ''}</p>
+                `;
+
+             }
+
             document.getElementById("modalBody").innerHTML = body;
             document.getElementById("detailsModal").style.display = "flex";
         }

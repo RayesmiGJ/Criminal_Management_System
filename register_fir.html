@@ -147,6 +147,11 @@
       <option value="No">No</option>
       <option value="Yes">Yes</option>
     </select>
+    <label>Are there Suspects?</label>
+    <select id="suspectKnown" onchange="toggleSuspectDetails()">
+      <option value="No">No</option>
+      <option value="Yes">Yes</option>
+    </select>
   </fieldset>
 
   <!-- Criminal Details Section -->
@@ -168,6 +173,25 @@
     <label>Additional Personal Details:</label>
     <textarea id="criminalExtra"></textarea>
   </fieldset>
+
+  <fieldset id="suspectDetails" style="display:none; grid-column: span 2;">
+  <legend>Suspect Details</legend>
+
+  <label>Name:</label>
+  <input type="text" id="suspectName" />
+
+  <label>Age:</label>
+  <input type="number" id="suspectAge" min="1" />
+
+  <label>Address:</label>
+  <input type="text" id="suspectAddress" />
+
+  <label>Identification Marks:</label>
+  <textarea id="suspectMarks"></textarea>
+
+  <label>Additional Personal Details:</label>
+  <textarea id="suspectExtra"></textarea>
+ </fieldset>
 
   <div class="buttons">
     <button type="button" onclick="submitFIR()">Submit FIR</button>
@@ -239,6 +263,12 @@
     document.getElementById("criminalDetails").style.display = value === "Yes" ? "block" : "none";
   }
 
+   // Toggle Suspect Details
+  function toggleSuspectDetails() {
+    let value = document.getElementById("suspectKnown").value;
+    document.getElementById("suspectDetails").style.display = value === "Yes" ? "block" : "none";
+  }
+
   // Submit FIR
   async function submitFIR() {
     let category = document.getElementById("category").value.trim();
@@ -247,6 +277,7 @@
     let victimAddress = document.getElementById("victimAddress").value.trim();
     let complaint = document.getElementById("complaint").value.trim();
     let criminalKnown = document.getElementById("criminalKnown").value;
+    let suspectKnown = document.getElementById("suspectKnown").value;
 
     if (!category || !victimName || !victimContact || !victimAddress || !complaint) {
       alert("Please fill all required fields.");
@@ -272,6 +303,21 @@
       criminalDetails = { cName, cAge, cAddress, cMarks, cExtra };
     }
 
+     let suspectDetails = {};
+    if (suspectKnown === "Yes") {
+      let sName = document.getElementById("suspectName").value.trim();
+      let sAge = document.getElementById("suspectAge").value.trim();
+      let sAddress = document.getElementById("suspectAddress").value.trim();
+      let sMarks = document.getElementById("suspectMarks").value.trim();
+      let sExtra = document.getElementById("suspectExtra").value.trim();
+
+      if (!sName || !sAge || !sAddress || !sMarks) {
+        alert("Please fill all suspect details.");
+        return;
+      }
+      suspectDetails = { sName, sAge, sAddress, sMarks, sExtra };
+    }
+
     let refID = document.getElementById("refNo").value;
     let date = document.getElementById("date").value;
     let loggedInUser = "Officer Rajesh Kumar"; // Replace with actual login
@@ -286,6 +332,8 @@
       victimAddress,
       criminalKnown,
       criminalDetails,
+      suspectKnown,
+      suspectDetails,
       loginPerson: loggedInUser,
     };
 
