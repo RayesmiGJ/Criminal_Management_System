@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Police Dashboard</title>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: #f4f6f9;
+    }
+
+    /* Navbar */
+    nav {
+        background-color: #1b2a49;
+        display: flex;
+        justify-content: center;
+        padding: 15px 0;
+    }
+
+    nav a {
+        color: #ffd700;
+        text-decoration: none;
+        margin: 0 20px;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    nav a:hover {
+        color: white;
+    }
+
+    /* Dashboard Title */
+    .title {
+        text-align: center;
+        color: #1b2a49;
+        margin-top: 20px;
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    /* Dashboard Grid */
+    .dashboard {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin: 30px;
+    }
+
+    .card {
+        background-color: white;
+        border-radius: 10px;
+        width: 220px;
+        height: 150px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        font-weight: bold;
+        color: #1b2a49;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-icon {
+        font-size: 40px;
+        margin-bottom: 10px;
+        color: #ffd700;
+    }
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav>
+    <a href="#">Home</a>
+    <a href="#">About Us</a>
+    <a href="#">Martyrs</a>
+    <a href="#">Contact Us</a>
+</nav>
+
+<!-- Dashboard Heading -->
+<div class="title">Police Records Dashboard</div>
+
+<!-- Dashboard Boxes -->
+<div class="dashboard">
+    <div class="card"><a style="text-decoration: none;" href="register_fir.html">
+        <div class="card-icon">📝</div>
+        Register FIR
+        </a>
+    </div>
+    <div class="card"><a style="text-decoration: none;" href="view_fir.html">
+        <div class="card-icon">📄</div>
+        View FIRs
+        </a>
+    </div>
+    <div class="card">
+        <div class="card-icon">📊</div>
+        Track FIR Status
+    </div>
+    <div class="card">
+        <div class="card-icon">👮</div>
+        Arrested Persons
+    </div>
+</div>
+
+</body>
+</html>

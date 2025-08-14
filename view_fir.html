@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>View FIR Records</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f8f8f8;
+            margin: 0;
+            padding: 0;
+        }
+        h2 {
+            text-align: center;
+            padding: 15px;
+            background: #2c3e50;
+            color: white;
+            margin: 0;
+        }
+        .container {
+            padding: 20px;
+        }
+        .search-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        input, select, button {
+            padding: 8px;
+            font-size: 14px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background: #34495e;
+            color: white;
+        }
+        tr:hover {
+            background: #f1f1f1;
+            cursor: pointer;
+        }
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            max-width: 500px;
+            width: 90%;
+        }
+        .modal-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .modal-footer {
+            margin-top: 15px;
+            text-align: right;
+        }
+        .btn {
+            padding: 6px 12px;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background: #3498db;
+            color: white;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <h2>View FIR Records</h2>
+    <div class="container">
+        <div class="search-filter">
+            <input type="text" id="searchInput" placeholder="Search by Reference ID or Victim Name" onkeyup="filterTable()">
+            <select id="categoryFilter" onchange="filterByCategory()">
+                <option value="">All Categories</option>
+            </select>
+        </div>
+
+        <table id="firTable">
+            <thead>
+                <tr>
+                    <th>Reference ID</th>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Victim Name</th>
+                    <th>Contact</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- Modal for full details -->
+    <div class="modal" id="detailsModal">
+        <div class="modal-content">
+            <div class="modal-header">FIR Details</div>
+            <div id="modalBody"></div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeModal()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs (Legacy Namespaced) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Your Firebase config - replace with your actual config
+        const firebaseConfig = {
+            apiKey: "AIzaSyBnMI6S8fig-fl8exIAt5tDz9qWWrWGHAM",
+            authDomain: "crime-management-fdd43.firebaseapp.com",
+            projectId: "crime-management-fdd43",
+            storageBucket: "crime-management-fdd43.appspot.com",
+            messagingSenderId: "990509285734",
+            appId: "1:990509285734:web:4798f9666ff2dea537c8a7"
+        };
+
+        // Initialize Firebase app
+        firebase.initializeApp(firebaseConfig);
+
+        // Initialize Firestore database
+        const db = firebase.firestore();
+
+        async function loadFIRData() {
+            try {
+                let tableBody = document.querySelector("#firTable tbody");
+                tableBody.innerHTML = "";
+                let categories = new Set();
+
+                const snapshot = await db.collection("firs").get();
+
+                snapshot.forEach(doc => {
+                    let record = doc.data();
+
+                    let row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${record.refID || record.refNo || ''}</td>
+                        <td>${record.date || ''}</td>
+                        <td>${record.category || ''}</td>
+                        <td>${record.victimName || ''}</td>
+                        <td>${record.victimContact || ''}</td>
+                    `;
+                    row.onclick = () => showDetails(record);
+                    tableBody.appendChild(row);
+
+                    if (record.category) {
+                        categories.add(record.category);
+                    }
+                });
+
+                // Populate category dropdown
+                let categoryFilter = document.getElementById("categoryFilter");
+                categoryFilter.innerHTML = '<option value="">All Categories</option>';
+                categories.forEach(cat => {
+                    let opt = document.createElement("option");
+                    opt.value = cat;
+                    opt.textContent = cat;
+                    categoryFilter.appendChild(opt);
+                });
+
+            } catch (error) {
+                console.error("Error fetching FIR records: ", error);
+                alert("Failed to load FIR records. Please try again later.");
+            }
+        }
+
+        function filterTable() {
+            let searchValue = document.getElementById("searchInput").value.toLowerCase();
+            let rows = document.querySelectorAll("#firTable tbody tr");
+            rows.forEach(row => {
+                let ref = row.cells[0].textContent.toLowerCase();
+                let name = row.cells[3].textContent.toLowerCase();
+                row.style.display = (ref.includes(searchValue) || name.includes(searchValue)) ? "" : "none";
+            });
+        }
+
+        function filterByCategory() {
+            let selected = document.getElementById("categoryFilter").value.toLowerCase();
+            let rows = document.querySelectorAll("#firTable tbody tr");
+            rows.forEach(row => {
+                let category = row.cells[2].textContent.toLowerCase();
+                row.style.display = (!selected || category === selected) ? "" : "none";
+            });
+        }
+
+        function showDetails(record) {
+            let body = `
+                <p><strong>Reference ID:</strong> ${record.refNo || record.refID || ''}</p>
+                <p><strong>Date:</strong> ${record.date || ''}</p>
+                <p><strong>Category:</strong> ${record.category || ''}</p>
+                <p><strong>Victim Name:</strong> ${record.victimName || ''}</p>
+                <p><strong>Victim Contact:</strong> ${record.victimContact || ''}</p>
+                <p><strong>Victim Address:</strong> ${record.victimAddress || ''}</p>
+                <p><strong>Complaint:</strong> ${record.complaint || ''}</p>
+            `;
+            if (record.criminalKnown === "Yes") {
+                body += `
+                    <p><strong>Criminal Name:</strong> ${record.criminalDetails?.cName || record.criminalName || ''}</p>
+                    <p><strong>Criminal Age:</strong> ${record.criminalDetails?.cAge || record.criminalAge || ''}</p>
+                    <p><strong>Criminal Address:</strong> ${record.criminalDetails?.cAddress || record.criminalAddress || ''}</p>
+                    <p><strong>Identification Marks:</strong> ${record.criminalDetails?.cMarks || record.criminalMarks || ''}</p>
+                    <p><strong>Additional Details:</strong> ${record.criminalDetails?.cExtra || record.criminalExtra || ''}</p>
+                `;
+            }
+            document.getElementById("modalBody").innerHTML = body;
+            document.getElementById("detailsModal").style.display = "flex";
+        }
+
+        function closeModal() {
+            document.getElementById("detailsModal").style.display = "none";
+        }
+
+        window.onload = loadFIRData;
+    </script>
+</body>
+</html>

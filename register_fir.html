@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Register FIR</title>
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f9;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  header {
+    background-color: #1b2a49;
+    color: #ffd700;
+    padding: 15px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+  }
+  form {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  fieldset {
+    border: 2px solid #1b2a49;
+    border-radius: 10px;
+    padding: 15px;
+    background: white;
+  }
+  legend {
+    font-weight: bold;
+    color: #1b2a49;
+  }
+  label {
+    display: block;
+    font-weight: bold;
+    margin-top: 8px;
+  }
+  input,
+  select,
+  textarea {
+    width: 100%;
+    padding: 8px;
+    margin-top: 3px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+  }
+  textarea {
+    resize: none;
+    height: 80px;
+  }
+  .buttons {
+    grid-column: span 2;
+    text-align: center;
+    margin-top: 10px;
+  }
+  button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 14px;
+    background-color: #ffd700;
+    color: #000;
+    margin: 5px;
+  }
+  button:hover {
+    opacity: 0.85;
+  }
+  /* Modal Dialog */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 10;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+  }
+  .modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 300px;
+  }
+  .modal-content h3 {
+    color: #1b2a49;
+  }
+</style>
+</head>
+<body>
+
+<header>Register FIR</header>
+
+<form id="firForm">
+
+  <fieldset>
+    <legend>FIR Details</legend>
+
+    <label>Reference ID:</label>
+    <input type="text" id="refNo" readonly />
+
+    <label>Date:</label>
+    <input type="text" id="date" readonly />
+
+    <label>Category:</label>
+    <select id="category">
+      <option value="">--Select--</option>
+      <option>Murder</option>
+      <option>Accident</option>
+      <option>Harassment</option>
+      <option>Theft</option>
+    </select>
+
+    <label>Complaint Details:</label>
+    <textarea id="complaint"></textarea>
+  </fieldset>
+
+  <fieldset>
+    <legend>Victim Details</legend>
+
+    <label>Victim Name:</label>
+    <input type="text" id="victimName" />
+
+    <label>Contact No.:</label>
+    <input type="tel" id="victimContact" pattern="[0-9]{10}" />
+
+    <label>Address:</label>
+    <input type="text" id="victimAddress" />
+
+    <label>Is Criminal Known?</label>
+    <select id="criminalKnown" onchange="toggleCriminalDetails()">
+      <option value="No">No</option>
+      <option value="Yes">Yes</option>
+    </select>
+  </fieldset>
+
+  <!-- Criminal Details Section -->
+  <fieldset id="criminalDetails" style="display:none; grid-column: span 2;">
+    <legend>Criminal Details</legend>
+
+    <label>Name:</label>
+    <input type="text" id="criminalName" />
+
+    <label>Age:</label>
+    <input type="number" id="criminalAge" min="1" />
+
+    <label>Address:</label>
+    <input type="text" id="criminalAddress" />
+
+    <label>Identification Marks:</label>
+    <textarea id="criminalMarks"></textarea>
+
+    <label>Additional Personal Details:</label>
+    <textarea id="criminalExtra"></textarea>
+  </fieldset>
+
+  <div class="buttons">
+    <button type="button" onclick="submitFIR()">Submit FIR</button>
+  </div>
+
+</form>
+
+<!-- Modal -->
+<div class="modal" id="resultModal">
+  <div class="modal-content" id="modalContent">
+    <h3>FIR Registered Successfully</h3>
+    <p id="modalRef"></p>
+    <p id="modalDate"></p>
+    <p id="modalLogin"></p>
+    <p id="modalName"></p>
+
+    <button onclick="window.print()">Print</button>
+    <button onclick="closeModal()">OK</button>
+  </div>
+</div>
+
+<!-- Firebase SDKs (compat version for old syntax) -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+<script>
+  // Firebase Config
+  const firebaseConfig = {
+    apiKey: "AIzaSyBnMI6S8fig-fl8exIAt5tDz9qWWrWGHAM",
+    authDomain: "crime-management-fdd43.firebaseapp.com",
+    projectId: "crime-management-fdd43",
+    storageBucket: "crime-management-fdd43.firebasestorage.app",
+    messagingSenderId: "990509285734",
+    appId: "1:990509285734:web:4798f9666ff2dea537c8a7",
+    measurementId: "G-QTG266883M",
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  // Real-time Reference Number Fetch
+  function listenForRefNo() {
+    db.collection("settings").doc("firCounter").onSnapshot(doc => {
+      if (doc.exists) {
+        let lastRefNo = doc.data().lastRefNo || 1000;
+        document.getElementById("refNo").value = "REF" + (lastRefNo + 1);
+      } else {
+        db.collection("settings").doc("firCounter").set({ lastRefNo: 1000 });
+        document.getElementById("refNo").value = "REF1001";
+      }
+    });
+  }
+
+  // Set today's date
+  function setDate() {
+    let today = new Date();
+    let formatted = today.toLocaleDateString("en-IN");
+    document.getElementById("date").value = formatted;
+  }
+
+  // Toggle Criminal Details
+  function toggleCriminalDetails() {
+    let value = document.getElementById("criminalKnown").value;
+    document.getElementById("criminalDetails").style.display = value === "Yes" ? "block" : "none";
+  }
+
+  // Submit FIR
+  async function submitFIR() {
+    let category = document.getElementById("category").value.trim();
+    let victimName = document.getElementById("victimName").value.trim();
+    let victimContact = document.getElementById("victimContact").value.trim();
+    let victimAddress = document.getElementById("victimAddress").value.trim();
+    let complaint = document.getElementById("complaint").value.trim();
+    let criminalKnown = document.getElementById("criminalKnown").value;
+
+    if (!category || !victimName || !victimContact || !victimAddress || !complaint) {
+      alert("Please fill all required fields.");
+      return;
+    }
+    if (!/^[0-9]{10}$/.test(victimContact)) {
+      alert("Enter valid 10-digit contact number.");
+      return;
+    }
+
+    let criminalDetails = {};
+    if (criminalKnown === "Yes") {
+      let cName = document.getElementById("criminalName").value.trim();
+      let cAge = document.getElementById("criminalAge").value.trim();
+      let cAddress = document.getElementById("criminalAddress").value.trim();
+      let cMarks = document.getElementById("criminalMarks").value.trim();
+      let cExtra = document.getElementById("criminalExtra").value.trim();
+
+      if (!cName || !cAge || !cAddress || !cMarks) {
+        alert("Please fill all criminal details.");
+        return;
+      }
+      criminalDetails = { cName, cAge, cAddress, cMarks, cExtra };
+    }
+
+    let refID = document.getElementById("refNo").value;
+    let date = document.getElementById("date").value;
+    let loggedInUser = "Officer Rajesh Kumar"; // Replace with actual login
+
+    let firData = {
+      refID,
+      date,
+      category,
+      complaint,
+      victimName,
+      victimContact,
+      victimAddress,
+      criminalKnown,
+      criminalDetails,
+      loginPerson: loggedInUser,
+    };
+
+    try {
+      await db.collection("firs").doc(refID).set(firData);
+
+      // Increment counter atomically
+      await db.collection("settings").doc("firCounter").update({
+        lastRefNo: firebase.firestore.FieldValue.increment(1)
+      });
+
+      // Show modal
+      document.getElementById("modalRef").textContent = "Reference ID: " + refID;
+      document.getElementById("modalDate").textContent = "Date: " + date;
+      document.getElementById("modalLogin").textContent = "Logged in Officer: " + loggedInUser;
+      document.getElementById("modalName").textContent = "Victim Name: " + victimName;
+      document.getElementById("resultModal").style.display = "flex";
+
+    } catch (error) {
+      alert("Error saving FIR: " + error.message);
+    }
+  }
+
+  function closeModal() {
+    document.getElementById("resultModal").style.display = "none";
+    document.getElementById("firForm").reset();
+    toggleCriminalDetails();
+    setDate();
+  }
+
+  // Initialize page
+  window.onload = function () {
+    listenForRefNo();
+    setDate();
+  };
+</script>
+
+</body>
+</html>

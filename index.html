@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Secure Cloud Crime Records</title>
+<style>
+    body {
+        margin: 30px;
+        font-family: Arial, sans-serif;
+        background-color: #f7f8fa; /* Deep Navy Blue - Police Theme */
+        background-image: url(image.png);
+        background-size: 1400px auto; /* width = 1200px, height adjusts automatically */
+        background-repeat: no-repeat;
+        background-position: center;
+        color: white;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    h1 {
+        color: #ffffff; /* Golden Yellow */
+        margin-bottom: 20px;
+        text-align: center;
+        font-size:30px; 
+    }
+
+    .login-box {
+        background-color: rgba(255, 255, 255, 0.664);
+        padding: 25px;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        width: 300px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    }
+
+    label {
+        font-weight: bold;
+        color: black;
+    }
+
+    input {
+        padding: 10px;
+        border-radius: 5px;
+        border: none;
+        outline: none;
+        font-size: 14px;
+    }
+
+    .captcha-box {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .captcha {
+        background-color: #ffd700;
+        color: #000;
+        font-weight: bold;
+        padding: 5px 10px;
+        border-radius: 5px;
+        user-select: none;
+    }
+
+    .buttons {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    button {
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        width: 48%;
+    }
+
+    .submit-btn {
+        background-color: #ffd700;
+        color: #000;
+    }
+
+    .clear-btn {
+        background-color: #ff4d4d;
+        color: white;
+    }
+
+    button:hover {
+        opacity: 0.85;
+    }
+</style>
+</head>
+<body >
+
+<h1>Secure Cloud Crime Records</h1>
+
+<div class="login-box">
+    <label for="policeId">Police ID:</label>
+    <input type="text" id="policeId" placeholder="Enter Police ID">
+
+    <label for="password">Password:</label>
+    <input type="password" id="password" placeholder="Enter Password">
+
+    <label for="captchaInput">Captcha:</label>
+    <div class="captcha-box">
+        <span class="captcha" id="captchaCode"></span>
+        <button type="button" onclick="generateCaptcha()" style="width: auto; background:#ffd700; color:black;">↻</button>
+    </div>
+    <input type="text" id="captchaInput" placeholder="Enter Captcha">
+
+    <div class="buttons">
+        <button class="submit-btn" onclick="validateLogin()">Login</button>
+        <button class="clear-btn" onclick="clearForm()">Clear</button>
+    </div>
+</div>
+
+<script>
+    function generateCaptcha() {
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz";
+        let captcha = "";
+        for (let i = 0; i < 6; i++) {
+            captcha += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        document.getElementById("captchaCode").textContent = captcha;
+    }
+
+    function validateLogin() {
+        const policeId = document.getElementById("policeId").value.trim();
+        const password = document.getElementById("password").value.trim();
+        const captchaInput = document.getElementById("captchaInput").value.trim();
+        const captchaCode = document.getElementById("captchaCode").textContent;
+
+        // Dummy Authorized Credentials
+        const validId = "police";
+        const validPassword = "securepass";
+
+        if (!policeId || !password || !captchaInput) {
+            alert("Please fill all fields!");
+            return;
+        }
+
+        if (captchaInput !== captchaCode) {
+            alert("Invalid captcha. Please try again.");
+            generateCaptcha();
+            document.getElementById("captchaInput").value = "";
+            return;
+        }
+
+        if (policeId === validId && password === validPassword) {
+            // Redirect to dashboard
+            window.location.href = "dashboard.html";
+        } else {
+            alert("Unauthorized Access! Incorrect Police ID or Password.");
+        }
+    }
+
+    function clearForm() {
+        document.getElementById("policeId").value = "";
+        document.getElementById("password").value = "";
+        document.getElementById("captchaInput").value = "";
+        generateCaptcha();
+    }
+
+    window.onload = generateCaptcha;
+</script>
+</body>
+</html>
