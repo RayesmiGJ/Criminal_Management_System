@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About Us</title>
+<style>
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', Arial, sans-serif;
+        background-color: #eef1f6;
+        color: #333;
+    }
+
+    /* Menu Bar */
+    nav {
+        background-color: #1b2a49;
+        display: flex;
+        justify-content: center;
+        padding: 15px 0;
+    }
+    nav a {
+        color: #ffd700;
+        text-decoration: none;
+        margin: 0 20px;
+        font-weight: bold;
+        font-size: 16px;
+    }
+    nav a:hover {
+        color: white;
+    }
+    nav a.active {
+        text-decoration: underline;
+    }
+
+    /* Main Container */
+    .container {
+        max-width: 1100px;
+        margin: 30px auto;
+        padding: 20px;
+    }
+
+    h1 {
+        text-align: center;
+        color: #1b2a49;
+        font-size: 34px;
+        margin-bottom: 30px;
+    }
+
+    /* Sections */
+    .section {
+        background: white;
+        padding: 20px;
+        margin-bottom: 25px;
+        border-left: 6px solid #1b2a49;
+        border-radius: 6px;
+        box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+        transition: transform 0.2s ease-in-out;
+    }
+    .section:hover {
+        transform: scale(1.01);
+    }
+    .section h2 {
+        color: #1b2a49;
+        margin-bottom: 10px;
+    }
+    .section p {
+        line-height: 1.6;
+    }
+
+    /* Team Section */
+    .team {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 25px;
+        margin-top: 20px;
+    }
+    .member {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        width: 220px;
+        text-align: center;
+        box-shadow: 0px 3px 8px rgba(0,0,0,0.1);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .member:hover {
+        transform: translateY(-5px);
+        box-shadow: 0px 5px 15px rgba(0,0,0,0.15);
+    }
+    .member img {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+    .member h3 {
+        margin: 8px 0 4px;
+        color: #1b2a49;
+    }
+    .member p {
+        font-size: 14px;
+        color: #555;
+    }
+
+    /* Footer */
+    footer {
+        background-color: #1b2a49;
+        color: white;
+        text-align: center;
+        padding: 12px;
+        margin-top: 50px;
+    }
+</style>
+</head>
+<body>
+
+<!-- Menu Bar -->
+<nav>
+    <a href="dashboard.html">Home</a>
+    <a href="about_us.html">About Us</a>
+    <a href="#">Martyrs</a>
+    <a href="#">Contact Us</a>
+</nav>
+
+<!-- Main Content -->
+<div class="container">
+    <h1>About Us</h1>
+
+    <div class="section">
+        <h2>Our Mission</h2>
+        <p>We aim to modernize police operations through a secure, cloud-based platform that improves data management, speeds up investigations, and promotes seamless collaboration between law enforcement agencies.</p>
+    </div>
+
+    <div class="section">
+        <h2>What We Offer</h2>
+        <p>A comprehensive police records management system featuring FIR registration, case tracking, secure data storage, analytical reporting, and controlled interagency access — all hosted on a robust cloud infrastructure.</p>
+    </div>
+
+    <div class="section">
+        <h2>Who We Serve</h2>
+        <p>Police departments, investigation units, and authorized security agencies seeking a centralized, secure, and efficient solution for handling sensitive case data.</p>
+    </div>
+
+    <div class="section">
+        <h2>Our Vision</h2>
+        <p>To become a trusted technological backbone for law enforcement, enabling faster decisions, stronger coordination, and scalable solutions for future policing needs.</p>
+    </div>
+
+    <div class="section">
+        <h2>Meet the Team</h2>
+        <div class="team">
+            <div class="member">
+                <img src="images/safin.jpg" alt="Safin Mercey">
+                <h3>Safin Mercey</h3>
+                <p>Final Year CSE Student</p>
+            </div>
+            <div class="member">
+                <img src="images/rayesmi.jpg" alt="Rayesmi">
+                <h3>Rayesmi</h3>
+                <p>Final Year CSE Student</p>
+            </div>
+            <div class="member">
+                <img src="images/reshma.jpg" alt="Reshma">
+                <h3>Reshma</h3>
+                <p>Final Year CSE Student</p>
+            </div>
+            <div class="member">
+                <img src="images/saniya.jpg" alt="Saniya">
+                <h3>Saniya</h3>
+                <p>Final Year CSE Student</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
