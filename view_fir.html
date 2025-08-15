@@ -43,10 +43,19 @@
             color: white;
         }
         tr:hover {
-            background: #f1f1f1;
-            cursor: pointer;
+            background: #e1b7b7;
         }
-        /* Modal styles */
+        .status-pending { background-color: rgb(228, 122, 10); font-weight: bold; }
+        .status-arrested { color: green; font-weight: bold; }
+        .status-closed { color: gray; font-weight: bold; }
+        .btn {
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 13px;
+            border: none;
+            border-radius: 4px;
+        }
+        .btn-update { background: #3498db; color: white; }
         .modal {
             display: none;
             position: fixed;
@@ -63,23 +72,9 @@
             max-width: 500px;
             width: 90%;
         }
-        .modal-header {
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        .modal-footer {
-            margin-top: 15px;
-            text-align: right;
-        }
-        .btn {
-            padding: 6px 12px;
-            cursor: pointer;
-        }
-        .btn-primary {
-            background: #3498db;
-            color: white;
-            border: none;
-        }
+        .modal-header { font-weight: bold; margin-bottom: 10px; text-align:center; }
+        .modal-footer { margin-top: 15px; text-align: right; }
+        .input-field { margin-bottom: 10px; width: 100%; padding:5px; }
     </style>
 </head>
 <body>
@@ -91,7 +86,6 @@
                 <option value="">All Categories</option>
             </select>
         </div>
-
         <table id="firTable">
             <thead>
                 <tr>
@@ -100,31 +94,42 @@
                     <th>Category</th>
                     <th>Victim Name</th>
                     <th>Contact</th>
+                    <th>Status</th>
+                    <th>Update</th>
                 </tr>
             </thead>
             <tbody></tbody>
         </table>
     </div>
 
-    <!-- Modal for full details -->
+    <!-- Details Modal -->
     <div class="modal" id="detailsModal">
         <div class="modal-content">
-            <center>
             <div class="modal-header">FIR Details</div>
-            </center>
             <div id="modalBody"></div>
             <div class="modal-footer">
-                <button class="btn btn-primary" onclick="closeModal()">OK</button>
+                <button class="btn btn-update" onclick="closeModal()">Close</button>
             </div>
         </div>
     </div>
 
-    <!-- Firebase SDKs (Legacy Namespaced) -->
+    <!-- Update Modal -->
+    <div class="modal" id="updateModal">
+        <div class="modal-content">
+            <div class="modal-header">Update FIR Status</div>
+            <div id="updateBody"></div>
+            <div class="modal-footer">
+                <button class="btn btn-update" onclick="saveUpdate()">OK</button>
+                <button class="btn btn-update" onclick="closeUpdateModal()">Back</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
     <script>
-        // Your Firebase config - replace with your actual config
         const firebaseConfig = {
             apiKey: "AIzaSyBnMI6S8fig-fl8exIAt5tDz9qWWrWGHAM",
             authDomain: "crime-management-fdd43.firebaseapp.com",
@@ -133,77 +138,73 @@
             messagingSenderId: "990509285734",
             appId: "1:990509285734:web:4798f9666ff2dea537c8a7"
         };
-
-        // Initialize Firebase app
         firebase.initializeApp(firebaseConfig);
-
-        // Initialize Firestore database
         const db = firebase.firestore();
 
+        let selectedRecord = null;
+        let selectedDocId = '';
+
         async function loadFIRData() {
-            try {
-                let tableBody = document.querySelector("#firTable tbody");
-                tableBody.innerHTML = "";
-                let categories = new Set();
+            let tableBody = document.querySelector("#firTable tbody");
+            tableBody.innerHTML = "";
+            let categories = new Set();
+            const snapshot = await db.collection("firs").get();
+            snapshot.forEach(doc => {
+                let record = doc.data();
+                let statusClass = getStatusClass(record.status);
+                let row = document.createElement("tr");
+                row.innerHTML = `
+                    <td class="refCol">${record.refID || record.refNo || ''}</td>
+                    <td>${record.date || ''}</td>
+                    <td>${record.category || ''}</td>
+                    <td>${record.victimName || ''}</td>
+                    <td>${record.victimContact || ''}</td>
+                    <td class="${statusClass}">${record.status || 'Pending'}</td>
+                    <td><button class="btn btn-update" onclick="openUpdateModal('${doc.id}','${record.refID || record.refNo}')">Update</button></td>
+                `;
+                row.querySelector('.refCol').onclick = () => showDetails(record);
+                tableBody.appendChild(row);
+                if(record.category) categories.add(record.category);
+            });
 
-                const snapshot = await db.collection("firs").get();
-
-                snapshot.forEach(doc => {
-                    let record = doc.data();
-
-                    let row = document.createElement("tr");
-                    row.innerHTML = `
-                        <td>${record.refID || record.refNo || ''}</td>
-                        <td>${record.date || ''}</td>
-                        <td>${record.category || ''}</td>
-                        <td>${record.victimName || ''}</td>
-                        <td>${record.victimContact || ''}</td>
-                    `;
-                    row.onclick = () => showDetails(record);
-                    tableBody.appendChild(row);
-
-                    if (record.category) {
-                        categories.add(record.category);
-                    }
-                });
-
-                // Populate category dropdown
-                let categoryFilter = document.getElementById("categoryFilter");
-                categoryFilter.innerHTML = '<option value="">All Categories</option>';
-                categories.forEach(cat => {
-                    let opt = document.createElement("option");
-                    opt.value = cat;
-                    opt.textContent = cat;
-                    categoryFilter.appendChild(opt);
-                });
-
-            } catch (error) {
-                console.error("Error fetching FIR records: ", error);
-                alert("Failed to load FIR records. Please try again later.");
-            }
+            let categoryFilter = document.getElementById("categoryFilter");
+            categoryFilter.innerHTML = '<option value="">All Categories</option>';
+            categories.forEach(cat=>{
+                let opt=document.createElement("option");
+                opt.value=cat;
+                opt.textContent=cat;
+                categoryFilter.appendChild(opt);
+            });
         }
 
-        function filterTable() {
+        function getStatusClass(status){
+            if(status==='Pending') return 'status-pending';
+            if(status==='Arrested') return 'status-arrested';
+            if(status==='Case Closed') return 'status-closed';
+            return '';
+        }
+
+        function filterTable(){
             let searchValue = document.getElementById("searchInput").value.toLowerCase();
             let rows = document.querySelectorAll("#firTable tbody tr");
-            rows.forEach(row => {
-                let ref = row.cells[0].textContent.toLowerCase();
-                let name = row.cells[3].textContent.toLowerCase();
-                row.style.display = (ref.includes(searchValue) || name.includes(searchValue)) ? "" : "none";
+            rows.forEach(row=>{
+                let ref=row.cells[0].textContent.toLowerCase();
+                let name=row.cells[3].textContent.toLowerCase();
+                row.style.display=(ref.includes(searchValue)||name.includes(searchValue))?"":"none";
             });
         }
 
-        function filterByCategory() {
-            let selected = document.getElementById("categoryFilter").value.toLowerCase();
-            let rows = document.querySelectorAll("#firTable tbody tr");
-            rows.forEach(row => {
-                let category = row.cells[2].textContent.toLowerCase();
-                row.style.display = (!selected || category === selected) ? "" : "none";
+        function filterByCategory(){
+            let selected=document.getElementById("categoryFilter").value.toLowerCase();
+            let rows=document.querySelectorAll("#firTable tbody tr");
+            rows.forEach(row=>{
+                let category=row.cells[2].textContent.toLowerCase();
+                row.style.display=!selected || category===selected?"":"none";
             });
         }
 
-        function showDetails(record) {
-            let body = `
+        function showDetails(record){
+            let body=`
                 <p><strong>Reference ID:</strong> ${record.refNo || record.refID || ''}</p>
                 <p><strong>Date:</strong> ${record.date || ''}</p>
                 <p><strong>Category:</strong> ${record.category || ''}</p>
@@ -211,39 +212,104 @@
                 <p><strong>Victim Contact:</strong> ${record.victimContact || ''}</p>
                 <p><strong>Victim Address:</strong> ${record.victimAddress || ''}</p>
                 <p><strong>Complaint:</strong> ${record.complaint || ''}</p>
-                <p><strong>Criminal Details:</strong> ${record.criminalKnown || ''}</p>
-                <p><strong>Suspect Details:</strong> ${record.suspectKnown || ''}</p>
+                <p><strong>Status:</strong> ${record.status || 'Pending'}</p>
             `;
-            if (record.criminalKnown === "Yes") {
-                body += `
-                    <p><strong>Criminal Name:</strong> ${record.criminalDetails?.cName || record.criminalName || ''}</p>
-                    <p><strong>Criminal Age:</strong> ${record.criminalDetails?.cAge || record.criminalAge || ''}</p>
-                    <p><strong>Criminal Address:</strong> ${record.criminalDetails?.cAddress || record.criminalAddress || ''}</p>
-                    <p><strong>Identification Marks:</strong> ${record.criminalDetails?.cMarks || record.criminalMarks || ''}</p>
-                    <p><strong>Additional Details:</strong> ${record.criminalDetails?.cExtra || record.criminalExtra || ''}</p>
+            if(record.criminalKnown==='Yes'){
+                body+=`
+                    <p><strong>Criminal Name:</strong> ${record.criminalDetails?.cName || ''}</p>
+                    <p><strong>Criminal Age:</strong> ${record.criminalDetails?.cAge || ''}</p>
+                    <p><strong>Criminal Address:</strong> ${record.criminalDetails?.cAddress || ''}</p>
                 `;
             }
-
-            if ( record.suspectKnown === "Yes") {
-            body += `
-                    <p><strong>Suspect Name:</strong> ${record.suspectDetails?.sName || record.suspectName || ''}</p>
-                    <p><strong>Suspect Age:</strong> ${record.suspectDetails?.sAge || record.suspectAge || ''}</p>
-                    <p><strong>Suspect Address:</strong> ${record.suspectDetails?.sAddress || record.suspectAddress || ''}</p>
-                    <p><strong>Identification Marks:</strong> ${record.suspectDetails?.sMarks || record.suspectMarks || ''}</p>
-                    <p><strong>Additional Details:</strong> ${record.suspectDetails?.sExtra || record.suspectExtra || ''}</p>
+            if(record.suspectKnown==='Yes'){
+                body+=`
+                    <p><strong>Suspect Name:</strong> ${record.suspectDetails?.sName || ''}</p>
+                    <p><strong>Suspect Age:</strong> ${record.suspectDetails?.sAge || ''}</p>
+                    <p><strong>Suspect Address:</strong> ${record.suspectDetails?.sAddress || ''}</p>
                 `;
-
-             }
-
-            document.getElementById("modalBody").innerHTML = body;
-            document.getElementById("detailsModal").style.display = "flex";
+            }
+            document.getElementById("modalBody").innerHTML=body;
+            document.getElementById("detailsModal").style.display="flex";
         }
 
-        function closeModal() {
-            document.getElementById("detailsModal").style.display = "none";
+        function closeModal(){ document.getElementById("detailsModal").style.display="none"; }
+
+        function openUpdateModal(docId, refId){
+            selectedDocId = docId;
+            db.collection("firs").doc(docId).get().then(doc=>{
+                selectedRecord = doc.data();
+                let status = selectedRecord.status || 'Pending';
+                let html=`<p><strong>Reference ID:</strong> ${refId}</p>`;
+                if(status==='Pending'){
+                    html+=`
+                        <label>Criminal Found:</label>
+                        <select id="criminalFound" class="input-field">
+                            <option value="">Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                        <div id="criminalDetailsDiv" style="display:none;">
+                            <input id="cName" class="input-field" placeholder="Criminal Name">
+                            <input id="cAge" class="input-field" placeholder="Age">
+                            <input id="cAddress" class="input-field" placeholder="Address">
+                            <input id="cMarks" class="input-field" placeholder="Identification Marks">
+                            <input id="cExtra" class="input-field" placeholder="Additional Details">
+                        </div>
+                    `;
+                } else if(status==='Arrested'){
+                    html+=`<textarea id="judgement" class="input-field" placeholder="Enter Judgement Details"></textarea>`;
+                } else {
+                    html+=`<p>Case Closed</p>`;
+                }
+                document.getElementById("updateBody").innerHTML = html;
+                document.getElementById("updateModal").style.display="flex";
+
+                if(status==='Pending'){
+                    document.getElementById("criminalFound").onchange = function(){
+                        document.getElementById("criminalDetailsDiv").style.display=this.value==='Yes'?'block':'none';
+                    }
+                }
+            });
         }
 
-        window.onload = loadFIRData;
+        async function saveUpdate(){
+            let status = selectedRecord.status || 'Pending';
+            let updateData = {};
+            if(status==='Pending'){
+                let found = document.getElementById("criminalFound").value;
+                if(found==='Yes'){
+                    let cName=document.getElementById("cName").value.trim();
+                    let cAge=document.getElementById("cAge").value.trim();
+                    let cAddress=document.getElementById("cAddress").value.trim();
+                    let cMarks=document.getElementById("cMarks").value.trim();
+                    let cExtra=document.getElementById("cExtra").value.trim();
+                    if(!cName||!cAge||!cAddress||!cMarks||!cExtra){
+                        alert("Please enter all criminal details to update status.");
+                        return;
+                    }
+                    updateData.status='Arrested';
+                    updateData.criminalKnown='Yes';
+                    updateData.criminalDetails={cName,cAge,cAddress,cMarks,cExtra};
+                } else if(found==='No'){
+                    updateData.status='Pending';
+                } else {
+                    alert("Select Yes or No for Criminal Found.");
+                    return;
+                }
+            } else if(status==='Arrested'){
+                let judgement=document.getElementById("judgement").value.trim();
+                if(judgement===''){ alert("Enter judgement details to close case."); return;}
+                updateData.status='Case Closed';
+                updateData.judgement=judgement;
+            }
+            await db.collection("firs").doc(selectedDocId).update(updateData);
+            document.getElementById("updateModal").style.display="none";
+            loadFIRData();
+        }
+
+        function closeUpdateModal(){ document.getElementById("updateModal").style.display="none"; }
+
+        window.onload=loadFIRData;
     </script>
 </body>
 </html>
