@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Intelligent Case Search</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: #f4f6f9;
+    }
+
+    /* Navbar */
+    nav {
+        background-color: #1b2a49;
+        display: flex;
+        justify-content: center;
+        padding: 15px 0;
+    }
+
+    nav a {
+        color: #ffd700;
+        text-decoration: none;
+        margin: 0 20px;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    nav a:hover {
+        color: white;
+    }
+
+    /* Page Title */
+    .title {
+        text-align: center;
+        color: #1b2a49;
+        margin: 20px 0;
+        font-size: 26px;
+        font-weight: bold;
+    }
+
+    /* Search Section */
+    .search-container {
+        max-width: 800px;
+        margin: 20px auto;
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .search-box {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 12px;
+        border: 2px solid #1b2a49;
+        border-radius: 8px;
+        font-size: 16px;
+    }
+
+    .search-btn {
+        background-color: #1b2a49;
+        color: #ffd700;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    .search-btn:hover {
+        background-color: #2c3e50;
+    }
+
+    /* Filters */
+    .filters {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+    .filter-select {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background: white;
+    }
+
+    /* Results Section */
+    .results-container {
+        max-width: 1200px;
+        margin: 20px auto;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .results-stats {
+        color: #666;
+        margin-bottom: 15px;
+        font-size: 14px;
+    }
+
+    /* Case Cards */
+    .case-card {
+        background: white;
+        border-left: 5px solid #1b2a49;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .case-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    }
+
+    .case-card.high-priority {
+        border-left-color: #e74c3c;
+        background: linear-gradient(135deg, #fff, #ffeaea);
+    }
+
+    .case-card.medium-priority {
+        border-left-color: #f39c12;
+        background: linear-gradient(135deg, #fff, #fff4e6);
+    }
+
+    .case-card.low-priority {
+        border-left-color: #27ae60;
+    }
+
+    .case-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 10px;
+    }
+
+    .case-title {
+        font-size: 18px;
+        font-weight: bold;
+        color: #1b2a49;
+        margin: 0;
+    }
+
+    .priority-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+        color: white;
+    }
+
+    .priority-high { background: #e74c3c; }
+    .priority-medium { background: #f39c12; }
+    .priority-low { background: #27ae60; }
+
+    .case-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    .detail-item {
+        font-size: 14px;
+    }
+
+    .detail-label {
+        font-weight: bold;
+        color: #666;
+    }
+
+    .match-score {
+        text-align: right;
+        font-size: 14px;
+        color: #666;
+    }
+
+    .score-bar {
+        width: 100%;
+        height: 6px;
+        background: #ecf0f1;
+        border-radius: 3px;
+        margin-top: 5px;
+        overflow: hidden;
+    }
+
+    .score-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #27ae60, #2ecc71);
+        border-radius: 3px;
+    }
+
+    /* Loading Animation */
+    .loading {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+    }
+
+    .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #1b2a49;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 15px;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* No Results */
+    .no-results {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+        font-size: 16px;
+    }
+
+    /* Keywords Highlight */
+    .highlight {
+        background-color: #ffd700;
+        padding: 2px 4px;
+        border-radius: 3px;
+        font-weight: bold;
+    }
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav>
+    <a href="dashboard.html">Home</a>
+    <a href="about_us.html">About Us</a>
+    <a href="martyrs.html">Martyrs</a>
+    <a href="contact_us.html">Contact Us</a>
+</nav>
+
+<!-- Page Title -->
+<div class="title">Intelligent Case Search</div>
+
+<!-- Search Section -->
+<div class="search-container">
+    <div class="search-box">
+        <input type="text" id="searchInput" class="search-input" 
+               placeholder="Enter keywords: robbery, assault, theft, suspect description, location...">
+        <button class="search-btn" onclick="performSearch()">🔍 Search Cases</button>
+    </div>
+    
+    <div class="filters">
+        <select id="categoryFilter" class="filter-select">
+            <option value="">All Categories</option>
+            <option value="Murder">Murder</option>
+            <option value="Theft">Theft</option>
+            <option value="Assault">Assault</option>
+            <option value="Fraud">Fraud</option>
+            <option value="Drugs">Drugs</option>
+        </select>
+        
+        <select id="statusFilter" class="filter-select">
+            <option value="">All Status</option>
+            <option value="Pending">Pending</option>
+            <option value="Arrested">Arrested</option>
+            <option value="Case Closed">Case Closed</option>
+        </select>
+        
+        <select id="priorityFilter" class="filter-select">
+            <option value="">All Priorities</option>
+            <option value="high">High Priority</option>
+            <option value="medium">Medium Priority</option>
+            <option value="low">Low Priority</option>
+        </select>
+        
+        <select id="sortBy" class="filter-select">
+            <option value="relevance">Sort by Relevance</option>
+            <option value="priority">Sort by Priority</option>
+            <option value="date">Sort by Date</option>
+            <option value="match">Sort by Match Score</option>
+        </select>
+    </div>
+</div>
+
+<!-- Results Section -->
+<div class="results-container">
+    <div class="results-stats" id="resultsStats">Enter keywords to search cases...</div>
+    <div id="searchResults"></div>
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+<script>
+    // Firebase Config
+    const firebaseConfig = {
+        apiKey: "AIzaSyBnMI6S8fig-fl8exIAt5tDz9qWWrWGHAM",
+        authDomain: "crime-management-fdd43.firebaseapp.com",
+        projectId: "crime-management-fdd43",
+        storageBucket: "crime-management-fdd43.firebasestorage.app",
+        messagingSenderId: "990509285734",
+        appId: "1:990509285734:web:4798f9666ff2dea537c8a7",
+        measurementId: "G-QTG266883M",
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // ML-powered Search Algorithm
+    class IntelligentSearch {
+        constructor() {
+            this.crimeKeywords = {
+                'theft': ['stolen', 'robbery', 'burglary', 'loot', 'snatch', 'pickpocket'],
+                'assault': ['attack', 'beat', 'violence', 'hurt', 'injure', 'weapon'],
+                'murder': ['kill', 'death', 'homicide', 'dead', 'weapon', 'knife'],
+                'fraud': ['cheat', 'scam', 'fake', 'forgery', 'duplicate', 'money'],
+                'drugs': ['narcotics', 'substance', 'addiction', 'peddling', 'smuggling'],
+                'cyber': ['hack', 'online', 'internet', 'computer', 'phishing', 'data']
+            };
+        }
+
+        // Calculate relevance score between search query and case data
+        calculateRelevanceScore(query, caseData) {
+            let score = 0;
+            const queryTerms = query.toLowerCase().split(' ');
+            
+            // Check category match
+            if (caseData.category && query.toLowerCase().includes(caseData.category.toLowerCase())) {
+                score += 30;
+            }
+            
+            // Check complaint text
+            if (caseData.complaint) {
+                const complaint = caseData.complaint.toLowerCase();
+                queryTerms.forEach(term => {
+                    if (complaint.includes(term)) {
+                        score += 20;
+                        // Bonus for multiple occurrences
+                        const occurrences = (complaint.match(new RegExp(term, 'g')) || []).length;
+                        score += Math.min(occurrences * 5, 15);
+                    }
+                });
+            }
+            
+            // Check victim details
+            if (caseData.victimName && query.toLowerCase().includes(caseData.victimName.toLowerCase())) {
+                score += 25;
+            }
+            
+            // Check criminal details
+            if (caseData.criminalDetails) {
+                const criminalName = caseData.criminalDetails.cName || '';
+                if (criminalName && query.toLowerCase().includes(criminalName.toLowerCase())) {
+                    score += 25;
+                }
+                
+                // Check criminal description
+                const criminalMarks = caseData.criminalDetails.cMarks || '';
+                if (criminalMarks) {
+                    queryTerms.forEach(term => {
+                        if (criminalMarks.toLowerCase().includes(term)) {
+                            score += 15;
+                        }
+                    });
+                }
+            }
+            
+            // Check suspect details
+            if (caseData.suspectDetails) {
+                const suspectName = caseData.suspectDetails.sName || '';
+                if (suspectName && query.toLowerCase().includes(suspectName.toLowerCase())) {
+                    score += 20;
+                }
+            }
+            
+            // Check location patterns
+            if (caseData.victimAddress) {
+                queryTerms.forEach(term => {
+                    if (caseData.victimAddress.toLowerCase().includes(term)) {
+                        score += 10;
+                    }
+                });
+            }
+            
+            // Semantic keyword matching
+            queryTerms.forEach(term => {
+                Object.keys(this.crimeKeywords).forEach(crimeType => {
+                    if (this.crimeKeywords[crimeType].includes(term)) {
+                        if (caseData.category && caseData.category.toLowerCase().includes(crimeType)) {
+                            score += 15;
+                        }
+                    }
+                });
+            });
+            
+            return Math.min(score, 100);
+        }
+
+        // Calculate priority score based on case factors
+        calculatePriorityScore(caseData) {
+            let priorityScore = 50; // Base score
+            
+            // Status-based priority
+            if (caseData.status === 'Pending') priorityScore += 20;
+            if (caseData.status === 'Arrested') priorityScore += 10;
+            
+            // Crime type severity
+            const severityWeights = {
+                'Murder': 30,
+                'Assault': 25,
+                'Theft': 15,
+                'Fraud': 10,
+                'Harassment': 20
+            };
+            priorityScore += severityWeights[caseData.category] || 10;
+            
+            // Time sensitivity (recent cases get higher priority)
+            if (caseData.date) {
+                const caseDate = new Date(caseData.date);
+                const daysOld = (new Date() - caseDate) / (1000 * 60 * 60 * 24);
+                if (daysOld < 7) priorityScore += 15;
+                else if (daysOld < 30) priorityScore += 5;
+            }
+            
+            // Criminal known - higher priority for identified criminals
+            if (caseData.criminalKnown === 'Yes') priorityScore += 10;
+            
+            return Math.min(priorityScore, 100);
+        }
+
+        // Get priority level from score
+        getPriorityLevel(score) {
+            if (score >= 70) return 'high';
+            if (score >= 40) return 'medium';
+            return 'low';
+        }
+
+        // Highlight matching keywords in text
+        highlightKeywords(text, query) {
+            if (!text || !query) return text;
+            
+            const queryTerms = query.toLowerCase().split(' ');
+            let highlightedText = text;
+            
+            queryTerms.forEach(term => {
+                if (term.length > 2) { // Only highlight terms with 3+ characters
+                    const regex = new RegExp(`(${term})`, 'gi');
+                    highlightedText = highlightedText.replace(regex, '<span class="highlight">$1</span>');
+                }
+            });
+            
+            return highlightedText;
+        }
+    }
+
+    const searchEngine = new IntelligentSearch();
+
+    // Perform search
+    async function performSearch() {
+        const query = document.getElementById('searchInput').value.trim();
+        const categoryFilter = document.getElementById('categoryFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+        const priorityFilter = document.getElementById('priorityFilter').value;
+        const sortBy = document.getElementById('sortBy').value;
+        
+        if (!query) {
+            alert('Please enter search keywords');
+            return;
+        }
+
+        showLoading();
+        
+        try {
+            const snapshot = await db.collection('firs').get();
+            const allCases = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            
+            // Process and filter cases
+            const processedCases = allCases.map(caseData => {
+                const relevanceScore = searchEngine.calculateRelevanceScore(query, caseData);
+                const priorityScore = searchEngine.calculatePriorityScore(caseData);
+                const priorityLevel = searchEngine.getPriorityLevel(priorityScore);
+                
+                return {
+                    ...caseData,
+                    relevanceScore,
+                    priorityScore,
+                    priorityLevel,
+                    combinedScore: (relevanceScore * 0.7) + (priorityScore * 0.3)
+                };
+            });
+            
+            // Filter cases
+            let filteredCases = processedCases.filter(caseData => 
+                caseData.relevanceScore > 0 && // Only show relevant cases
+                (!categoryFilter || caseData.category === categoryFilter) &&
+                (!statusFilter || caseData.status === statusFilter) &&
+                (!priorityFilter || caseData.priorityLevel === priorityFilter)
+            );
+            
+            // Sort cases
+            switch (sortBy) {
+                case 'relevance':
+                    filteredCases.sort((a, b) => b.relevanceScore - a.relevanceScore);
+                    break;
+                case 'priority':
+                    filteredCases.sort((a, b) => b.priorityScore - a.priorityScore);
+                    break;
+                case 'date':
+                    filteredCases.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    break;
+                case 'match':
+                    filteredCases.sort((a, b) => b.combinedScore - a.combinedScore);
+                    break;
+            }
+            
+            displayResults(filteredCases, query);
+            
+        } catch (error) {
+            console.error('Search error:', error);
+            document.getElementById('searchResults').innerHTML = 
+                '<div class="no-results">Error searching cases. Please try again.</div>';
+        }
+    }
+
+    function showLoading() {
+        document.getElementById('searchResults').innerHTML = `
+            <div class="loading">
+                <div class="spinner"></div>
+                <div>Analyzing cases with intelligent search...</div>
+            </div>
+        `;
+    }
+
+    function displayResults(cases, query) {
+        const resultsContainer = document.getElementById('searchResults');
+        const statsContainer = document.getElementById('resultsStats');
+        
+        if (cases.length === 0) {
+            resultsContainer.innerHTML = `
+                <div class="no-results">
+                    <h3>No matching cases found</h3>
+                    <p>Try different keywords or adjust filters</p>
+                </div>
+            `;
+            statsContainer.textContent = '0 cases found';
+            return;
+        }
+        
+        statsContainer.textContent = `Found ${cases.length} cases matching "${query}"`;
+        
+        let resultsHTML = '';
+        
+        cases.forEach((caseData, index) => {
+            const highlightedComplaint = searchEngine.highlightKeywords(caseData.complaint || '', query);
+            const highlightedCategory = searchEngine.highlightKeywords(caseData.category || '', query);
+            
+            resultsHTML += `
+                <div class="case-card ${caseData.priorityLevel}-priority">
+                    <div class="case-header">
+                        <h3 class="case-title">${caseData.refID || caseData.refNo} - ${caseData.category}</h3>
+                        <div class="priority-badge priority-${caseData.priorityLevel}">
+                            ${caseData.priorityLevel.toUpperCase()} PRIORITY
+                        </div>
+                    </div>
+                    
+                    <div class="case-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Victim:</span> ${caseData.victimName || 'N/A'}
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Date:</span> ${caseData.date || 'N/A'}
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Status:</span> ${caseData.status || 'Pending'}
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Category:</span> ${highlightedCategory}
+                        </div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <span class="detail-label">Complaint:</span> 
+                        ${highlightedComplaint || 'No details available'}
+                    </div>
+                    
+                    ${caseData.criminalDetails && caseData.criminalDetails.cName ? `
+                    <div class="detail-item">
+                        <span class="detail-label">Criminal:</span> 
+                        ${caseData.criminalDetails.cName} (Age: ${caseData.criminalDetails.cAge || 'N/A'})
+                    </div>
+                    ` : ''}
+                    
+                    <div class="match-score">
+                        <div>Relevance: ${Math.round(caseData.relevanceScore)}%</div>
+                        <div class="score-bar">
+                            <div class="score-fill" style="width: ${caseData.relevanceScore}%"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        resultsContainer.innerHTML = resultsHTML;
+    }
+
+    // Enable search on Enter key
+    document.getElementById('searchInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            performSearch();
+        }
+    });
+
+    // Auto-search when filters change
+    document.getElementById('categoryFilter').addEventListener('change', performSearch);
+    document.getElementById('statusFilter').addEventListener('change', performSearch);
+    document.getElementById('priorityFilter').addEventListener('change', performSearch);
+    document.getElementById('sortBy').addEventListener('change', performSearch);
+</script>
+
+</body>
+</html>
