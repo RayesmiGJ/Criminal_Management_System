@@ -11,9 +11,8 @@
         }
         h2 {
             text-align: center;
-            padding: 15px;
-            background: #2c3e50;
-            color: white;
+            padding-top: 10px;
+            color: #1b2a49;
             margin: 0;
         }
         .container {
@@ -39,7 +38,7 @@
             text-align: left;
         }
         th {
-            background: #34495e;
+            background: #1b2a49;
             color: white;
         }
         tr:hover {
@@ -75,9 +74,34 @@
         .modal-header { font-weight: bold; margin-bottom: 10px; text-align:center; }
         .modal-footer { margin-top: 15px; text-align: right; }
         .input-field { margin-bottom: 10px; width: 100%; padding:5px; }
+
+         nav {
+        background-color: #1b2a49;
+        display: flex;
+        justify-content: center;
+        padding: 15px 0;
+    }
+    nav a {
+        color: #ffd700;
+        text-decoration: none;
+        margin: 0 20px;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    nav a:hover {
+        color: white;
+    }
     </style>
 </head>
 <body>
+    <nav>
+    <a href="home.html" class="active">Home</a>
+    <a href="about_us.html">About Us</a>
+    <a href="martyrs.html">Martyrs</a>
+    <a href="contact_us.html">Contact Us</a>
+</nav>
+
     <h2>View FIR Records</h2>
     <div class="container">
         <div class="search-filter">
