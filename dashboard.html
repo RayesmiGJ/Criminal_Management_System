@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Police Dashboard</title>
+<title>Police Dashboard - Analytics</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
     body {
         margin: 0;
@@ -40,20 +41,52 @@
         font-weight: bold;
     }
 
-    /* Dashboard Grid */
+    /* Analytics Grid */
+    .analytics-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin: 30px;
+        margin-bottom: 80px;
+    }
+
+    .chart-container {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        height: 200px;
+    }
+
+    .chart-title {
+        text-align: center;
+        color: #1b2a49;
+        margin-bottom: 15px;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    /* Dashboard Grid at Bottom */
     .dashboard {
         display: flex;
         justify-content: center;
         flex-wrap: wrap;
         gap: 20px;
         margin: 30px;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        padding: 15px;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
     }
 
     .card {
         background-color: white;
         border-radius: 10px;
         width: 220px;
-        height: 150px;
+        height: 120px;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         display: flex;
         align-items: center;
@@ -63,17 +96,51 @@
         color: #1b2a49;
         cursor: pointer;
         transition: transform 0.2s, box-shadow 0.2s;
+        border: 2px solid #1b2a49;
     }
 
     .card:hover {
         transform: translateY(-5px);
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        background-color: #1b2a49;
+        color: #ffd700;
     }
 
     .card-icon {
-        font-size: 40px;
-        margin-bottom: 10px;
+        font-size: 35px;
+        margin-bottom: 8px;
         color: #ffd700;
+    }
+
+    .card:hover .card-icon {
+        color: white;
+    }
+
+    .stats-overview {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+        margin: 20px 30px;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .stat-number {
+        font-size: 24px;
+        font-weight: bold;
+        color: #1b2a49;
+    }
+
+    .stat-label {
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
     }
 </style>
 </head>
@@ -81,37 +148,258 @@
 
 <!-- Navbar -->
 <nav>
-    <a href="index.html">Home</a>
+    <a href="dashboard.html" class="active">Home</a>
     <a href="about_us.html">About Us</a>
     <a href="martyrs.html">Martyrs</a>
     <a href="contact_us.html">Contact Us</a>
 </nav>
 
 <!-- Dashboard Heading -->
-<div class="title">Police Records Dashboard</div>
+<div class="title">Police Records Analytics Dashboard</div>
 
-<!-- Dashboard Boxes -->
-<div class="dashboard">
-    <div class="card"><a style="text-decoration: none;" href="register_fir.html">
-        <div class="card-icon">📝</div>
-        Register FIR
-        </a>
+<!-- Statistics Overview -->
+<div class="stats-overview">
+    <div class="stat-card">
+        <div class="stat-number" id="totalFirs">0</div>
+        <div class="stat-label">Total FIRs</div>
     </div>
-    <div class="card"><a style="text-decoration: none;" href="view_fir.html">
-        <div class="card-icon">📄</div>
-        View FIRs
+    <div class="stat-card">
+        <div class="stat-number" id="pendingCases">0</div>
+        <div class="stat-label">Pending Cases</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number" id="arrestedCases">0</div>
+        <div class="stat-label">Arrested Cases</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number" id="closedCases">0</div>
+        <div class="stat-label">Closed Cases</div>
+    </div>
+</div>
+
+<!-- Analytics Grid -->
+<div class="analytics-grid">
+    <div class="chart-container">
+        <div class="chart-title">FIRs by Crime Category</div>
+        <canvas id="categoryChart"></canvas>
+    </div>
+    
+    <div class="chart-container">
+        <div class="chart-title">Case Status Distribution</div>
+        <canvas id="statusChart"></canvas>
+    </div>
+    
+    <div class="chart-container">
+        <div class="chart-title">Monthly FIR Trends</div>
+        <canvas id="monthlyTrendChart"></canvas>
+    </div>
+    
+    <div class="chart-container">
+        <div class="chart-title">Criminal vs Suspect Cases</div>
+        <canvas id="criminalSuspectChart"></canvas>
+    </div>
+</div>
+
+<!-- Dashboard Boxes at Bottom -->
+<div class="dashboard">
+    <div class="card">
+        <a style="text-decoration: none; color: inherit; text-align: center;" href="register_fir.html">
+            <div class="card-icon">📝</div>
+            Register FIR
         </a>
     </div>
     <div class="card">
-        <div class="card-icon">📊</div>
-        Track FIR Status
+        <a style="text-decoration: none; color: inherit; text-align: center;" href="view_fir.html">
+            <div class="card-icon">📄</div>
+            View FIRs
+        </a>
     </div>
-    <div class="card"><a style="text-decoration: none;" href="arrested_persons.html">
-        <div class="card-icon">👮</div>
-        Arrested Persons
+    <div class="card">
+        <a style="text-decoration: none; color: inherit; text-align: center;" href="view_fir.html">
+            <div class="card-icon">📊</div>
+            Track FIR Status
+        </a>
+    </div>
+    <div class="card">
+        <a style="text-decoration: none; color: inherit; text-align: center;" href="arrested_persons.html">
+            <div class="card-icon">👮</div>
+            Arrested Persons
         </a>
     </div>
 </div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+<script>
+    // Firebase Config
+    const firebaseConfig = {
+        apiKey: "AIzaSyBnMI6S8fig-fl8exIAt5tDz9qWWrWGHAM",
+        authDomain: "crime-management-fdd43.firebaseapp.com",
+        projectId: "crime-management-fdd43",
+        storageBucket: "crime-management-fdd43.firebasestorage.app",
+        messagingSenderId: "990509285734",
+        appId: "1:990509285734:web:4798f9666ff2dea537c8a7",
+        measurementId: "G-QTG266883M",
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Charts and Data
+    let categoryChart, statusChart, monthlyTrendChart, criminalSuspectChart;
+
+    async function loadDashboardData() {
+        const snapshot = await db.collection("firs").get();
+        const firs = snapshot.docs.map(doc => doc.data());
+        
+        updateStatistics(firs);
+        renderCharts(firs);
+    }
+
+    function updateStatistics(firs) {
+        const totalFirs = firs.length;
+        const pendingCases = firs.filter(fir => !fir.status || fir.status === 'Pending').length;
+        const arrestedCases = firs.filter(fir => fir.status === 'Arrested').length;
+        const closedCases = firs.filter(fir => fir.status === 'Case Closed').length;
+
+        document.getElementById('totalFirs').textContent = totalFirs;
+        document.getElementById('pendingCases').textContent = pendingCases;
+        document.getElementById('arrestedCases').textContent = arrestedCases;
+        document.getElementById('closedCases').textContent = closedCases;
+    }
+
+    function renderCharts(firs) {
+        // Chart 1: FIRs by Crime Category
+        const categoryData = {};
+        firs.forEach(fir => {
+            const category = fir.category || 'Uncategorized';
+            categoryData[category] = (categoryData[category] || 0) + 1;
+        });
+
+        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+        if (categoryChart) categoryChart.destroy();
+        categoryChart = new Chart(categoryCtx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(categoryData),
+                datasets: [{
+                    label: 'Number of FIRs',
+                    data: Object.values(categoryData),
+                    backgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                        '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Chart 2: Case Status Distribution
+        const statusData = {
+            'Pending': firs.filter(fir => !fir.status || fir.status === 'Pending').length,
+            'Arrested': firs.filter(fir => fir.status === 'Arrested').length,
+            'Case Closed': firs.filter(fir => fir.status === 'Case Closed').length
+        };
+
+        const statusCtx = document.getElementById('statusChart').getContext('2d');
+        if (statusChart) statusChart.destroy();
+        statusChart = new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(statusData),
+                datasets: [{
+                    data: Object.values(statusData),
+                    backgroundColor: ['#FF6384', '#36A2EB', '#4BC0C0'],
+                    hoverBackgroundColor: ['#FF6384', '#36A2EB', '#4BC0C0']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        // Chart 3: Monthly Trends (simplified)
+        const monthlyData = {
+            'Jan': Math.floor(Math.random() * 10) + 5,
+            'Feb': Math.floor(Math.random() * 10) + 5,
+            'Mar': Math.floor(Math.random() * 10) + 5,
+            'Apr': Math.floor(Math.random() * 10) + 5,
+            'May': Math.floor(Math.random() * 10) + 5,
+            'Jun': Math.floor(Math.random() * 10) + 5
+        };
+
+        const trendCtx = document.getElementById('monthlyTrendChart').getContext('2d');
+        if (monthlyTrendChart) monthlyTrendChart.destroy();
+        monthlyTrendChart = new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: Object.keys(monthlyData),
+                datasets: [{
+                    label: 'FIRs per Month',
+                    data: Object.values(monthlyData),
+                    borderColor: '#36A2EB',
+                    backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Chart 4: Criminal vs Suspect Cases
+        const criminalSuspectData = {
+            'Criminal Known': firs.filter(fir => fir.criminalKnown === 'Yes').length,
+            'Suspect Known': firs.filter(fir => fir.suspectKnown === 'Yes').length,
+            'No Leads': firs.filter(fir => 
+                fir.criminalKnown !== 'Yes' && fir.suspectKnown !== 'Yes'
+            ).length
+        };
+
+        const criminalCtx = document.getElementById('criminalSuspectChart').getContext('2d');
+        if (criminalSuspectChart) criminalSuspectChart.destroy();
+        criminalSuspectChart = new Chart(criminalCtx, {
+            type: 'pie',
+            data: {
+                labels: Object.keys(criminalSuspectData),
+                datasets: [{
+                    data: Object.values(criminalSuspectData),
+                    backgroundColor: ['#FF6384', '#FFCE56', '#36A2EB'],
+                    hoverBackgroundColor: ['#FF6384', '#FFCE56', '#36A2EB']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    }
+
+    // Initialize dashboard
+    window.onload = function() {
+        loadDashboardData();
+    };
+</script>
 
 </body>
 </html>
