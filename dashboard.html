@@ -44,6 +44,7 @@
     .charts-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        grid-template-columns: repeat(2, 1fr);
         gap: 25px;
         padding: 0 40px 40px 40px;
     }
@@ -171,19 +172,73 @@ function renderCharts(firs) {
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: 'white' } } } }
     });
 
-    // Chart 3: Monthly FIR Trends
-    const monthlyData = { 'Jan':0,'Feb':0,'Mar':0,'Apr':0,'May':0,'Jun':0 };
-    firs.forEach(f => {
-        const month = new Date(f.createdOn?.seconds*1000).toLocaleString('default',{month:'short'});
-        if(monthlyData[month] !== undefined) monthlyData[month]++;
-    });
-    const monthCtx = document.getElementById('monthlyTrendChart').getContext('2d');
-    if(monthlyTrendChart) monthlyTrendChart.destroy();
-    monthlyTrendChart = new Chart(monthCtx, {
-        type: 'line',
-        data: { labels: Object.keys(monthlyData), datasets:[{ label:'FIRs per Month', data:Object.values(monthlyData), borderColor:'#36A2EB', backgroundColor:'rgba(54,162,235,0.2)', tension:0.4, fill:true }] },
-        options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ beginAtZero:true, ticks:{ color:'white' } }, x:{ ticks:{ color:'white' } } }, plugins:{ legend:{ labels:{ color:'white' } } } }
-    });
+    // Chart 3: Monthly FIR Trends - FIXED VERSION
+const monthlyData = { 'Jan':0, 'Feb':0, 'Mar':0, 'Apr':0, 'May':0, 'Jun':0, 'Jul':0, 'Aug':0, 'Sep':0, 'Oct':0, 'Nov':0, 'Dec':0 };
+
+firs.forEach(f => {
+    let date;
+    
+    // Try different possible date fields
+    if (f.createdOn && f.createdOn.seconds) {
+        date = new Date(f.createdOn.seconds * 1000);
+    } else if (f.date) {
+        // If date is stored as string like "2024-01-15"
+        date = new Date(f.date);
+    } else if (f.timestamp && f.timestamp.seconds) {
+        date = new Date(f.timestamp.seconds * 1000);
+    } else {
+        return; // Skip if no date found
+    }
+    
+    // Only process valid dates
+    if (!isNaN(date.getTime())) {
+        const month = date.toLocaleString('default', { month: 'short' });
+        if (monthlyData[month] !== undefined) {
+            monthlyData[month]++;
+        }
+    }
+});
+
+const monthCtx = document.getElementById('monthlyTrendChart').getContext('2d');
+if(monthlyTrendChart) monthlyTrendChart.destroy();
+monthlyTrendChart = new Chart(monthCtx, {
+    type: 'line',
+    data: { 
+        labels: Object.keys(monthlyData), 
+        datasets: [{ 
+            label: 'FIRs per Month', 
+            data: Object.values(monthlyData), 
+            borderColor: '#36A2EB', 
+            backgroundColor: 'rgba(54,162,235,0.2)', 
+            tension: 0.4, 
+            fill: true,
+            pointBackgroundColor: '#36A2EB',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
+            pointRadius: 5
+        }] 
+    },
+    options: { 
+        responsive: true, 
+        maintainAspectRatio: false, 
+        scales: { 
+            y: { 
+                beginAtZero: true, 
+                ticks: { color: 'white' },
+                grid: { color: 'rgba(255,255,255,0.1)' }
+            }, 
+            x: { 
+                ticks: { color: 'white' },
+                grid: { color: 'rgba(255,255,255,0.1)' }
+            } 
+        }, 
+        plugins: { 
+            legend: { 
+                labels: { color: 'white' } 
+            } 
+        } 
+    }
+});
 
     // Chart 4: Criminal vs Suspect
     const criminalData = { 'Criminal Known':0, 'Suspect Known':0, 'No Leads':0 };
