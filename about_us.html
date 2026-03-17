@@ -1,205 +1,252 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>About Us</title>
-<style>
-    body {
-        margin: 0;
-        font-family: 'Segoe UI', Arial, sans-serif;
-        background-color: #eef1f6;
-        color: #333;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us | SecureCloud Records</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-bg: #0f172a;
+            --secondary-bg: #1e293b;
+            --accent-gold: #fbbf24;
+            --accent-blue: #38bdf8;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --card-glass: rgba(30, 41, 59, 0.7);
+        }
 
-    /* Menu Bar */
-    nav {
-        background-color: #1b2a49;
-        display: flex;
-        justify-content: center;
-        padding: 15px 0;
-    }
-    nav a {
-        color: #ffd700;
-        text-decoration: none;
-        margin: 0 20px;
-        font-weight: bold;
-        font-size: 16px;
-    }
-    nav a:hover {
-        color: white;
-    }
-    nav a.active {
-        text-decoration: underline;
-    }
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            background-image: radial-gradient(circle at top right, #1e293b 0%, #0f172a 100%);
+            background-attachment: fixed;
+        }
 
-    /* Main Container */
-    .container {
-        max-width: 1100px;
-        margin: 30px auto;
-        padding: 20px;
-    }
+        /* Navigation */
+        nav {
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(12px);
+            display: flex;
+            justify-content: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
 
-    h1 {
-        text-align: center;
-        color: #1b2a49;
-        font-size: 34px;
-        margin-bottom: 30px;
-    }
+        nav a {
+            color: var(--text-dim);
+            text-decoration: none;
+            margin: 0 20px;
+            font-weight: 600;
+            font-size: 15px;
+            transition: 0.3s;
+        }
 
-    /* Sections */
-    .section {
-        background: white;
-        padding: 20px;
-        margin-bottom: 25px;
-        border-left: 6px solid #1b2a49;
-        border-radius: 6px;
-        box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
-        transition: transform 0.2s ease-in-out;
-    }
-    .section:hover {
-        transform: scale(1.01);
-    }
-    .section h2 {
-        color: #1b2a49;
-        margin-bottom: 10px;
-    }
-    .section p {
-        line-height: 1.6;
-    }
+        nav a:hover, nav a.active {
+            color: var(--accent-gold);
+        }
 
-    /* Team Section */
-    .team {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 25px;
-        margin-top: 20px;
-    }
-    .member {
-        background: white;
-        border-radius: 10px;
-        padding: 15px;
-        width: 200px;
-        text-align: center;
-        box-shadow: 0px 3px 8px rgba(0,0,0,0.1);
-        transition: transform 0.3s, box-shadow 0.3s;
-    }
-    .member:hover {
-        transform: translateY(-5px);
-        box-shadow: 0px 5px 15px rgba(0,0,0,0.15);
-    }
-    .member img {
-        width: 100%;
-        height: 220px;
-        object-fit: cover;
-        border-radius: 8px;
-        margin-bottom: 10px;
-    }
-    .member h3 {
-        margin: 8px 0 4px;
-        color: #1b2a49;
-    }
-    .member p {
-        font-size: 14px;
-        color: #555;
-    }
+        /* Container */
+        .container {
+            max-width: 1000px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
 
-    /* Footer */
-    footer {
-        background-color: #1b2a49;
-        color: white;
-        text-align: center;
-        padding: 12px;
-        margin-top: 50px;
-    }
-</style>
+        h1 {
+            text-align: center;
+            font-size: 2.8rem;
+            margin-bottom: 40px;
+            background: linear-gradient(to right, #fff, var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Glass Sections */
+        .section {
+            background: var(--card-glass);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            margin-bottom: 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .section h2 {
+            color: var(--accent-blue);
+            font-size: 1.5rem;
+            margin-top: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 2px solid var(--accent-blue);
+            display: inline-block;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+        }
+
+        .section p, .section li {
+            line-height: 1.8;
+            color: var(--text-dim);
+            font-size: 1.05rem;
+        }
+
+        .title-text {
+            color: var(--accent-gold) !important;
+            font-size: 1.4rem !important;
+            font-weight: 700;
+        }
+
+        /* Team Grid */
+        .team {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .member {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: 0.3s ease;
+        }
+
+        .member:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-10px);
+            border-color: var(--accent-gold);
+        }
+
+        .member img {
+            width: 130px;
+            height: 130px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 3px solid var(--accent-blue);
+            margin-bottom: 15px;
+        }
+
+        .member h3 {
+            margin: 10px 0 5px;
+            font-size: 1.1rem;
+            color: var(--text-main);
+        }
+
+        .member p {
+            font-size: 0.85rem;
+            margin: 0;
+            color: var(--accent-blue);
+        }
+
+        .guide-card {
+            max-width: 500px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            text-align: left;
+        }
+
+        .guide-card img {
+            width: 150px;
+            height: 150px;
+            border-radius: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .guide-card { flex-direction: column; text-align: center; }
+            .section { padding: 20px; }
+        }
+    </style>
 </head>
 <body>
 
-<!-- Menu Bar -->
 <nav>
     <a href="home.html">Home</a>
-    <a href="about_us.html">About Us</a>
+    <a href="about_us.html" class="active">About Us</a>
     <a href="martyrs.html">Martyrs</a>
     <a href="contact_us.html">Contact Us</a>
 </nav>
 
-<!-- Main Content -->
 <div class="container">
-    <h1>About Us</h1>
+    <h1>About Our System</h1>
 
-    <div class="section">
-        <h2 style="text-align: center;font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;">Title</h2>
-        <p  style="text-align: center;font-family: 'Montserrat', sans-serif;font-size: 20px;
-      font-weight: 700;">SecureCloud Crime Records: Intelligent Multi-Agency Crime Data Management System</p>
+    <div class="section" style="text-align: center;">
+        <h2>Project Title</h2>
+        <p class="title-text">SecureCloud Crime Records</p>
+        <p>Intelligent Multi-Agency Crime Data Management System</p>
     </div>
 
     <div class="section">
-        <h2 style="text-align: center;font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;">Our Mission</h2>
-        <p style="text-align: center;font-family:Arial, Helvetica, sans-serif;">We aim to modernize police operations through a secure, cloud-based platform that improves data management, speeds up investigations, and promotes seamless collaboration between law enforcement agencies.</p>
+        <h2>Our Mission</h2>
+        <p>To revolutionize law enforcement through digital transformation. We provide a secure, scalable, and intelligent cloud platform that centralizes criminal data, speeds up judicial processes, and fosters real-time collaboration between local and federal agencies.</p>
     </div>
 
     <div class="section">
-        <h2 style="text-align: center;font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;">Our Vision</h2>
-        <p style="text-align: center;font-family:Arial, Helvetica, sans-serif;">To become a trusted technological backbone for law enforcement, enabling faster decisions, stronger coordination, and scalable solutions for future policing needs.</p>
+        <h2>System Architecture</h2>
+        [Image of cloud-based multi-agency police data management architecture]
+        <ul style="list-style-type: none; padding: 0;">
+            <li><i class="fas fa-check-circle" style="color: var(--accent-blue); margin-right: 10px;"></i> Full FIR Lifecycle Management</li>
+            <li><i class="fas fa-check-circle" style="color: var(--accent-blue); margin-right: 10px;"></i> Encrypted Cloud Storage</li>
+            <li><i class="fas fa-check-circle" style="color: var(--accent-blue); margin-right: 10px;"></i> Inter-Agency Data Synchronization</li>
+            <li><i class="fas fa-check-circle" style="color: var(--accent-blue); margin-right: 10px;"></i> Granular Role-Based Access Control</li>
+        </ul>
     </div>
 
     <div class="section">
-        <h2 style="text-align: center;font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;">Project Overview</h2>
-            <ul style="font-family:Arial, Helvetica, sans-serif;">
-                <li>Cloud-based system designed for police department use.</li>
-                <li>Centralizes FIR registration, case tracking, and data storage.</li>
-                <li>Improves Inter-Agency Collaboration</li>
-                <li>Ensures secure and authorized access to sensitive information.</li>
-                <li>Supports faster decision-making and crime prevention.</li>
-            </ul>
-    </div>
-
-    <div class="section">
-        <h2 style="text-align: center;font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;">Project Guide</h2>
-       <div class="team">
-            <div class="member" style="width: fit-content;">
-                <img style="width: fit-content;" src="hod.jpg" alt="Guide">
-                <h3 style="text-align: center;font-family:Arial, Helvetica, sans-serif;">Dr. P.R. SHEEBHA RANI</h3>
-                <p>B.E., M.E., M.B.A. Ph.D.<br>Assistant Professor & HOD<br>Department of Computer Science and Engineering</p>
-                
+        <h2 style="display: block; text-align: center;">Project Guide</h2>
+        <div class="member guide-card">
+            <img src="hod.jpg" alt="Dr. P.R. Sheebha Rani">
+            <div>
+                <h3>Dr. P.R. SHEEBHA RANI</h3>
+                <p style="color: var(--text-dim);">B.E., M.E., M.B.A. Ph.D.</p>
+                <p>Assistant Professor & HOD</p>
+                <p style="font-weight: 600;">Dept. of Computer Science & Engineering</p>
             </div>
-       </div>
+        </div>
     </div>
 
-
     <div class="section">
-        <h2 style="text-align: center;font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;">Team Members</h2>
-        <h2 style="text-align: center;font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;">Final Year CSE Students</h3>
+        <h2 style="display: block; text-align: center;">Development Team</h2>
         <div class="team">
             <div class="member">
-                <img src="safin.jpg" alt="Safin Mercey">
-                <h3 style="text-align: center;font-family:Arial, Helvetica, sans-serif;">Safin Mercey V J</h3>
-                <p>962222104104</p>
-                
+                <img src="safin.jpg" alt="Safin">
+                <h3>Safin Mercey V J</h3>
+                <p>ID: 962222104104</p>
             </div>
             <div class="member">
                 <img src="rayesmi.jpg" alt="Rayesmi">
-                <h3 style="text-align: center;font-family:Arial, Helvetica, sans-serif;">Rayesmi G J</h3>
-                <p>962222104091</p>
-                
+                <h3>Rayesmi G J</h3>
+                <p>ID: 962222104091</p>
             </div>
             <div class="member">
                 <img src="reshma.jpg" alt="Reshma">
-                <h3 style="text-align: center;font-family:Arial, Helvetica, sans-serif;">Reshma R</h3>
-                <p>962222104093</p>
-                
+                <h3>Reshma R</h3>
+                <p>ID: 962222104093</p>
             </div>
             <div class="member">
                 <img src="saniya.jpg" alt="Saniya">
-                <h3 style="text-align: center;font-family:Arial, Helvetica, sans-serif;">Saniya I S</h3>
-                <p>962222104108</p>
-               
+                <h3>Saniya I S</h3>
+                <p>ID: 962222104108</p>
             </div>
         </div>
     </div>
 </div>
+
+<footer style="text-align: center; padding: 40px; color: var(--text-dim); font-size: 0.9rem; border-top: 1px solid rgba(255,255,255,0.05);">
+    &copy; 2026 SecureCloud Crime Records. All Rights Reserved.
+</footer>
 
 </body>
 </html>

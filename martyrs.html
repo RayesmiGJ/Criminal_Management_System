@@ -1,248 +1,350 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Martyrs - Police Officers</title>
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f3f6fa;
-        margin: 0;
-        padding: 0;
-    }
-    h1 {
-        text-align: center;
-        color: #003366;
-        margin-top: 20px;
-    }
-    table {
-        width: 95%;
-        margin: 20px auto;
-        border-collapse: collapse;
-        background-color: white;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    th, td {
-        border: 1px solid #b3d1ff;
-        padding: 8px;
-        text-align: left;
-        vertical-align: top;
-    }
-    th {
-        background-color: #3399ff;
-        color: white;
-    }
-    img {
-        width: 70px;
-        height: auto;
-        border-radius: 4px;
-    }
-    .btn {
-        display: block;
-        width: fit-content;
-        margin: 10px auto;
-        padding: 8px 14px;
-        background-color: #3399ff;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 14px;
-    }
-    .btn:hover {
-        background-color: #2673cc;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Martyrs | Police Records Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-bg: #0f172a;
+            --secondary-bg: #1e293b;
+            --accent-gold: #fbbf24;
+            --accent-blue: #38bdf8;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --glass: rgba(30, 41, 59, 0.7);
+            --danger: #ef4444;
+        }
 
-    /* Modal Styles */
-    .modal {
-        display: none; 
-        position: fixed; 
-        z-index: 1000; 
-        padding-top: 100px; 
-        left: 0;
-        top: 0;
-        width: 100%; 
-        height: 100%; 
-        overflow: auto;
-        background-color: rgba(0,0,0,0.5);
-    }
-    .modal-content {
-        background-color: #fff;
-        margin: auto;
-        padding: 20px;
-        border: 1px solid #888;
-        width: 400px;
-        border-radius: 6px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    }
-    .close {
-        color: #aaa;
-        float: right;
-        font-size: 24px;
-        font-weight: bold;
-        cursor: pointer;
-    }
-    .modal-content input, .modal-content textarea {
-        width: 100%;
-        padding: 6px;
-        margin: 5px 0;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-    }
-    .modal-content button {
-        background-color: #3399ff;
-        color: white;
-        padding: 8px 12px;
-        border: none;
-        cursor: pointer;
-        margin-top: 10px;
-        border-radius: 4px;
-    }
-    .modal-content button:hover {
-        background-color: #2673cc;
-    }
-    nav {
-            background-color: #16213e;
-            padding: 10px 0;
-            text-align: center;
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            background-image: radial-gradient(circle at top right, #1e293b 0%, #0f172a 100%);
+            background-attachment: fixed;
+        }
+
+        /* Navigation */
+        nav {
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(12px);
+            display: flex;
+            justify-content: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
         nav a {
-            color: yellow;
-            font-weight: bold;
+            color: var(--text-dim);
             text-decoration: none;
             margin: 0 20px;
-            font-size: 16px;
+            font-weight: 600;
+            font-size: 15px;
+            transition: 0.3s;
         }
 
-        nav a:hover {
-            text-decoration: underline;
+        nav a:hover, nav a.active {
+            color: var(--accent-gold);
         }
 
-</style>
+        .header-section {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .header-section h1 {
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+            letter-spacing: 2px;
+            color: #fff;
+        }
+
+        .header-section small {
+            color: var(--accent-blue);
+            font-weight: 400;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+        }
+
+        /* Action Button */
+        .btn-container {
+            max-width: 95%;
+            margin: 0 auto 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--accent-blue), #0284c7);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
+        }
+
+        /* Table Styling */
+        .table-container {
+            width: 95%;
+            margin: 0 auto 50px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--accent-gold);
+            padding: 18px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        td {
+            padding: 15px 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            vertical-align: middle;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--text-main);
+        }
+
+        td img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid var(--accent-blue);
+        }
+
+        /* Modal Styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: var(--secondary-bg);
+            margin: 5% auto;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 20px;
+            border: 1px solid var(--accent-blue);
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            color: var(--text-dim);
+            font-size: 28px;
+            cursor: pointer;
+        }
+
+        .modal-content h3 {
+            color: var(--accent-gold);
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .modal-content label {
+            display: block;
+            margin: 10px 0 5px;
+            font-size: 0.85rem;
+            color: var(--accent-blue);
+        }
+
+        .modal-content input, .modal-content textarea {
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-family: 'Inter';
+        }
+
+        .modal-content input:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .table-container { overflow-x: auto; }
+            th, td { white-space: nowrap; }
+        }
+    </style>
 </head>
 <body>
+
     <nav>
         <a href="home.html">Home</a>
         <a href="about_us.html">About Us</a>
-        <a href="martyrs.html">Martyrs</a>
+        <a href="martyrs.html" class="active">Martyrs</a>
         <a href="contact_us.html">Contact Us</a>
     </nav>
 
-<h1>MARTYRS<br><small>Police Personnel who have laid their lives while on duty</small></h1>
+    <div class="header-section">
+        <h1>MARTYRS</h1>
+        <small>Honoring those who gave their lives in the line of duty</small>
+    </div>
 
-<button class="btn" id="openModalBtn">➕ Add Martyr</button>
+    <div class="btn-container">
+        <button class="btn" id="openModalBtn">
+            <i class="fas fa-plus"></i> Add Entry
+        </button>
+    </div>
 
-<table id="martyrsTable">
-    <thead>
-        <tr>
-            <th>S.No</th>
-            <th>Name</th>
-            <th>Rank</th>
-            <th>Date of Joining Force</th>
-            <th>Date of Martyrdom</th>
-            <th>Place of Martyrdom</th>
-            <th>Brief of Incident</th>
-            <th>Photo</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>1</td>
-            <td>J. Alagesan</td>
-            <td>Special Sub Inspector 1122 NHP-VI</td>
-            <td>09-06-1993</td>
-            <td>12-07-2021</td>
-            <td>Theni Government Medical College Hospital</td>
-            <td>Admitted to Uthampalayam Covid care centre on 04.07.2021... Succumbed to COVID-19.</td>
-            <td><img src="girl.png" alt="J. Alagesan"></td>
-             
-        </tr>
-    </tbody>
-</table>
-<!-- Modal -->
-<div id="myModal" class="modal">
-  <div class="modal-content">
-    <span class="close" id="closeModal">&times;</span>
-    <h3>Add Martyr</h3>
-    <form id="addMartyrForm">
+    <div class="table-container">
+        <table id="martyrsTable">
+            <thead>
+                <tr>
+                    <th>S.No</th>
+                    <th>Officer Details</th>
+                    <th>Rank</th>
+                    <th>Service Dates</th>
+                    <th>Martyrdom Info</th>
+                    <th>Incident Summary</th>
+                    <th>Photo</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td><strong>J. Alagesan</strong></td>
+                    <td>Special Sub Inspector</td>
+                    <td>Joined: 09-06-1993<br>Martyred: 12-07-2021</td>
+                    <td>Theni Government Medical College Hospital</td>
+                    <td style="max-width: 300px;">Succumbed to COVID-19 while assigned to Uthampalayam Covid care centre.</td>
+                    <td><img src="girl.png" alt="J. Alagesan"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <h3><i class="fas fa-ribbon"></i> Add New Record</h3>
+            <form id="addMartyrForm">
+                <label>Officer Name</label>
+                <input type="text" id="name" placeholder="Full Name" required>
+
+                <label>Rank</label>
+                <input type="text" id="rank" placeholder="Designation" required>
+
+                <div style="display: flex; gap: 10px;">
+                    <div style="flex: 1;">
+                        <label>Date of Joining</label>
+                        <input type="date" id="joinDate" required>
+                    </div>
+                    <div style="flex: 1;">
+                        <label>Date of Martyrdom</label>
+                        <input type="date" id="martyrDate">
+                    </div>
+                </div>
+
+                <label>Place of Incident</label>
+                <input type="text" id="place" placeholder="City / Facility" required>
+
+                <label>Brief of Incident</label>
+                <textarea id="incident" rows="3" placeholder="Description of the event..." required></textarea>
+
+                <label>Photo Upload</label>
+                <input type="file" id="photo" accept="image/*" style="padding: 8px;">
+
+                <button type="submit" class="btn" style="width: 100%; margin-top: 20px; justify-content: center;">
+                    Submit Record
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById("myModal");
+        const openModalBtn = document.getElementById("openModalBtn");
+        const closeModal = document.getElementById("closeModal");
+        const form = document.getElementById("addMartyrForm");
+        const tableBody = document.querySelector('#martyrsTable tbody');
+
+        openModalBtn.onclick = () => modal.style.display = "block";
+        closeModal.onclick = () => modal.style.display = "none";
         
-        <label for="name">Name</label>
-        <input type="text" id="name" placeholder="Enter Name" required>
-
-        <label for="rank">Rank</label>
-        <input type="text" id="rank" placeholder="Enter Rank" required>
-
-        <label for="joinDate">Date of Joining Force</label>
-        <input type="date" id="joinDate" required>
-
-        <label for="martyrDate">Date of Martyrdom</label>
-        <input type="date" id="martyrDate">
-
-        <label for="place">Place of Martyrdom</label>
-        <input type="text" id="place" placeholder="Enter Place of Martyrdom" required>
-
-        <label for="incident">Brief of Incident</label>
-        <textarea id="incident" placeholder="Enter Brief of Incident" required></textarea>
-
-        <label for="photo">Upload Photo</label>
-        <input type="file" id="photo" accept="image/*">
-
-        <button type="submit">Add to List</button>
-    </form>
-  </div>
-</div>
-<script>
-    const modal = document.getElementById("myModal");
-    const openModalBtn = document.getElementById("openModalBtn");
-    const closeModal = document.getElementById("closeModal");
-    const form = document.getElementById("addMartyrForm");
-    const tableBody = document.getElementById('martyrsTable').getElementsByTagName('tbody')[0];
-
-    openModalBtn.onclick = function() {
-        modal.style.display = "block";
-    }
-
-    document.getElementById("closeModal").onclick = function() {
-        modal.style.display = "none";
-    }
-
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
+        window.onclick = (e) => {
+            if (e.target == modal) modal.style.display = "none";
         }
-    }
 
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
 
-        const name = document.getElementById('name').value;
-        const rank = document.getElementById('rank').value;
-        const joinDate = document.getElementById('joinDate').value;
-        const martyrDate = document.getElementById('martyrDate').value;
-        const place = document.getElementById('place').value;
-        const incident = document.getElementById('incident').value;
-        const photo = document.getElementById('photo').value || 'placeholder.jpg';
+            const name = document.getElementById('name').value;
+            const rank = document.getElementById('rank').value;
+            const joinDate = document.getElementById('joinDate').value;
+            const martyrDate = document.getElementById('martyrDate').value;
+            const place = document.getElementById('place').value;
+            const incident = document.getElementById('incident').value;
 
-        const newRow = tableBody.insertRow();
-        newRow.insertCell(0).innerText = tableBody.rows.length;
-        newRow.insertCell(1).innerText = name;
-        newRow.insertCell(2).innerText = rank;
-        newRow.insertCell(3).innerText = joinDate;
-        newRow.insertCell(4).innerText = martyrDate;
-        newRow.insertCell(5).innerText = place;
-        newRow.insertCell(6).innerText = incident;
-        const imgCell = newRow.insertCell(7);
-        const img = document.createElement('img');
-        img.src = photo;
-        img.alt = name;
-        imgCell.appendChild(img);
+            const newRow = tableBody.insertRow();
+            newRow.innerHTML = `
+                <td>${tableBody.rows.length}</td>
+                <td><strong>${name}</strong></td>
+                <td>${rank}</td>
+                <td>Joined: ${joinDate}<br>Martyred: ${martyrDate}</td>
+                <td>${place}</td>
+                <td style="max-width: 300px;">${incident}</td>
+                <td><img src="placeholder.jpg" alt="${name}"></td>
+            `;
 
-        form.reset();
-        modal.style.display = "none";
-    });
-</script>
-
+            form.reset();
+            modal.style.display = "none";
+        });
+    </script>
 </body>
 </html>

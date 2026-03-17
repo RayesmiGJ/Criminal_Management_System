@@ -1,221 +1,255 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Contact Us - Police Department</title>
-<style>
-    body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background-color: #f4f6f9;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us | SecureCloud Records</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-bg: #0f172a;
+            --secondary-bg: #1e293b;
+            --accent-gold: #fbbf24;
+            --accent-blue: #38bdf8;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --glass: rgba(30, 41, 59, 0.7);
+            --emergency-red: #f87171;
+        }
 
-    /* Menu Bar */
-    nav {
-        background-color: #1b2a49;
-        display: flex;
-        justify-content: center;
-        padding: 15px 0;
-    }
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            background-image: radial-gradient(circle at top right, #1e293b 0%, #0f172a 100%);
+            background-attachment: fixed;
+        }
 
-    nav a {
-        color: #ffd700;
-        text-decoration: none;
-        margin: 0 20px;
-        font-weight: bold;
-        font-size: 16px;
-    }
+        /* Navigation */
+        nav {
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(12px);
+            display: flex;
+            justify-content: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
 
-    nav a:hover {
-        color: white;
-    }
+        nav a {
+            color: var(--text-dim);
+            text-decoration: none;
+            margin: 0 20px;
+            font-weight: 600;
+            font-size: 15px;
+            transition: 0.3s;
+        }
 
-    /* Page Title */
-    .title {
-        text-align: center;
-        color: #1b2a49;
-        margin: 20px 0;
-        font-size: 26px;
-        font-weight: bold;
-    }
+        nav a:hover, nav a.active {
+            color: var(--accent-gold);
+        }
 
-    /* Contact Table */
-    .contact-container {
-        max-width: 800px;
-        background: white;
-        padding: 20px;
-        margin: auto;
-        border-radius: 8px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
+        /* Header */
+        .header-section {
+            text-align: center;
+            padding: 50px 20px 30px;
+        }
 
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
+        .header-section h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #fff, var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-    th, td {
-        padding: 12px;
-        border-bottom: 1px solid #ddd;
-        text-align: left;
-    }
+        .header-section p {
+            color: var(--text-dim);
+            font-size: 1.1rem;
+        }
 
-    th {
-        background-color: #1b2a49;
-        color: white;
-    }
+        /* Contact Table Styling */
+        .contact-container {
+            max-width: 900px;
+            margin: 0 auto 60px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
 
-    tr:hover {
-        background-color: #f1f1f1;
-    }
-    .icons a {
-        margin-left: 10px;
-        color: #1b2a49;
-        text-decoration: none;
-        font-size: 18px;
-    }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
 
-    .icons a:hover {
-        color: green;
-    }
-</style>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+        th {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--accent-gold);
+            text-align: left;
+            padding: 20px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        td {
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(56, 189, 248, 0.05);
+            color: #fff;
+        }
+
+        /* Helpline link styling */
+        .helpline-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            background: rgba(56, 189, 248, 0.1);
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+
+        .helpline-link:hover {
+            background: var(--accent-blue);
+            color: var(--primary-bg);
+            transform: scale(1.05);
+        }
+
+        .service-icon {
+            margin-right: 15px;
+            width: 25px;
+            text-align: center;
+            color: var(--text-dim);
+        }
+
+        tr:hover .service-icon {
+            color: var(--accent-gold);
+        }
+
+        /* Specific highlights */
+        .emergency-row {
+            background: rgba(248, 113, 113, 0.05);
+        }
+
+        .emergency-row td .helpline-link {
+            color: var(--emergency-red);
+            background: rgba(248, 113, 113, 0.1);
+        }
+
+        .emergency-row td .helpline-link:hover {
+            background: var(--emergency-red);
+            color: white;
+        }
+
+        @media (max-width: 600px) {
+            .contact-container { width: 95%; }
+            th, td { padding: 12px; }
+            .helpline-link { font-size: 0.9rem; padding: 6px 10px; }
+        }
+    </style>
 </head>
 <body>
 
-<!-- Menu Bar -->
 <nav>
     <a href="home.html">Home</a>
     <a href="about_us.html">About Us</a>
     <a href="martyrs.html">Martyrs</a>
-    <a href="contact_us.html">Contact Us</a>
+    <a href="contact_us.html" class="active">Contact Us</a>
 </nav>
 
-<!-- Title -->
-<div class="title">Contact & Emergency Helpline Numbers (India)</div>
+<div class="header-section">
+    <h1>Emergency Directory</h1>
+    <p>Centralized Helpline Numbers for Citizen Safety and Law Enforcement</p>
+</div>
 
-<!-- Contact Information -->
 <div class="contact-container">
     <table>
-        <tr>
-            <th>Service</th>
-            <th>Helpline Number</th>
-        </tr>
-        <tr>
-            <td>National Emergency Number</td>
-            <td>
-                 <span class="icons">
-                    <a href="tel:112"><i class="fas fa-phone"></i> 112</a>
-                </span>
-            </td>
-        </tr>
-        <tr>
-            <td>Police</td>
-            <td>
-                <span class="icons">
-                    <a href="tel:100"><i class="fas fa-phone"></i> 100</a>
-                </span>
-            </td>
-        </tr>
-        <tr>
-            <td>Ambulance</td>
-            <td>
-                <span class="icons">
-                    <a href="tel:102"><i class="fas fa-phone"></i> 102</a>
-                </span>
-            </td>
-        </tr>
-        <tr>
-            <td>Fire</td>
-            <td>
-                <span class="icons">
-                    <a href="tel:101"><i class="fas fa-phone"></i> 101</a>
-                </span>
-            </td>
-        </tr>
-        <tr>
-            <td>Disaster Management</td>
-            <td>
-                 <span class="icons">
-                    <a href="tel:1078"><i class="fas fa-phone"></i> 1078</a>
-                </span>
-            </td>
-        </tr>
-        <tr>
-            <td>Women Helpline</td>
-            <td>
-                 <span class="icons">
-                    <a href="tel:1091"><i class="fas fa-phone"></i> 1091</a>
-                </span>
-            </td>
-        </tr>
-        <tr>
-            <td>Women Helpline (Domestic Abuse)</td>
-            <td>
-                 <span class="icons">
-                    <a href="tel:181"><i class="fas fa-phone"></i> 181</a>
-                </span>
-            </td>
-        </tr>
-        <tr>
-            <td>Child Helpline</td>
-            <td>
-                 <span class="icons">
-                    <a href="tel:1098"><i class="fas fa-phone"></i> 1098</a>
-                </span>
-            </td>
-        </tr>
-        <tr>
-            <td>Senior Citizen Helpline</td>
-            <td>
-                 <span class="icons">
-                    <a href="tel:14567"><i class="fas fa-phone"></i> 14567</a>
-                </span>
-            </td>
-        </tr>
-        <tr>
-            <td>Cyber Crime Helpline</td>
-            <td>
-                <span class="icons">
-                    <a href="tel:1930"><i class="fas fa-phone"></i> 1930</a>
-                </span>
-            </td>
-        </tr>
-        <tr>
-            <td>Anti-Terrorism Helpline</td>
-            <td>
-                <span class="icons">
-                    <a href="tel:1090"><i class="fas fa-phone"></i> 1090</a>
-                </span>
-            </td>
-        </tr>
-        <tr>
-            <td>Road Accident Emergency Service</td>
-            <td>
-                <span class="icons">
-                    <a href="tel:1073"><i class="fas fa-phone"></i> 1073</a>
-                </span>
-            </td>
-        </tr>
-        <tr>
-            <td>Railway Enquiry</td>
-            <td>
-                <span class="icons">
-                    <a href="tel:139"><i class="fas fa-phone"></i> 139</a>
-                </span>
-            </td>
-        </tr>
-        <tr>
-            <td>COVID-19 Helpline</td>
-            <td>
-                <span class="icons">
-                    <a href="tel:1075"><i class="fas fa-phone"></i> 1075</a>
-                </span>
-            </td>
-        </tr>
+        <thead>
+            <tr>
+                <th>Service Department</th>
+                <th>Emergency Helpline</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="emergency-row">
+                <td><i class="fas fa-star-of-life service-icon"></i><strong>National Emergency Number</strong></td>
+                <td><a href="tel:112" class="helpline-link"><i class="fas fa-phone-alt"></i> 112</a></td>
+            </tr>
+            <tr>
+                <td><i class="fas fa-shield-alt service-icon"></i>Police</td>
+                <td><a href="tel:100" class="helpline-link"><i class="fas fa-phone-alt"></i> 100</a></td>
+            </tr>
+            <tr>
+                <td><i class="fas fa-ambulance service-icon"></i>Ambulance</td>
+                <td><a href="tel:102" class="helpline-link"><i class="fas fa-phone-alt"></i> 102</a></td>
+            </tr>
+            <tr>
+                <td><i class="fas fa-fire-extinguisher service-icon"></i>Fire Department</td>
+                <td><a href="tel:101" class="helpline-link"><i class="fas fa-phone-alt"></i> 101</a></td>
+            </tr>
+            <tr>
+                <td><i class="fas fa-biohazard service-icon"></i>Disaster Management</td>
+                <td><a href="tel:1078" class="helpline-link"><i class="fas fa-phone-alt"></i> 1078</a></td>
+            </tr>
+            <tr>
+                <td><i class="fas fa-person-dress service-icon"></i>Women Helpline</td>
+                <td><a href="tel:1091" class="helpline-link"><i class="fas fa-phone-alt"></i> 1091</a></td>
+            </tr>
+            <tr>
+                <td><i class="fas fa-child service-icon"></i>Child Helpline</td>
+                <td><a href="tel:1098" class="helpline-link"><i class="fas fa-phone-alt"></i> 1098</a></td>
+            </tr>
+            <tr>
+                <td><i class="fas fa-user-clock service-icon"></i>Senior Citizen Helpline</td>
+                <td><a href="tel:14567" class="helpline-link"><i class="fas fa-phone-alt"></i> 14567</a></td>
+            </tr>
+            <tr>
+                <td><i class="fas fa-user-secret service-icon"></i>Cyber Crime Helpline</td>
+                <td><a href="tel:1930" class="helpline-link"><i class="fas fa-phone-alt"></i> 1930</a></td>
+            </tr>
+            <tr>
+                <td><i class="fas fa-mask service-icon"></i>Anti-Terrorism Helpline</td>
+                <td><a href="tel:1090" class="helpline-link"><i class="fas fa-phone-alt"></i> 1090</a></td>
+            </tr>
+            <tr>
+                <td><i class="fas fa-car-burst service-icon"></i>Road Accident Service</td>
+                <td><a href="tel:1073" class="helpline-link"><i class="fas fa-phone-alt"></i> 1073</a></td>
+            </tr>
+            <tr>
+                <td><i class="fas fa-train service-icon"></i>Railway Enquiry</td>
+                <td><a href="tel:139" class="helpline-link"><i class="fas fa-phone-alt"></i> 139</a></td>
+            </tr>
+        </tbody>
     </table>
 </div>
+
+<footer style="text-align: center; padding: 30px; color: var(--text-dim); font-size: 0.8rem; border-top: 1px solid rgba(255,255,255,0.05);">
+    In case of an immediate threat, please dial <strong>112</strong> immediately.
+</footer>
 
 </body>
 </html>

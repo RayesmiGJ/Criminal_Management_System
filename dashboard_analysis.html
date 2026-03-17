@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Intelligent Case Search | SecureCloud Portal</title>
+    <title>Pattern Analysis | SecureCloud Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -139,6 +139,9 @@
             font-size: 0.9rem;
             text-transform: uppercase;
             letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         /* Case Cards */
@@ -147,15 +150,15 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px;
             padding: 25px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             transition: 0.3s;
             position: relative;
-            overflow: hidden;
         }
 
         .case-card:hover {
-            transform: scale(1.01);
+            transform: translateY(-5px);
             border-color: var(--accent-blue);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
         }
 
         .case-card.high-priority { border-left: 5px solid var(--danger); }
@@ -170,7 +173,7 @@
         }
 
         .case-title {
-            font-size: 1.2rem;
+            font-size: 1.25rem;
             font-weight: 700;
             color: var(--text-main);
         }
@@ -181,31 +184,33 @@
             font-size: 10px;
             font-weight: 800;
             text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .priority-high { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
-        .priority-medium { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
-        .priority-low { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+        .priority-high { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid var(--danger); }
+        .priority-medium { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid var(--warning); }
+        .priority-low { background: rgba(34, 197, 94, 0.15); color: var(--success); border: 1px solid var(--success); }
 
         .case-details {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
             margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 10px;
         }
 
         .detail-item { font-size: 0.9rem; color: var(--text-dim); }
         .detail-label { color: var(--accent-blue); font-weight: 600; margin-right: 5px; }
 
         .complaint-box {
-            background: rgba(0, 0, 0, 0.2);
-            padding: 15px;
-            border-radius: 10px;
+            color: var(--text-main);
             font-size: 0.95rem;
             line-height: 1.6;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            padding-left: 10px;
+            border-left: 2px solid var(--accent-blue);
         }
 
         /* Match Score Section */
@@ -213,13 +218,16 @@
             display: flex;
             align-items: center;
             gap: 15px;
+            background: rgba(255,255,255,0.03);
+            padding: 10px 15px;
+            border-radius: 8px;
         }
 
         .score-text { font-size: 0.8rem; font-weight: 700; color: var(--accent-gold); white-space: nowrap; }
 
         .score-bar {
             flex: 1;
-            height: 6px;
+            height: 8px;
             background: #0b1120;
             border-radius: 10px;
             overflow: hidden;
@@ -227,8 +235,9 @@
 
         .score-fill {
             height: 100%;
-            background: linear-gradient(90deg, var(--accent-blue), var(--accent-gold));
-            box-shadow: 0 0 10px var(--accent-blue);
+            background: linear-gradient(90deg, var(--accent-blue), #60a5fa);
+            box-shadow: 0 0 15px var(--accent-blue);
+            transition: width 1s ease-out;
         }
 
         /* Loading */
@@ -244,12 +253,11 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .highlight {
-            background: rgba(251, 191, 36, 0.2);
-            color: var(--accent-gold);
-            padding: 2px 4px;
-            border-radius: 4px;
-            font-weight: 700;
-            border-bottom: 1px solid var(--accent-gold);
+            background: rgba(251, 191, 36, 0.3);
+            color: #fff;
+            padding: 0 4px;
+            border-radius: 2px;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -262,13 +270,13 @@
     <a href="contact_us.html">Contact Us</a>
 </nav>
 
-<div class="title">Intelligent Intelligence Search</div>
+<div class="title">Intelligent Pattern Analysis</div>
 
 <div class="search-container">
     <div class="search-box">
-        <input type="text" id="searchInput" class="search-input" placeholder="Search patterns: 'armed robbery', 'blue motorcycle', 'scar on left hand'...">
+        <input type="text" id="searchInput" class="search-input" placeholder="Query heuristic patterns: 'gang assault', 'night robbery', 'unidentified suspect'...">
         <button class="search-btn" onclick="performSearch()">
-            <i class="fas fa-microscope"></i> Analyze Cases
+            <i class="fas fa-satellite-dish"></i> Run Analysis
         </button>
     </div>
     
@@ -279,33 +287,33 @@
             <option value="Theft">Theft</option>
             <option value="Assault">Assault</option>
             <option value="Fraud">Fraud</option>
+            <option value="Harassment">Harassment</option>
         </select>
         
         <select id="statusFilter" class="filter-select">
             <option value="">All Status</option>
-            <option value="Pending">Pending</option>
-            <option value="Arrested">Arrested</option>
-            <option value="Case Closed">Case Closed</option>
+            <option value="Pending">Under Investigation</option>
+            <option value="Arrested">Suspect in Custody</option>
+            <option value="Case Closed">Judicially Closed</option>
         </select>
         
         <select id="priorityFilter" class="filter-select">
-            <option value="">Priority Level</option>
-            <option value="high">Critical</option>
-            <option value="medium">Standard</option>
-            <option value="low">Low Priority</option>
+            <option value="">Threat Level</option>
+            <option value="high">Critical Level</option>
+            <option value="medium">Standard Level</option>
+            <option value="low">Low Level</option>
         </select>
         
         <select id="sortBy" class="filter-select">
-            <option value="relevance">Relevance Pattern</option>
-            <option value="priority">Priority Score</option>
-            <option value="date">Registry Date</option>
+            <option value="relevance">Sort by Match %</option>
+            <option value="priority">Sort by Threat</option>
+            <option value="date">Sort by Incident Date</option>
         </select>
     </div>
 </div>
 
 <div class="results-container">
-    <div class="results-stats" id="resultsStats">System Ready: Awaiting Query...</div>
-    
+    <div class="results-stats" id="resultsStats"><i class="fas fa-info-circle"></i> Awaiting heuristic search input...</div>
     <div id="searchResults"></div>
 </div>
 
@@ -313,7 +321,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
 <script>
-    // Firebase Config (Preserved)
+    // Firebase Configuration
     const firebaseConfig = {
         apiKey: "AIzaSyBnMI6S8fig-fl8exIAt5tDz9qWWrWGHAM",
         authDomain: "crime-management-fdd43.firebaseapp.com",
@@ -327,114 +335,102 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // YOUR ORIGINAL SEARCH ENGINE CLASS (Preserved functionality)
-    class IntelligentSearch {
+    // Heuristic Engine Class
+    class HeuristicSearch {
         constructor() {
-            this.crimeKeywords = {
-                'theft': ['stolen', 'robbery', 'burglary', 'loot', 'snatch', 'pickpocket'],
-                'assault': ['attack', 'beat', 'violence', 'hurt', 'injure', 'weapon'],
-                'murder': ['kill', 'death', 'homicide', 'dead', 'weapon', 'knife'],
-                'fraud': ['cheat', 'scam', 'fake', 'forgery', 'duplicate', 'money'],
-                'cyber': ['hack', 'online', 'internet', 'computer', 'phishing', 'data']
+            this.keywords = {
+                'theft': ['stolen', 'snatched', 'burglary', 'stole', 'missing'],
+                'violence': ['weapon', 'attack', 'blood', 'gun', 'knife', 'shot'],
+                'cyber': ['hack', 'fraud', 'online', 'scam', 'transaction']
             };
         }
 
-        calculateRelevanceScore(query, caseData) {
+        calculateMatch(query, data) {
             let score = 0;
-            const queryTerms = query.toLowerCase().split(' ');
-            if (caseData.category && query.toLowerCase().includes(caseData.category.toLowerCase())) score += 30;
-            if (caseData.complaint) {
-                const complaint = caseData.complaint.toLowerCase();
-                queryTerms.forEach(term => {
-                    if (complaint.includes(term)) {
-                        score += 20;
-                        const count = (complaint.match(new RegExp(term, 'g')) || []).length;
-                        score += Math.min(count * 5, 15);
-                    }
-                });
-            }
-            if (caseData.victimName && query.toLowerCase().includes(caseData.victimName.toLowerCase())) score += 25;
+            const terms = query.toLowerCase().split(' ');
+            const content = (data.complaint + ' ' + data.category + ' ' + data.victimName).toLowerCase();
+            
+            terms.forEach(t => {
+                if (content.includes(t)) score += 25;
+            });
+            
             return Math.min(score, 100);
         }
 
-        calculatePriorityScore(caseData) {
-            let p = 50;
-            if (caseData.status === 'Pending') p += 20;
-            if (caseData.category === 'Murder') p += 30;
-            return Math.min(p, 100);
+        getPriority(data) {
+            if (data.category === 'Murder' || data.category === 'Assault') return {level: 'high', label: 'Critical Threat'};
+            if (data.status === 'Pending') return {level: 'medium', label: 'Active Case'};
+            return {level: 'low', label: 'Closed/Standard'};
         }
 
-        getPriorityLevel(score) {
-            if (score >= 70) return 'high';
-            if (score >= 40) return 'medium';
-            return 'low';
-        }
-
-        highlightKeywords(text, query) {
+        highlight(text, query) {
             if (!text || !query) return text;
-            const terms = query.toLowerCase().split(' ');
-            let h = text;
+            const terms = query.split(' ');
+            let result = text;
             terms.forEach(t => {
-                if (t.length > 2) {
+                if(t.length > 2) {
                     const regex = new RegExp(`(${t})`, 'gi');
-                    h = h.replace(regex, '<span class="highlight">$1</span>');
+                    result = result.replace(regex, '<span class="highlight">$1</span>');
                 }
             });
-            return h;
+            return result;
         }
     }
 
-    const engine = new IntelligentSearch();
+    const analyzer = new HeuristicSearch();
 
     async function performSearch() {
         const query = document.getElementById('searchInput').value.trim();
-        if (!query) return alert('Enter search parameters');
+        if (!query) return;
 
-        document.getElementById('searchResults').innerHTML = '<div class="loading"><div class="spinner"></div>Analyzing Database Patterns...</div>';
+        const resultsUI = document.getElementById('searchResults');
+        resultsUI.innerHTML = '<div class="loading"><div class="spinner"></div><p>Scanning Central Database...</p></div>';
         
         try {
             const snap = await db.collection('firs').get();
-            const cases = snap.docs.map(doc => {
+            const results = snap.docs.map(doc => {
                 const data = doc.data();
-                const rel = engine.calculateRelevanceScore(query, data);
-                const prioScore = engine.calculatePriorityScore(data);
-                return { ...data, relevanceScore: rel, priorityScore: prioScore, priorityLevel: engine.getPriorityLevel(prioScore) };
-            }).filter(c => c.relevanceScore > 0);
+                const score = analyzer.calculateMatch(query, data);
+                const prio = analyzer.getPriority(data);
+                return { ...data, score, prio };
+            }).filter(c => c.score > 0);
 
             // Sorting logic
             const sortBy = document.getElementById('sortBy').value;
-            cases.sort((a, b) => sortBy === 'date' ? new Date(b.date) - new Date(a.date) : b.relevanceScore - a.relevanceScore);
+            if(sortBy === 'relevance') results.sort((a,b) => b.score - a.score);
+            if(sortBy === 'date') results.sort((a,b) => new Date(b.date) - new Date(a.date));
 
-            displayResults(cases, query);
+            renderResults(results, query);
         } catch (e) {
-            document.getElementById('searchResults').innerHTML = '<p>Access Denied: Error connecting to SecureCloud.</p>';
+            resultsUI.innerHTML = '<p style="text-align:center; color:var(--danger);">Secure Connection Failed.</p>';
         }
     }
 
-    function displayResults(cases, query) {
-        const container = document.getElementById('searchResults');
-        document.getElementById('resultsStats').textContent = `Heuristic Analysis: ${cases.length} Match(es) Found`;
+    function renderResults(cases, query) {
+        const stats = document.getElementById('resultsStats');
+        const list = document.getElementById('searchResults');
+        stats.innerHTML = `<i class="fas fa-check-circle"></i> Heuristic scanning complete: ${cases.length} Match(es)`;
 
         if (cases.length === 0) {
-            container.innerHTML = '<div style="text-align:center; padding:50px; opacity:0.5;">NO MATCHING PATTERNS DETECTED</div>';
+            list.innerHTML = '<div style="text-align:center; padding:100px; opacity:0.3;">NO PATTERNS IDENTIFIED</div>';
             return;
         }
 
-        container.innerHTML = cases.map(c => `
-            <div class="case-card ${c.priorityLevel}-priority">
+        list.innerHTML = cases.map(c => `
+            <div class="case-card ${c.prio.level}-priority">
                 <div class="case-header">
-                    <h3 class="case-title"><i class="fas fa-shield-alt"></i> ${c.refID || c.refNo} — ${engine.highlightKeywords(c.category, query)}</h3>
-                    <div class="priority-badge priority-${c.priorityLevel}">${c.priorityLevel} Priority</div>
+                    <h3 class="case-title"><i class="fas fa-id-badge"></i> ${c.refID || c.refNo} — ${analyzer.highlight(c.category, query)}</h3>
+                    <div class="priority-badge priority-${c.prio.level}">${c.prio.label}</div>
                 </div>
                 <div class="case-details">
-                    <div class="detail-item"><span class="detail-label">Victim:</span> ${c.victimName}</div>
                     <div class="detail-item"><span class="detail-label">Registry:</span> ${c.date}</div>
-                    <div class="detail-item"><span class="detail-label">Status:</span> ${c.status || 'Pending'}</div>
+                    <div class="detail-item"><span class="detail-label">Complainant:</span> ${c.victimName}</div>
+                    <div class="detail-item"><span class="detail-label">Investigation:</span> ${c.status || 'Active'}</div>
                 </div>
-                <div class="complaint-box">${engine.highlightKeywords(c.complaint, query)}</div>
+                <div class="complaint-box">${analyzer.highlight(c.complaint, query)}</div>
                 <div class="match-score">
-                    <div class="score-text">Pattern Match: ${Math.round(c.relevanceScore)}%</div>
-                    <div class="score-bar"><div class="score-fill" style="width: ${c.relevanceScore}%"></div></div>
+                    <div class="score-text">Pattern Reliability: ${c.score}%</div>
+                    <div class="score-bar"><div class="score-fill" style="width: ${c.score}%"></div></div>
                 </div>
             </div>
         `).join('');

@@ -1,262 +1,285 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Police Analytics Dashboard</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-    body {
-        margin: 0;
-        font-family: 'Segoe UI', sans-serif;
-        background-color: #0b1a33;
-        color: white;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Police Analytics | SecureCloud Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-bg: #0f172a;
+            --secondary-bg: #1e293b;
+            --accent-gold: #fbbf24;
+            --accent-blue: #38bdf8;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --glass: rgba(30, 41, 59, 0.7);
+        }
 
-    nav {
-        background-color: #16294f;
-        display: flex;
-        justify-content: center;
-        padding: 15px 0;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    }
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            background-image: radial-gradient(circle at top right, #1e293b 0%, #0f172a 100%);
+            background-attachment: fixed;
+        }
 
-    nav a {
-        color: #ffd700;
-        text-decoration: none;
-        margin: 0 20px;
-        font-weight: bold;
-        font-size: 1rem;
-    }
+        /* Navbar */
+        nav {
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(12px);
+            display: flex;
+            justify-content: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky; top: 0; z-index: 1000;
+        }
 
-    nav a:hover, nav a.active {
-        color: #ffffff;
-    }
+        nav a {
+            color: var(--text-dim);
+            text-decoration: none;
+            margin: 0 20px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
 
-    .title {
-        text-align: center;
-        color: #6C63FF;
-        margin: 25px 0;
-        font-size: 2rem;
-        font-weight: bold;
-    }
+        nav a:hover, nav a.active { color: var(--accent-gold); }
 
-    .charts-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-        grid-template-columns: repeat(2, 1fr);
-        gap: 25px;
-        padding: 0 40px 40px 40px;
-    }
+        .title {
+            text-align: center;
+            padding: 40px 0 10px;
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #fff, var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-    .chart-card {
-        background-color: #16294f;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    }
+        .subtitle {
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+        }
 
-    .chart-card h3 {
-        text-align: center;
-        margin-bottom: 15px;
-        color: #ffd700;
-        font-size: 1.2rem;
-    }
+        /* Grid Layout */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 0 30px 50px 30px;
+        }
 
-    canvas {
-        width: 100% !important;
-        height: 300px !important;
-        border-radius: 8px;
-        background-color: #0b1a33;
-        padding: 10px;
-    }
-</style>
+        .chart-card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            transition: 0.3s;
+        }
+
+        .chart-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-blue);
+        }
+
+        .chart-card h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--accent-gold);
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        canvas {
+            width: 100% !important;
+            height: 300px !important;
+        }
+
+        @media (max-width: 900px) {
+            .charts-grid { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
 
 <nav>
-    
-    <a href="home.html" >Home</a>
+    <a href="home.html">Home</a>
     <a href="about_us.html">About Us</a>
     <a href="martyrs.html">Martyrs</a>
     <a href="contact_us.html">Contact Us</a>
 </nav>
 
-<div class="title">Police Analytics Dashboard</div>
+<div class="title">Command Center Analytics</div>
+<div class="subtitle">Live Intelligence & Data Visualization</div>
 
 <div class="charts-grid">
     <div class="chart-card">
-        <h3>FIRs by Crime Category</h3>
+        <h3><i class="fas fa-folder-open"></i> FIRs by Crime Category</h3>
         <canvas id="categoryChart"></canvas>
     </div>
+    
     <div class="chart-card">
-        <h3>Case Status Distribution</h3>
+        <h3><i class="fas fa-signal"></i> Case Status Distribution</h3>
         <canvas id="statusChart"></canvas>
     </div>
+
     <div class="chart-card">
-        <h3>Monthly FIR Trends</h3>
+        <h3><i class="fas fa-chart-line"></i> Monthly FIR Trends</h3>
         <canvas id="monthlyTrendChart"></canvas>
     </div>
+
     <div class="chart-card">
-        <h3>Criminal vs Suspect Cases</h3>
+        <h3><i class="fas fa-user-secret"></i> Intelligence Breakdown</h3>
         <canvas id="criminalSuspectChart"></canvas>
     </div>
 </div>
 
-<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 
 <script>
-const firebaseConfig = {
-    apiKey: "AIzaSyBnMI6S8fig-fl8exIAt5tDz9qWWrWGHAM",
-    authDomain: "crime-management-fdd43.firebaseapp.com",
-    projectId: "crime-management-fdd43",
-    storageBucket: "crime-management-fdd43.firebasestorage.app",
-    messagingSenderId: "990509285734",
-    appId: "1:990509285734:web:4798f9666ff2dea537c8a7",
-    measurementId: "G-QTG266883M"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
-let categoryChart, statusChart, monthlyTrendChart, criminalSuspectChart;
-
-async function loadDashboardData() {
-    const snapshot = await db.collection("firs").get();
-    const firs = snapshot.docs.map(doc => doc.data());
-    renderCharts(firs);
-}
-
-function renderCharts(firs) {
-    // Chart 1: FIRs by Category
-    const categoryData = {};
-    firs.forEach(fir => {
-        const cat = fir.category || 'Uncategorized';
-        categoryData[cat] = (categoryData[cat] || 0) + 1;
-    });
-    const catCtx = document.getElementById('categoryChart').getContext('2d');
-    if(categoryChart) categoryChart.destroy();
-    categoryChart = new Chart(catCtx, {
-        type: 'bar',
-        data: {
-            labels: Object.keys(categoryData),
-            datasets: [{
-                label: 'FIRs',
-                data: Object.values(categoryData),
-                backgroundColor: '#6C63FF'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { labels: { color: 'white' } } },
-            scales: {
-                x: { ticks: { color: 'white' } },
-                y: { ticks: { color: 'white' }, beginAtZero: true }
-            }
-        }
-    });
-
-    // Chart 2: Case Status
-    const statusData = {
-        'Pending': firs.filter(f => !f.status || f.status === 'Pending').length,
-        'Arrested': firs.filter(f => f.status === 'Arrested').length,
-        'Closed': firs.filter(f => f.status === 'Case Closed').length
+    // Firebase Config (Keep original)
+    const firebaseConfig = {
+        apiKey: "AIzaSyBnMI6S8fig-fl8exIAt5tDz9qWWrWGHAM",
+        authDomain: "crime-management-fdd43.firebaseapp.com",
+        projectId: "crime-management-fdd43",
+        storageBucket: "crime-management-fdd43.firebasestorage.app",
+        messagingSenderId: "990509285734",
+        appId: "1:990509285734:web:4798f9666ff2dea537c8a7",
+        measurementId: "G-QTG266883M"
     };
-    const statusCtx = document.getElementById('statusChart').getContext('2d');
-    if(statusChart) statusChart.destroy();
-    statusChart = new Chart(statusCtx, {
-        type: 'doughnut',
-        data: { labels: Object.keys(statusData), datasets: [{ data: Object.values(statusData), backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'] }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: 'white' } } } }
-    });
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-    // Chart 3: Monthly FIR Trends - FIXED VERSION
-const monthlyData = { 'Jan':0, 'Feb':0, 'Mar':0, 'Apr':0, 'May':0, 'Jun':0, 'Jul':0, 'Aug':0, 'Sep':0, 'Oct':0, 'Nov':0, 'Dec':0 };
+    let charts = {};
 
-firs.forEach(f => {
-    let date;
-    
-    // Try different possible date fields
-    if (f.createdOn && f.createdOn.seconds) {
-        date = new Date(f.createdOn.seconds * 1000);
-    } else if (f.date) {
-        // If date is stored as string like "2024-01-15"
-        date = new Date(f.date);
-    } else if (f.timestamp && f.timestamp.seconds) {
-        date = new Date(f.timestamp.seconds * 1000);
-    } else {
-        return; // Skip if no date found
+    async function loadDashboardData() {
+        const snapshot = await db.collection("firs").get();
+        const firs = snapshot.docs.map(doc => doc.data());
+        renderCharts(firs);
     }
-    
-    // Only process valid dates
-    if (!isNaN(date.getTime())) {
-        const month = date.toLocaleString('default', { month: 'short' });
-        if (monthlyData[month] !== undefined) {
-            monthlyData[month]++;
-        }
+
+    function renderCharts(firs) {
+        // Global Chart Defaults
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.font.family = "'Inter', sans-serif";
+
+        // 1. FIR Category Chart (Bar)
+        const catData = {};
+        firs.forEach(f => {
+            const c = f.category || 'Unknown';
+            catData[c] = (catData[c] || 0) + 1;
+        });
+        charts.cat = new Chart(document.getElementById('categoryChart'), {
+            type: 'bar',
+            data: {
+                labels: Object.keys(catData),
+                datasets: [{
+                    label: 'Records',
+                    data: Object.values(catData),
+                    backgroundColor: '#38bdf8',
+                    borderRadius: 10
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: { 
+                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // 2. Case Status Chart (Doughnut)
+        const statusData = {
+            'Pending': firs.filter(f => !f.status || f.status === 'Pending').length,
+            'Arrested': firs.filter(f => f.status === 'Arrested').length,
+            'Closed': firs.filter(f => f.status === 'Case Closed').length
+        };
+        charts.status = new Chart(document.getElementById('statusChart'), {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(statusData),
+                datasets: [{
+                    data: Object.values(statusData),
+                    backgroundColor: ['#ef4444', '#38bdf8', '#fbbf24'],
+                    borderWidth: 0,
+                    hoverOffset: 15
+                }]
+            },
+            options: {
+                cutout: '70%',
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+
+        // 3. Monthly Trend (Line)
+        const months = { 'Jan':0, 'Feb':0, 'Mar':0, 'Apr':0, 'May':0, 'Jun':0, 'Jul':0, 'Aug':0, 'Sep':0, 'Oct':0, 'Nov':0, 'Dec':0 };
+        firs.forEach(f => {
+            const date = f.date ? new Date(f.date) : null;
+            if (date && !isNaN(date.getTime())) {
+                months[date.toLocaleString('default', { month: 'short' })]++;
+            }
+        });
+        charts.trend = new Chart(document.getElementById('monthlyTrendChart'), {
+            type: 'line',
+            data: {
+                labels: Object.keys(months),
+                datasets: [{
+                    label: 'FIR Volume',
+                    data: Object.values(months),
+                    borderColor: '#fbbf24',
+                    backgroundColor: 'rgba(251, 191, 36, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#fbbf24'
+                }]
+            },
+            options: {
+                scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' } } }
+            }
+        });
+
+        // 4. Intelligence Breakdown (Pie)
+        const intel = { 'Criminal Known': 0, 'Suspect Identified': 0, 'Blind Cases': 0 };
+        firs.forEach(f => {
+            if(f.criminalKnown==='Yes') intel['Criminal Known']++;
+            else if(f.suspectKnown==='Yes') intel['Suspect Identified']++;
+            else intel['Blind Cases']++;
+        });
+        charts.intel = new Chart(document.getElementById('criminalSuspectChart'), {
+            type: 'pie',
+            data: {
+                labels: Object.keys(intel),
+                datasets: [{
+                    data: Object.values(intel),
+                    backgroundColor: ['#38bdf8', '#818cf8', '#334155'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
     }
-});
 
-const monthCtx = document.getElementById('monthlyTrendChart').getContext('2d');
-if(monthlyTrendChart) monthlyTrendChart.destroy();
-monthlyTrendChart = new Chart(monthCtx, {
-    type: 'line',
-    data: { 
-        labels: Object.keys(monthlyData), 
-        datasets: [{ 
-            label: 'FIRs per Month', 
-            data: Object.values(monthlyData), 
-            borderColor: '#36A2EB', 
-            backgroundColor: 'rgba(54,162,235,0.2)', 
-            tension: 0.4, 
-            fill: true,
-            pointBackgroundColor: '#36A2EB',
-            pointBorderColor: '#ffffff',
-            pointBorderWidth: 2,
-            pointRadius: 5
-        }] 
-    },
-    options: { 
-        responsive: true, 
-        maintainAspectRatio: false, 
-        scales: { 
-            y: { 
-                beginAtZero: true, 
-                ticks: { color: 'white' },
-                grid: { color: 'rgba(255,255,255,0.1)' }
-            }, 
-            x: { 
-                ticks: { color: 'white' },
-                grid: { color: 'rgba(255,255,255,0.1)' }
-            } 
-        }, 
-        plugins: { 
-            legend: { 
-                labels: { color: 'white' } 
-            } 
-        } 
-    }
-});
-
-    // Chart 4: Criminal vs Suspect
-    const criminalData = { 'Criminal Known':0, 'Suspect Known':0, 'No Leads':0 };
-    firs.forEach(f => {
-        if(f.criminalKnown==='Yes') criminalData['Criminal Known']++;
-        else if(f.suspectKnown==='Yes') criminalData['Suspect Known']++;
-        else criminalData['No Leads']++;
-    });
-    const crimCtx = document.getElementById('criminalSuspectChart').getContext('2d');
-    if(criminalSuspectChart) criminalSuspectChart.destroy();
-    criminalSuspectChart = new Chart(crimCtx, {
-        type: 'pie',
-        data:{ labels:Object.keys(criminalData), datasets:[{ data:Object.values(criminalData), backgroundColor:['#FF6384','#FFCE56','#36A2EB'] }] },
-        options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ labels:{ color:'white' } } } }
-    });
-}
-
-window.onload = loadDashboardData;
+    window.onload = loadDashboardData;
 </script>
 
 </body>
