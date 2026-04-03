@@ -6,7 +6,6 @@
     <title>Police Management System | Secure Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
         :root {
             --primary-bg: #0f172a;
@@ -17,7 +16,6 @@
             --text-dim: #94a3b8;
             --card-hover: #334155;
         }
-
         body {
             margin: 0;
             font-family: 'Inter', sans-serif;
@@ -26,10 +24,8 @@
             min-height: 100vh;
             background-image: radial-gradient(circle at top right, #1e293b 0%, #0f172a 100%);
         }
-
-        /* Modern Navigation */
         nav {
-            background: rgba(30, 41, 59, 0.8);
+            background: rgba(30, 41, 59, 0.95);
             backdrop-filter: blur(10px);
             display: flex;
             justify-content: space-between;
@@ -40,7 +36,6 @@
             top: 0;
             z-index: 1000;
         }
-
         .logo-area {
             font-weight: 700;
             font-size: 1.2rem;
@@ -50,12 +45,11 @@
             align-items: center;
             gap: 10px;
         }
-
         .nav-links {
             display: flex;
             gap: 2rem;
+            align-items: center;
         }
-
         .nav-links a {
             color: var(--text-dim);
             text-decoration: none;
@@ -63,32 +57,92 @@
             font-weight: 500;
             transition: 0.3s;
         }
-
-        .nav-links a:hover, .nav-links a.active {
-            color: var(--accent-blue);
-        }
-
-        /* Hero Section */
-        .header-section {
-            text-align: center;
-            padding: 50px 20px 20px;
-        }
-
-        .header-section h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            background: linear-gradient(to right, #fff, #94a3b8);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .header-section p {
+        .nav-links a:hover, .nav-links a.active { color: var(--accent-blue); }
+        .user-profile-container { position: relative; display: inline-block; }
+        .user-info {
             color: var(--text-dim);
-            font-size: 1.1rem;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 15px;
+            border-radius: 30px;
+            background: rgba(56, 189, 248, 0.1);
+            cursor: pointer;
+            transition: 0.3s;
         }
-
-        /* Responsive Grid */
+        .user-info:hover { background: rgba(56, 189, 248, 0.2); color: var(--accent-gold); }
+        .profile-tooltip {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 10px;
+            background: var(--secondary-bg);
+            border-radius: 16px;
+            width: 320px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--accent-blue);
+        }
+        .user-profile-container:hover .profile-tooltip {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .profile-header {
+            background: linear-gradient(135deg, var(--accent-blue), #0284c7);
+            padding: 20px;
+            text-align: center;
+            border-radius: 16px 16px 0 0;
+        }
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            border: 3px solid var(--accent-gold);
+        }
+        .profile-avatar i { font-size: 40px; color: white; }
+        .profile-header h4 { margin: 0; color: white; font-size: 1.1rem; }
+        .profile-header p { margin: 5px 0 0; color: rgba(255,255,255,0.9); font-size: 0.8rem; }
+        .profile-details { padding: 15px; }
+        .profile-detail-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .profile-detail-row i { width: 25px; color: var(--accent-gold); font-size: 0.9rem; }
+        .profile-detail-row .detail-label { color: var(--text-dim); font-size: 0.75rem; font-weight: 600; width: 80px; }
+        .profile-detail-row .detail-value { color: var(--text-main); font-size: 0.85rem; flex: 1; }
+        .profile-badge { background: rgba(56,189,248,0.2); padding: 5px 10px; border-radius: 20px; font-size: 0.7rem; color: var(--accent-blue); display: inline-block; margin-top: 10px; }
+        .logout-btn {
+            background: rgba(239,68,68,0.2);
+            color: #ef4444;
+            border: 1px solid #ef4444;
+            padding: 8px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+        }
+        .logout-btn:hover { background: #ef4444; color: white; transform: translateY(-2px); }
+        .header-section { text-align: center; padding: 50px 20px 20px; }
+        .header-section h1 { font-size: 2.5rem; margin-bottom: 10px; background: linear-gradient(to right, #fff, #94a3b8); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .header-section p { color: var(--text-dim); font-size: 1.1rem; }
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -97,23 +151,20 @@
             margin: 40px auto;
             padding: 0 30px;
         }
-
-        /* Card Styling */
         .card {
             background: var(--secondary-bg);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255,255,255,0.05);
             border-radius: 16px;
             padding: 40px 20px;
-            text-decoration: none;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
             position: relative;
             overflow: hidden;
+            cursor: pointer;
         }
-
         .card::before {
             content: "";
             position: absolute;
@@ -125,53 +176,21 @@
             transform: scaleX(0);
             transition: transform 0.4s;
         }
-
-        .card:hover {
-            transform: translateY(-10px);
-            background: var(--card-hover);
-            border-color: var(--accent-blue);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
-        }
-
-        .card:hover::before {
-            transform: scaleX(1);
-        }
-
-        .card-icon {
-            font-size: 45px;
-            margin-bottom: 15px;
-            color: var(--accent-blue);
-            transition: 0.3s;
-        }
-
-        .card:hover .card-icon {
-            color: var(--accent-gold);
-            transform: scale(1.1);
-        }
-
-        .card-title {
-            color: var(--text-main);
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-
-        /* Subtle Background Decoration */
-        .bg-glow {
-            position: fixed;
-            width: 300px;
-            height: 300px;
-            background: var(--accent-blue);
-            filter: blur(150px);
-            opacity: 0.05;
-            z-index: -1;
-            top: 10%;
-            left: 5%;
-        }
-
+        .card:hover { transform: translateY(-10px); background: var(--card-hover); border-color: var(--accent-blue); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); }
+        .card:hover::before { transform: scaleX(1); }
+        .card-icon { font-size: 45px; margin-bottom: 15px; color: var(--accent-blue); transition: 0.3s; }
+        .card:hover .card-icon { color: var(--accent-gold); transform: scale(1.1); }
+        .card-title { color: var(--text-main); font-size: 1.1rem; font-weight: 600; }
+        .bg-glow { position: fixed; width: 300px; height: 300px; background: var(--accent-blue); filter: blur(150px); opacity: 0.05; z-index: -1; top: 10%; left: 5%; }
         @media (max-width: 768px) {
             .nav-links { display: none; }
             .header-section h1 { font-size: 1.8rem; }
+            nav { justify-content: space-between; }
+            .profile-tooltip { right: -100px; width: 280px; }
+            .mobile-menu-btn { display: block; background: none; border: none; color: var(--text-main); font-size: 1.5rem; cursor: pointer; }
+            .nav-links.active { display: flex; flex-direction: column; position: absolute; top: 60px; left: 0; right: 0; background: var(--secondary-bg); padding: 20px; gap: 15px; }
         }
+        .mobile-menu-btn { display: none; }
     </style>
 </head>
 <body>
@@ -183,51 +202,272 @@
         <i class="fas fa-shield-halved"></i>
         <span>POLICE RECORDS</span>
     </div>
-    <div class="nav-links">
+    <div class="nav-links" id="navLinks">
         <a href="home.html" class="active">Home</a>
         <a href="about_us.html">About Us</a>
         <a href="martyrs.html">Martyrs</a>
         <a href="contact_us.html">Contact Us</a>
+        
+        <div class="user-profile-container">
+            <div class="user-info" id="userInfo">
+                <i class="fas fa-user-shield"></i>
+                <span id="userNameDisplay">Officer</span>
+                <i class="fas fa-chevron-down" style="font-size: 10px;"></i>
+            </div>
+            
+            <div class="profile-tooltip" id="profileTooltip">
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <h4 id="profileName">Loading...</h4>
+                    <p id="profileRank">Loading...</p>
+                </div>
+                <div class="profile-details" id="profileDetails"></div>
+            </div>
+        </div>
+        
+        <button class="logout-btn" id="logoutButton">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
     </div>
+    <button class="mobile-menu-btn" onclick="toggleMenu()">
+        <i class="fas fa-bars"></i>
+    </button>
 </nav>
 
 <div class="header-section">
-    <h1>Central Command Dashboard</h1>
+    <h1 id="welcomeTitle">Central Command Dashboard</h1>
     <p>Secure Management System for Law Enforcement Records</p>
 </div>
 
-<div class="dashboard-grid">
-    <a class="card" href="register_fir.html">
+<div class="dashboard-grid" id="dashboardGrid">
+    <div class="card" onclick="navigateTo('register_fir.html')">
         <i class="fa-solid fa-file-signature card-icon"></i>
         <span class="card-title">Register FIR</span>
-    </a>
-
-    <a class="card" href="view_fir.html">
+    </div>
+    <div class="card" onclick="navigateTo('view_fir.html')">
         <i class="fa-solid fa-folder-open card-icon"></i>
         <span class="card-title">View FIRs</span>
-    </a>
-
-    <a class="card" href="arrested_persons.html">
+    </div>
+    <div class="card" onclick="navigateTo('arrested_persons.html')">
         <i class="fa-solid fa-handcuffs card-icon"></i>
         <span class="card-title">Arrested Persons</span>
-    </a>
-
-    <a class="card" href="dashboard.html">
+    </div>
+    <div class="card" onclick="navigateTo('dashboard.html')">
         <i class="fa-solid fa-chart-line card-icon"></i>
         <span class="card-title">Analytics Dashboard</span>
-    </a>
-
-    <a class="card" href="search.html">
+    </div>
+    <div class="card" onclick="navigateTo('search.html')">
         <i class="fa-solid fa-magnifying-glass-chart card-icon"></i>
         <span class="card-title">Search Pattern</span>
-    </a>
-
-    <a class="card" href="crime_hotspot.html">
+    </div>
+    <div class="card" onclick="navigateTo('crime_hotspot.html')">
         <i class="fa-solid fa-map-marked-alt card-icon"></i>
         <span class="card-title">Crime Hotspots</span>
-    </a>
-
+    </div>
+    <!-- Audit logs card removed as requested -->
 </div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyBnMI6S8fig-fl8exIAt5tDz9qWWrWGHAM",
+        authDomain: "crime-management-fdd43.firebaseapp.com",
+        projectId: "crime-management-fdd43",
+        storageBucket: "crime-management-fdd43.appspot.com",
+        messagingSenderId: "990509285734",
+        appId: "1:990509285734:web:4798f9666ff2dea537c8a7"
+    };
+    
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+
+    let currentUser = null;
+    let userRole = null;
+
+    async function recordOfficerLogout(officerId) {
+        console.log("🔴 [LOGOUT] Starting logout recording for officerId:", officerId);
+        try {
+            const querySnapshot = await db.collection('officerLogs')
+                .where('officerId', '==', officerId)
+                .where('status', '==', 'active')
+                .get();
+            
+            console.log(`🔍 [LOGOUT] Found ${querySnapshot.size} active session(s)`);
+            
+            if (querySnapshot.empty) {
+                console.warn("⚠️ [LOGOUT] No active session found.");
+                return false;
+            }
+            
+            const doc = querySnapshot.docs[0];
+            const data = doc.data();
+            const loginTime = data.loginTime ? data.loginTime.toDate() : new Date();
+            const logoutTime = new Date();
+            const sessionDuration = Math.round((logoutTime - loginTime) / 1000 / 60);
+            
+            await db.collection('officerLogs').doc(doc.id).update({
+                logoutTime: firebase.firestore.FieldValue.serverTimestamp(),
+                status: 'loggedout',
+                sessionDuration: sessionDuration
+            });
+            console.log(`✅ [LOGOUT] Successfully updated session ${doc.id}. Duration: ${sessionDuration} minutes`);
+            return true;
+        } catch (error) {
+            console.error("❌ [LOGOUT] Error:", error);
+            return false;
+        }
+    }
+
+    async function handleLogout() {
+        console.log("🚪 [LOGOUT] Logout button clicked. User role:", userRole);
+        const logoutBtn = document.getElementById('logoutButton');
+        const originalHtml = logoutBtn.innerHTML;
+        logoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging out...';
+        logoutBtn.disabled = true;
+        
+        if (userRole === 'officer' && currentUser && currentUser.officerId) {
+            await recordOfficerLogout(currentUser.officerId);
+        } else {
+            console.log("ℹ️ [LOGOUT] Not an officer or missing officerId, skipping logout recording.");
+        }
+        
+        sessionStorage.clear();
+        window.location.replace('index.html');
+    }
+
+    window.addEventListener('beforeunload', async function() {
+        if (userRole === 'officer' && currentUser && currentUser.officerId) {
+            await recordOfficerLogout(currentUser.officerId);
+        }
+    });
+
+    function loadUserProfile() {
+        const userDataStr = sessionStorage.getItem('loggedInUser');
+        userRole = sessionStorage.getItem('userRole');
+        
+        if (!userDataStr) {
+            console.error("No user data in sessionStorage");
+            window.location.replace('index.html');
+            return;
+        }
+        
+        currentUser = JSON.parse(userDataStr);
+        console.log("👤 User loaded:", currentUser.name, "Role:", userRole, "OfficerId:", currentUser.officerId);
+        
+        // No admin logs card, so no conditional display
+        document.getElementById('welcomeTitle').innerHTML = 'Central Command Dashboard';
+        
+        document.getElementById('userNameDisplay').textContent = userRole === 'admin' ? 'Admin' : (currentUser.name?.split(' ')[0] || 'Officer');
+        document.getElementById('profileName').textContent = userRole === 'admin' ? 'System Administrator' : currentUser.name;
+        document.getElementById('profileRank').textContent = userRole === 'admin' ? 'Administrator' : (currentUser.rank || 'Officer');
+        
+        const profileDetails = document.getElementById('profileDetails');
+        
+        if (userRole === 'admin') {
+            profileDetails.innerHTML = `
+                <div class="profile-detail-row">
+                    <i class="fas fa-envelope"></i>
+                    <span class="detail-label">Email:</span>
+                    <span class="detail-value">${currentUser.email || 'admin@police.gov.in'}</span>
+                </div>
+                <div class="profile-detail-row">
+                    <i class="fas fa-shield-alt"></i>
+                    <span class="detail-label">Role:</span>
+                    <span class="detail-value">Administrator</span>
+                </div>
+                <div class="profile-badge">
+                    <i class="fas fa-crown"></i> Full System Access
+                </div>
+            `;
+        } else {
+            profileDetails.innerHTML = `
+                <div class="profile-detail-row">
+                    <i class="fas fa-id-card"></i>
+                    <span class="detail-label">Badge No:</span>
+                    <span class="detail-value">${currentUser.badgeNo || '-'}</span>
+                </div>
+                <div class="profile-detail-row">
+                    <i class="fas fa-phone"></i>
+                    <span class="detail-label">Phone:</span>
+                    <span class="detail-value">${currentUser.phone || '-'}</span>
+                </div>
+                <div class="profile-detail-row">
+                    <i class="fas fa-envelope"></i>
+                    <span class="detail-label">Email:</span>
+                    <span class="detail-value">${currentUser.email || '-'}</span>
+                </div>
+                <div class="profile-detail-row">
+                    <i class="fas fa-building"></i>
+                    <span class="detail-label">Division:</span>
+                    <span class="detail-value">${currentUser.division || '-'}</span>
+                </div>
+                <div class="profile-detail-row">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span class="detail-label">Joined:</span>
+                    <span class="detail-value">${currentUser.joinDate || '-'}</span>
+                </div>
+                <div class="profile-badge">
+                    <i class="fas fa-badge-check"></i> ${currentUser.unit || 'Police Unit'}
+                </div>
+            `;
+        }
+    }
+    
+    document.getElementById('logoutButton').addEventListener('click', handleLogout);
+    
+    (function checkAuth() {
+        const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+        if (!isLoggedIn || isLoggedIn !== 'true') {
+            window.location.replace('index.html');
+            return;
+        }
+        loadUserProfile();
+        setInterval(checkSession, 1000);
+    })();
+
+    function checkSession() {
+        const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+        if (!isLoggedIn || isLoggedIn !== 'true') {
+            window.location.replace('index.html');
+        }
+    }
+
+    function navigateTo(page) {
+        if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.replace('index.html');
+            return;
+        }
+        window.location.href = page;
+    }
+
+    function toggleMenu() {
+        const navLinks = document.getElementById('navLinks');
+        navLinks.classList.toggle('active');
+    }
+
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+            if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+                window.location.replace('index.html');
+            }
+        }
+    });
+
+    history.pushState(null, null, location.href);
+    window.addEventListener('popstate', function() {
+        if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.replace('index.html');
+        } else {
+            history.pushState(null, null, location.href);
+        }
+    });
+</script>
 
 </body>
 </html>

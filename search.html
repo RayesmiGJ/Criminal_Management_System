@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Intelligent Case Search | SecureCloud Portal</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>Smart Case Linking System | SecureCloud AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -13,6 +13,8 @@
             --secondary-bg: #1e293b;
             --accent-gold: #fbbf24;
             --accent-blue: #38bdf8;
+            --accent-purple: #a855f7;
+            --accent-green: #22c55e;
             --text-main: #f8fafc;
             --text-dim: #94a3b8;
             --glass: rgba(30, 41, 59, 0.7);
@@ -21,17 +23,37 @@
             --success: #22c55e;
         }
 
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
-            margin: 0;
             font-family: 'Inter', sans-serif;
-            background-color: var(--primary-bg);
-            color: var(--text-main);
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
             min-height: 100vh;
-            background-image: radial-gradient(circle at top right, #1e293b 0%, #0f172a 100%);
-            background-attachment: fixed;
+            color: white;
         }
 
-        /* Navbar */
+        nav {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 5%;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.3rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Navigation */
         nav {
             background: rgba(15, 23, 42, 0.9);
             backdrop-filter: blur(12px);
@@ -39,7 +61,9 @@
             justify-content: center;
             padding: 15px 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            position: sticky; top: 0; z-index: 1000;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
         nav a {
@@ -47,35 +71,96 @@
             text-decoration: none;
             margin: 0 20px;
             font-weight: 600;
+            font-size: 15px;
             transition: 0.3s;
         }
 
-        nav a:hover, nav a.active { color: var(--accent-gold); }
+        nav a:hover, nav a.active {
+            color: var(--accent-gold);
+        }
 
-        .title {
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .header {
             text-align: center;
-            padding: 40px 0 10px;
-            font-size: 2.2rem;
-            font-weight: 700;
-            background: linear-gradient(to right, #fff, var(--accent-blue));
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #fff, var(--accent-blue), var(--accent-purple));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        /* Search Section */
-        .search-container {
-            max-width: 900px;
-            margin: 20px auto;
-            background: var(--glass);
-            padding: 30px;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        .header p {
+            color: var(--text-dim);
+            margin-top: 10px;
         }
 
-        .search-box {
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-blue);
+        }
+
+        .stat-card i {
+            font-size: 2rem;
+            color: var(--accent-gold);
+            margin-bottom: 10px;
+        }
+
+        .stat-card h3 {
+            font-size: 1.8rem;
+            color: var(--accent-blue);
+        }
+
+        .stat-card p {
+            color: var(--text-dim);
+            font-size: 0.8rem;
+        }
+
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card h2 {
+            color: var(--accent-gold);
+            margin-bottom: 20px;
             display: flex;
-            gap: 12px;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-section {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
             margin-bottom: 20px;
         }
 
@@ -90,13 +175,15 @@
             outline: none;
         }
 
-        .search-input:focus { border-color: var(--accent-blue); }
+        .search-input:focus {
+            border-color: var(--accent-blue);
+        }
 
         .search-btn {
             background: linear-gradient(135deg, var(--accent-blue), #0284c7);
             color: white;
             border: none;
-            padding: 0 25px;
+            padding: 0 30px;
             border-radius: 10px;
             cursor: pointer;
             font-weight: 700;
@@ -106,11 +193,14 @@
             transition: 0.3s;
         }
 
-        .search-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(56, 189, 248, 0.3); }
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(56, 189, 248, 0.3);
+        }
 
-        .filters {
+        .filter-section {
             display: flex;
-            gap: 12px;
+            gap: 15px;
             flex-wrap: wrap;
         }
 
@@ -120,141 +210,328 @@
             border: 1px solid #334155;
             color: var(--text-dim);
             border-radius: 8px;
-            font-size: 0.85rem;
-            outline: none;
             cursor: pointer;
         }
 
-        /* Results Area */
-        .results-container {
-            max-width: 1000px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-
-        .results-stats {
-            color: var(--accent-gold);
-            margin-bottom: 20px;
+        .btn {
+            background: linear-gradient(135deg, var(--accent-blue), #0284c7);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
             font-weight: 600;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* Case Cards */
-        .case-card {
-            background: var(--glass);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 25px;
-            margin-bottom: 20px;
             transition: 0.3s;
-            position: relative;
-            overflow: hidden;
+            font-size: 0.8rem;
         }
 
-        .case-card:hover {
-            transform: scale(1.01);
-            border-color: var(--accent-blue);
+        .btn-purple {
+            background: linear-gradient(135deg, var(--accent-purple), #7c3aed);
         }
 
-        .case-card.high-priority { border-left: 5px solid var(--danger); }
-        .case-card.medium-priority { border-left: 5px solid var(--warning); }
-        .case-card.low-priority { border-left: 5px solid var(--success); }
-
-        .case-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(56, 189, 248, 0.3);
         }
 
-        .case-title {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--text-main);
+        .results-table {
+            width: 100%;
+            overflow-x: auto;
         }
 
-        .priority-badge {
-            padding: 5px 12px;
-            border-radius: 6px;
-            font-size: 10px;
-            font-weight: 800;
-            text-transform: uppercase;
+        table {
+            width: 100%;
+            border-collapse: collapse;
         }
 
-        .priority-high { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
-        .priority-medium { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
-        .priority-low { background: rgba(34, 197, 94, 0.2); color: var(--success); }
-
-        .case-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        th {
+            text-align: left;
+            padding: 12px;
+            color: var(--accent-gold);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.85rem;
         }
 
-        .detail-item { font-size: 0.9rem; color: var(--text-dim); }
-        .detail-label { color: var(--accent-blue); font-weight: 600; margin-right: 5px; }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            color: var(--text-dim);
+            font-size: 0.85rem;
+        }
 
-        .complaint-box {
-            background: rgba(0, 0, 0, 0.2);
+        tr:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .confidence-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .confidence-high { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+        .confidence-medium { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .confidence-low { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+
+        .highlight {
+            background: rgba(251, 191, 36, 0.3);
+            padding: 0 4px;
+            border-radius: 3px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .explanation-box {
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 3px solid var(--accent-blue);
             padding: 15px;
             border-radius: 10px;
-            font-size: 0.95rem;
-            line-height: 1.6;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
-        /* Match Score Section */
-        .match-score {
-            display: flex;
-            align-items: center;
-            gap: 15px;
+        .explanation-title {
+            color: var(--accent-gold);
+            font-weight: 600;
+            margin-bottom: 10px;
         }
 
-        .score-text { font-size: 0.8rem; font-weight: 700; color: var(--accent-gold); white-space: nowrap; }
-
-        .score-bar {
-            flex: 1;
-            height: 6px;
-            background: #0b1120;
-            border-radius: 10px;
-            overflow: hidden;
+        .explanation-reasons {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 10px;
         }
 
-        .score-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent-blue), var(--accent-gold));
-            box-shadow: 0 0 10px var(--accent-blue);
+        .explanation-reasons li {
+            padding: 5px 0;
+            color: var(--text-dim);
+            font-size: 0.85rem;
         }
 
-        /* Loading */
-        .loading { text-align: center; padding: 50px; }
+        .explanation-reasons li i {
+            color: var(--success);
+            margin-right: 8px;
+        }
+
+        .expandable-row {
+            cursor: pointer;
+        }
+
+        .expand-icon {
+            margin-right: 8px;
+            transition: transform 0.3s;
+        }
+
+        .detail-row {
+            display: none;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .detail-row.show {
+            display: table-row;
+        }
+
+        .detail-cell {
+            padding: 20px;
+        }
+
         .spinner {
             border: 4px solid rgba(255, 255, 255, 0.1);
             border-top: 4px solid var(--accent-blue);
             border-radius: 50%;
-            width: 50px; height: 50px;
+            width: 50px;
+            height: 50px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+            margin: 20px auto;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        .highlight {
-            background: rgba(251, 191, 36, 0.2);
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: var(--text-dim);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--secondary-bg);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 15px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .semantic-badge {
+            background: linear-gradient(135deg, var(--accent-purple), #7c3aed);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            margin-left: 8px;
+        }
+
+        .detail-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            border-left: 3px solid var(--accent-blue);
+        }
+
+        .detail-section h4 {
             color: var(--accent-gold);
-            padding: 2px 4px;
-            border-radius: 4px;
-            font-weight: 700;
-            border-bottom: 1px solid var(--accent-gold);
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+
+        .person-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .person-card {
+            background: rgba(255,255,255,0.05);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .photo-gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .photo-item {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid var(--accent-blue);
+            transition: 0.3s;
+        }
+
+        .photo-item:hover {
+            transform: scale(1.05);
+            border-color: var(--accent-gold);
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            font-size: 0.7rem;
+            padding: 4px;
+            text-align: center;
+        }
+
+        .fullscreen-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .fullscreen-modal.active {
+            display: flex;
+        }
+
+        .fullscreen-img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+
+        .close-fullscreen {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 2rem;
+            color: white;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        @media (max-width: 768px) {
+            .search-section {
+                flex-direction: column;
+            }
+            .search-btn {
+                justify-content: center;
+                padding: 12px;
+            }
+            .person-grid {
+                grid-template-columns: 1fr;
+            }
+            .photo-item {
+                width: 100px;
+                height: 100px;
+            }
         }
     </style>
 </head>
 <body>
-
+<script src="auth-check.js"></script>
 <nav>
     <a href="home.html">Home</a>
     <a href="about_us.html">About Us</a>
@@ -262,185 +539,1022 @@
     <a href="contact_us.html">Contact Us</a>
 </nav>
 
-<div class="title">Intelligent Intelligence Search</div>
-
-<div class="search-container">
-    <div class="search-box">
-        <input type="text" id="searchInput" class="search-input" placeholder="Search patterns: 'armed robbery', 'blue motorcycle', 'scar on left hand'...">
-        <button class="search-btn" onclick="performSearch()">
-            <i class="fas fa-microscope"></i> Analyze Cases
-        </button>
+<div class="container">
+    <div class="header">
+        <h1><i class="fas fa-project-diagram"></i> Smart Case Linking System</h1>
+        <p>🔍Universal Search | AI-powered case correlation | Hybrid Matching | Explainable Results</p>
     </div>
-    
-    <div class="filters">
-        <select id="categoryFilter" class="filter-select">
-            <option value="">All Categories</option>
-            <option value="Murder">Murder</option>
-            <option value="Theft">Theft</option>
-            <option value="Assault">Assault</option>
-            <option value="Fraud">Fraud</option>
-        </select>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <i class="fas fa-folder-open"></i>
+            <h3 id="totalCases">0</h3>
+            <p>Total Cases</p>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-link"></i>
+            <h3 id="linkedCases">0</h3>
+            <p>Linked Cases</p>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-chart-line"></i>
+            <h3 id="avgConfidence">0%</h3>
+            <p>Avg Confidence</p>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-clock"></i>
+            <h3 id="processingTime">0ms</h3>
+            <p>Processing Time</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2><i class="fas fa-search"></i> Universal Semantic Search</h2>
         
-        <select id="statusFilter" class="filter-select">
-            <option value="">All Status</option>
-            <option value="Pending">Pending</option>
-            <option value="Arrested">Arrested</option>
-            <option value="Case Closed">Case Closed</option>
-        </select>
-        
-        <select id="priorityFilter" class="filter-select">
-            <option value="">Priority Level</option>
-            <option value="high">Critical</option>
-            <option value="medium">Standard</option>
-            <option value="low">Low Priority</option>
-        </select>
-        
-        <select id="sortBy" class="filter-select">
-            <option value="relevance">Relevance Pattern</option>
-            <option value="priority">Priority Score</option>
-            <option value="date">Registry Date</option>
-        </select>
+        <div class="search-section">
+            <input type="text" id="searchInput" class="search-input" 
+                   placeholder="Search anything: Case ID, Victim Name, Crime Type, Phone Number, or entire paragraph...">
+            <button class="search-btn" onclick="universalSearch()">
+                <i class="fas fa-search"></i> Semantic Search
+            </button>
+        </div>
+
+        <div class="filter-section">
+            <select id="crimeTypeFilter" class="filter-select">
+                <option value="">All Crime Types</option>
+                <option value="Murder">Murder</option>
+                <option value="Theft">Theft</option>
+                <option value="Assault">Assault</option>
+                <option value="Fraud">Fraud</option>
+                <option value="Cyber Crime">Cyber Crime</option>
+                <option value="Robbery">Robbery</option>
+            </select>
+            <select id="statusFilter" class="filter-select">
+                <option value="">All Status</option>
+                <option value="Pending">Under Investigation</option>
+                <option value="Arrested">Suspect in Custody</option>
+                <option value="Case Closed">Case Closed</option>
+            </select>
+            <select id="matchType" class="filter-select">
+                <option value="hybrid">Hybrid Matching (Exact + Fuzzy)</option>
+                <option value="exact">Exact Match Only</option>
+                <option value="fuzzy">Fuzzy + Text Similarity</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2><i class="fas fa-chart-bar"></i> Search Results & Linked Cases</h2>
+        <div id="resultsContainer">
+            <div class="empty-state">
+                <i class="fas fa-search" style="font-size: 48px; margin-bottom: 15px;"></i>
+                <p>Enter any keyword, Case ID, Name, Crime Type, or even a paragraph to search</p>
+                <p style="font-size: 0.8rem; margin-top: 10px;">🔍 Searches across: Case ID, Victim Name, Crime Type, Phone, Description/MO</p>
+                <p style="font-size: 0.8rem; margin-top: 5px;">💡 Tip: Try searching with a paragraph or multiple keywords like "ref1001 murder burned body"</p>
+                <p style="font-size: 0.8rem; margin-top: 5px;">✨ <strong>New:</strong> Semantic search finds related cases even if exact words don't match!</p>
+            </div>
+        </div>
     </div>
 </div>
 
-<div class="results-container">
-    <div class="results-stats" id="resultsStats">System Ready: Awaiting Query...</div>
-    
-    <div id="searchResults"></div>
+<div id="caseModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2><i class="fas fa-info-circle"></i> Complete Case Details</h2>
+            <button class="close-modal" onclick="closeModal()">&times;</button>
+        </div>
+        <div id="modalBody"></div>
+    </div>
+</div>
+
+<div id="fullscreenModal" class="fullscreen-modal">
+    <button class="close-fullscreen" onclick="closeFullscreen()">&times;</button>
+    <img id="fullscreenImage" class="fullscreen-img" src="" alt="Fullscreen Image">
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
 
 <script>
-    // Firebase Config (Preserved)
     const firebaseConfig = {
         apiKey: "AIzaSyBnMI6S8fig-fl8exIAt5tDz9qWWrWGHAM",
         authDomain: "crime-management-fdd43.firebaseapp.com",
         projectId: "crime-management-fdd43",
-        storageBucket: "crime-management-fdd43.firebasestorage.app",
+        storageBucket: "crime-management-fdd43.appspot.com",
         messagingSenderId: "990509285734",
-        appId: "1:990509285734:web:4798f9666ff2dea537c8a7",
-        measurementId: "G-QTG266883M",
+        appId: "1:990509285734:web:4798f9666ff2dea537c8a7"
     };
-
-    firebase.initializeApp(firebaseConfig);
+    
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
     const db = firebase.firestore();
+    const storage = firebase.storage();
 
-    // YOUR ORIGINAL SEARCH ENGINE CLASS (Preserved functionality)
-    class IntelligentSearch {
+    let allCases = [];
+    let expandedRow = null;
+
+    class SmartCaseLinkingEngine {
         constructor() {
-            this.crimeKeywords = {
-                'theft': ['stolen', 'robbery', 'burglary', 'loot', 'snatch', 'pickpocket'],
-                'assault': ['attack', 'beat', 'violence', 'hurt', 'injure', 'weapon'],
-                'murder': ['kill', 'death', 'homicide', 'dead', 'weapon', 'knife'],
-                'fraud': ['cheat', 'scam', 'fake', 'forgery', 'duplicate', 'money'],
-                'cyber': ['hack', 'online', 'internet', 'computer', 'phishing', 'data']
+            this.cases = [];
+        }
+
+        fuzzyMatch(str1, str2) {
+            if (!str1 || !str2) return 0;
+            str1 = str1.toLowerCase();
+            str2 = str2.toLowerCase();
+            if (str1 === str2) return 1;
+            
+            const len1 = str1.length;
+            const len2 = str2.length;
+            const matrix = Array(len1 + 1).fill().map(() => Array(len2 + 1).fill(0));
+            
+            for (let i = 0; i <= len1; i++) matrix[i][0] = i;
+            for (let j = 0; j <= len2; j++) matrix[0][j] = j;
+            
+            for (let i = 1; i <= len1; i++) {
+                for (let j = 1; j <= len2; j++) {
+                    const cost = str1[i-1] === str2[j-1] ? 0 : 1;
+                    matrix[i][j] = Math.min(
+                        matrix[i-1][j] + 1,
+                        matrix[i][j-1] + 1,
+                        matrix[i-1][j-1] + cost
+                    );
+                }
+            }
+            
+            const maxLen = Math.max(len1, len2);
+            const similarity = 1 - (matrix[len1][len2] / maxLen);
+            return Math.max(0, Math.min(1, similarity));
+        }
+
+        textSimilarity(text1, text2) {
+            if (!text1 || !text2) return 0;
+            const words1 = text1.toLowerCase().split(/\W+/);
+            const words2 = text2.toLowerCase().split(/\W+/);
+            const set1 = new Set(words1);
+            const set2 = new Set(words2);
+            const intersection = new Set([...set1].filter(x => set2.has(x)));
+            const union = new Set([...set1, ...set2]);
+            return intersection.size / union.size;
+        }
+
+        universalSearch(searchTerm, filters = {}) {
+            if (!searchTerm || searchTerm.trim() === '') return [];
+            
+            const searchLower = searchTerm.toLowerCase().trim();
+            const keywords = searchLower.split(/\s+/).filter(k => k.length > 1);
+            const results = [];
+            
+            let anchorCase = null;
+            let anchorCaseId = null;
+            
+            for (const keyword of keywords) {
+                const refMatch = keyword.match(/(?:ref|case|fir)?[-\s]?([a-z0-9]+)/i);
+                if (refMatch) {
+                    anchorCaseId = keyword;
+                    anchorCase = this.cases.find(c => 
+                        c.refID.toLowerCase().includes(keyword) || 
+                        keyword.includes(c.refID.toLowerCase())
+                    );
+                    if (anchorCase) break;
+                }
+            }
+            
+            for (const caseData of this.cases) {
+                if (filters.crimeType && caseData.category !== filters.crimeType) continue;
+                if (filters.status && caseData.status !== filters.status) continue;
+                
+                const docText = [
+                    caseData.refID,
+                    caseData.category,
+                    caseData.victimName,
+                    caseData.suspectName,
+                    caseData.criminalName,
+                    caseData.complaint,
+                    caseData.phone,
+                    caseData.location,
+                    caseData.weapon,
+                    caseData.victimContact,
+                    caseData.victimAddress
+                ].filter(Boolean).join(' ').toLowerCase();
+                
+                let totalScore = 0;
+                let matchedKeywords = [];
+                let matchDetails = [];
+                let isExactIdMatch = false;
+                
+                for (const keyword of keywords) {
+                    if (keyword.length < 2) continue;
+                    
+                    if (caseData.refID.toLowerCase() === keyword) {
+                        isExactIdMatch = true;
+                        totalScore += 100;
+                        matchedKeywords.push(keyword);
+                        matchDetails.push(`🎯 Exact Case ID match: ${keyword}`);
+                    }
+                    else if (caseData.refID.toLowerCase().includes(keyword)) {
+                        totalScore += 60;
+                        matchedKeywords.push(keyword);
+                        matchDetails.push(`📋 Case ID contains: ${keyword}`);
+                    }
+                    else if (caseData.victimName.toLowerCase().includes(keyword)) {
+                        totalScore += 45;
+                        matchedKeywords.push(keyword);
+                        matchDetails.push(`👤 Victim name contains: ${keyword}`);
+                    }
+                    else if (caseData.suspectName && caseData.suspectName.toLowerCase().includes(keyword)) {
+                        totalScore += 45;
+                        matchedKeywords.push(keyword);
+                        matchDetails.push(`🕵️ Suspect name contains: ${keyword}`);
+                    }
+                    else if (caseData.criminalName && caseData.criminalName.toLowerCase().includes(keyword)) {
+                        totalScore += 45;
+                        matchedKeywords.push(keyword);
+                        matchDetails.push(`⚠️ Criminal name contains: ${keyword}`);
+                    }
+                    else if (caseData.category.toLowerCase().includes(keyword)) {
+                        totalScore += 40;
+                        matchedKeywords.push(keyword);
+                        matchDetails.push(`🎭 Crime type: ${keyword}`);
+                    }
+                    else if (caseData.phone && caseData.phone.includes(keyword)) {
+                        totalScore += 40;
+                        matchedKeywords.push(keyword);
+                        matchDetails.push(`📞 Phone number: ${keyword}`);
+                    }
+                    else if (caseData.location && caseData.location.toLowerCase().includes(keyword)) {
+                        totalScore += 35;
+                        matchedKeywords.push(keyword);
+                        matchDetails.push(`📍 Location: ${keyword}`);
+                    }
+                    else if (caseData.complaint.toLowerCase().includes(keyword)) {
+                        totalScore += 30;
+                        matchedKeywords.push(keyword);
+                        matchDetails.push(`📝 Description contains: ${keyword}`);
+                    }
+                    else if (docText.includes(keyword)) {
+                        totalScore += 15;
+                        matchedKeywords.push(keyword);
+                        matchDetails.push(`🔍 Found in case details: ${keyword}`);
+                    }
+                }
+                
+                if (anchorCase && anchorCase.id !== caseData.id) {
+                    const anchorText = [
+                        anchorCase.category,
+                        anchorCase.complaint,
+                        anchorCase.location
+                    ].join(' ').toLowerCase();
+                    
+                    const semanticScore = this.textSimilarity(anchorText, docText);
+                    
+                    if (semanticScore > 0.3) {
+                        const boostAmount = Math.round(semanticScore * 40);
+                        totalScore += boostAmount;
+                        matchDetails.push(`🔗 Semantically related to case ${anchorCase.refID} (${Math.round(semanticScore * 100)}% similar)`);
+                    }
+                    
+                    const anchorKeywords = anchorText.split(/\W+/).filter(k => k.length > 3);
+                    const sharedKeywords = anchorKeywords.filter(k => docText.includes(k));
+                    
+                    if (sharedKeywords.length > 0) {
+                        const sharedBoost = Math.min(sharedKeywords.length * 8, 30);
+                        totalScore += sharedBoost;
+                        matchDetails.push(`🔑 Shares keywords with case ${anchorCase.refID}: ${sharedKeywords.slice(0, 3).join(', ')}`);
+                    }
+                }
+                
+                let finalScore = 0;
+                if (matchedKeywords.length > 0 || (anchorCase && anchorCase.id !== caseData.id)) {
+                    if (isExactIdMatch) {
+                        finalScore = 100;
+                    } else {
+                        finalScore = Math.min(totalScore, 100);
+                        const keywordMatchRatio = matchedKeywords.length / keywords.length;
+                        if (keywordMatchRatio > 0) {
+                            finalScore = Math.min(100, finalScore * (0.6 + (keywordMatchRatio * 0.4)));
+                        }
+                    }
+                    
+                    if (finalScore < 25 && matchDetails.some(d => d.includes('semantically'))) {
+                        finalScore = 25;
+                    }
+                    
+                    results.push({
+                        case: caseData,
+                        score: Math.round(finalScore),
+                        matchedKeywords: matchedKeywords.slice(0, 5),
+                        matchDetails: matchDetails.slice(0, 5)
+                    });
+                }
+            }
+            
+            results.sort((a, b) => b.score - a.score);
+            return results;
+        }
+
+        findSimilarCases(targetCase, matchType = 'hybrid', filters = {}) {
+            const results = [];
+            
+            for (const candidate of this.cases) {
+                if (candidate.id === targetCase.id) continue;
+                if (filters.crimeType && candidate.category !== filters.crimeType) continue;
+                if (filters.status && candidate.status !== filters.status) continue;
+                
+                const matchResult = this.calculateSimilarity(targetCase, candidate, matchType);
+                
+                if (matchResult.score > 20) {
+                    results.push({
+                        case: candidate,
+                        confidence: matchResult.score,
+                        reasons: matchResult.reasons
+                    });
+                }
+            }
+            
+            results.sort((a, b) => b.confidence - a.confidence);
+            return results;
+        }
+
+        calculateSimilarity(case1, case2, matchType = 'hybrid') {
+            const scores = [];
+            const reasons = [];
+
+            if (case1.category && case2.category) {
+                const crimeMatch = matchType === 'exact' ? 
+                    (case1.category === case2.category ? 1 : 0) :
+                    this.fuzzyMatch(case1.category, case2.category);
+                if (crimeMatch > 0.7) reasons.push('🎯 Same crime category');
+                scores.push({ weight: 0.30, value: crimeMatch });
+            }
+
+            if (case1.complaint && case2.complaint) {
+                const moSimilarity = this.textSimilarity(case1.complaint, case2.complaint);
+                if (moSimilarity > 0.5) reasons.push('📝 Similar modus operandi');
+                scores.push({ weight: 0.25, value: moSimilarity });
+            }
+
+            const name1 = case1.victimName || case1.suspectName || '';
+            const name2 = case2.victimName || case2.suspectName || '';
+            if (name1 && name2) {
+                const nameMatch = this.fuzzyMatch(name1, name2);
+                if (nameMatch > 0.7) reasons.push('👤 Same/similar person name');
+                scores.push({ weight: 0.20, value: nameMatch });
+            }
+
+            if (case1.phone && case2.phone) {
+                const phoneMatch = this.fuzzyMatch(case1.phone, case2.phone);
+                if (phoneMatch > 0.8) reasons.push('📞 Same phone number');
+                scores.push({ weight: 0.15, value: phoneMatch });
+            }
+
+            const keywords1 = (case1.complaint + ' ' + case1.category).toLowerCase().split(/\W+/);
+            const keywords2 = (case2.complaint + ' ' + case2.category).toLowerCase().split(/\W+/);
+            const commonKeywords = keywords1.filter(k => keywords2.includes(k) && k.length > 3);
+            if (commonKeywords.length > 0) {
+                const keywordScore = Math.min(commonKeywords.length / 5, 1);
+                if (keywordScore > 0.3) reasons.push(`🔑 Common keywords: ${commonKeywords.slice(0, 3).join(', ')}`);
+                scores.push({ weight: 0.10, value: keywordScore });
+            }
+
+            let totalScore = 0;
+            let totalWeight = 0;
+            for (const s of scores) {
+                totalScore += s.weight * s.value;
+                totalWeight += s.weight;
+            }
+            
+            const finalScore = totalWeight > 0 ? (totalScore / totalWeight) * 100 : 0;
+            return {
+                score: Math.round(finalScore),
+                reasons: reasons.slice(0, 4)
             };
         }
 
-        calculateRelevanceScore(query, caseData) {
-            let score = 0;
-            const queryTerms = query.toLowerCase().split(' ');
-            if (caseData.category && query.toLowerCase().includes(caseData.category.toLowerCase())) score += 30;
-            if (caseData.complaint) {
-                const complaint = caseData.complaint.toLowerCase();
-                queryTerms.forEach(term => {
-                    if (complaint.includes(term)) {
-                        score += 20;
-                        const count = (complaint.match(new RegExp(term, 'g')) || []).length;
-                        score += Math.min(count * 5, 15);
-                    }
-                });
-            }
-            if (caseData.victimName && query.toLowerCase().includes(caseData.victimName.toLowerCase())) score += 25;
-            return Math.min(score, 100);
-        }
-
-        calculatePriorityScore(caseData) {
-            let p = 50;
-            if (caseData.status === 'Pending') p += 20;
-            if (caseData.category === 'Murder') p += 30;
-            return Math.min(p, 100);
-        }
-
-        getPriorityLevel(score) {
-            if (score >= 70) return 'high';
-            if (score >= 40) return 'medium';
-            return 'low';
-        }
-
-        highlightKeywords(text, query) {
-            if (!text || !query) return text;
-            const terms = query.toLowerCase().split(' ');
-            let h = text;
-            terms.forEach(t => {
-                if (t.length > 2) {
-                    const regex = new RegExp(`(${t})`, 'gi');
-                    h = h.replace(regex, '<span class="highlight">$1</span>');
-                }
-            });
-            return h;
+        loadCases(cases) {
+            this.cases = cases;
         }
     }
 
-    const engine = new IntelligentSearch();
+    const linkingEngine = new SmartCaseLinkingEngine();
 
-    async function performSearch() {
-        const query = document.getElementById('searchInput').value.trim();
-        if (!query) return alert('Enter search parameters');
-
-        document.getElementById('searchResults').innerHTML = '<div class="loading"><div class="spinner"></div>Analyzing Database Patterns...</div>';
+    async function loadAllCases() {
+        const resultsDiv = document.getElementById('resultsContainer');
+        resultsDiv.innerHTML = '<div class="spinner"></div><div style="text-align:center;">Loading cases...</div>';
         
         try {
-            const snap = await db.collection('firs').get();
-            const cases = snap.docs.map(doc => {
+            const snapshot = await db.collection('firs').get();
+            allCases = [];
+            
+            for (const doc of snapshot.docs) {
                 const data = doc.data();
-                const rel = engine.calculateRelevanceScore(query, data);
-                const prioScore = engine.calculatePriorityScore(data);
-                return { ...data, relevanceScore: rel, priorityScore: prioScore, priorityLevel: engine.getPriorityLevel(prioScore) };
-            }).filter(c => c.relevanceScore > 0);
-
-            // Sorting logic
-            const sortBy = document.getElementById('sortBy').value;
-            cases.sort((a, b) => sortBy === 'date' ? new Date(b.date) - new Date(a.date) : b.relevanceScore - a.relevanceScore);
-
-            displayResults(cases, query);
-        } catch (e) {
-            document.getElementById('searchResults').innerHTML = '<p>Access Denied: Error connecting to SecureCloud.</p>';
+                
+                let victimName = 'Unknown';
+                let victimContact = '';
+                let victimAddress = '';
+                let victimAge = '';
+                let victimIdProof = '';
+                let victimOccupation = '';
+                
+                if (data.victims && data.victims.length > 0) {
+                    victimName = data.victims[0].name || 'Unknown';
+                    victimContact = data.victims[0].contact || '';
+                    victimAddress = data.victims[0].address || '';
+                    victimAge = data.victims[0].age || '';
+                    victimIdProof = data.victims[0].idProof || '';
+                    victimOccupation = data.victims[0].occupation || '';
+                } else if (data.victimName) {
+                    victimName = data.victimName;
+                    victimContact = data.victimContact || '';
+                    victimAddress = data.victimAddress || '';
+                    victimAge = data.victimAge || '';
+                    victimIdProof = data.victimIdProof || '';
+                    victimOccupation = data.victimOccupation || '';
+                }
+                
+                let suspectNames = [];
+                let suspectDetails = [];
+                if (data.suspects && data.suspects.length > 0) {
+                    suspectNames = data.suspects.map(s => s.name).filter(n => n);
+                    suspectDetails = data.suspects;
+                } else if (data.suspectName) {
+                    suspectNames = [data.suspectName];
+                }
+                
+                let criminalNames = [];
+                let criminalDetails = [];
+                if (data.criminals && data.criminals.length > 0) {
+                    criminalNames = data.criminals.map(c => c.name).filter(n => n);
+                    criminalDetails = data.criminals;
+                } else if (data.criminalDetails && data.criminalDetails.name) {
+                    criminalNames = [data.criminalDetails.name];
+                    criminalDetails = [data.criminalDetails];
+                }
+                
+                let witnesses = data.witnesses || [];
+                
+                let photos = [];
+                if (data.photos && data.photos.length > 0) {
+                    photos = data.photos;
+                } else if (data.photoURL) {
+                    photos = [data.photoURL];
+                } else if (data.imageUrl) {
+                    photos = [data.imageUrl];
+                }
+                
+                const description = data.complaint || data.incidentDescription || '';
+                const location = data.location || data.incidentLocation || '';
+                
+                allCases.push({
+                    id: doc.id,
+                    refID: data.refID || data.refNo || doc.id.slice(0, 8),
+                    category: data.category || 'Unknown',
+                    complaint: description,
+                    victimName: victimName,
+                    victimContact: victimContact,
+                    victimAddress: victimAddress,
+                    victimAge: victimAge,
+                    victimIdProof: victimIdProof,
+                    victimOccupation: victimOccupation,
+                    suspectName: suspectNames.join(', ') || 'Unknown',
+                    suspectDetails: suspectDetails,
+                    criminalName: criminalNames.join(', ') || '',
+                    criminalDetails: criminalDetails,
+                    witnesses: witnesses,
+                    location: location,
+                    date: data.date || 'Unknown',
+                    status: data.status || 'Pending',
+                    phone: victimContact || data.phone || data.contactNumber || '',
+                    weapon: data.weapon || '',
+                    propertySeizure: data.propertySeizure || '',
+                    judgement: data.judgement || '',
+                    photos: photos,
+                    fullData: data
+                });
+            }
+            
+            linkingEngine.loadCases(allCases);
+            document.getElementById('totalCases').textContent = allCases.length;
+            
+            resultsDiv.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-check-circle" style="font-size: 48px; margin-bottom: 15px; color: var(--success);"></i>
+                    <p>${allCases.length} cases loaded successfully!</p>
+                    <p style="font-size: 0.8rem; margin-top: 10px;">✨ Now searching across ALL case fields including victims, suspects, criminals, and photos!</p>
+                    <p style="font-size: 0.8rem; margin-top: 5px;">💡 Try: "ref1001 murder" - finds case ref1001 AND any related cases!</p>
+                </div>
+            `;
+            
+        } catch (error) {
+            console.error('Error loading cases:', error);
+            resultsDiv.innerHTML = `<div class="empty-state"><p style="color: var(--danger);">Error loading cases: ${error.message}</p></div>`;
         }
     }
 
-    function displayResults(cases, query) {
-        const container = document.getElementById('searchResults');
-        document.getElementById('resultsStats').textContent = `Heuristic Analysis: ${cases.length} Match(es) Found`;
+    function showFullscreenImage(imageUrl) {
+        const fullscreenModal = document.getElementById('fullscreenModal');
+        const fullscreenImage = document.getElementById('fullscreenImage');
+        fullscreenImage.src = imageUrl;
+        fullscreenModal.classList.add('active');
+    }
 
-        if (cases.length === 0) {
-            container.innerHTML = '<div style="text-align:center; padding:50px; opacity:0.5;">NO MATCHING PATTERNS DETECTED</div>';
+    function closeFullscreen() {
+        document.getElementById('fullscreenModal').classList.remove('active');
+    }
+
+    function showCaseDetails(caseId) {
+        const caseData = allCases.find(c => c.id === caseId);
+        if (!caseData) return;
+        
+        const modal = document.getElementById('caseModal');
+        const modalBody = document.getElementById('modalBody');
+        
+        const fullData = caseData.fullData || caseData;
+        
+        let detailsHtml = `
+            <div class="detail-section">
+                <h4><i class="fas fa-barcode"></i> Case Information</h4>
+                <p><strong>Case ID:</strong> ${caseData.refID}</p>
+                <p><strong>Crime Type:</strong> ${caseData.category}</p>
+                <p><strong>Date:</strong> ${caseData.date}</p>
+                <p><strong>Status:</strong> <span class="${caseData.status === 'Pending' ? 'status-pending' : (caseData.status === 'Arrested' ? 'status-arrested' : 'status-closed')}">${caseData.status}</span></p>
+                <p><strong>Location:</strong> ${caseData.location}</p>
+            </div>
+        `;
+        
+        // Photos Gallery
+        if (caseData.photos && caseData.photos.length > 0) {
+            detailsHtml += `
+                <div class="detail-section">
+                    <h4><i class="fas fa-images"></i> Case Photos / Evidence (${caseData.photos.length})</h4>
+                    <div class="photo-gallery">
+                        ${caseData.photos.map((photo, idx) => `
+                            <div class="photo-item" onclick="showFullscreenImage('${photo}')">
+                                <img src="${photo}" alt="Evidence Photo ${idx + 1}" onerror="this.src='https://via.placeholder.com/150?text=No+Image'">
+                                <div class="photo-label">Evidence ${idx + 1}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Victim Details
+        if (fullData.victims && fullData.victims.length > 0) {
+            detailsHtml += `<div class="detail-section">
+                <h4><i class="fas fa-user-injured"></i> Victim Details</h4>`;
+            fullData.victims.forEach((v, i) => {
+                detailsHtml += `
+                    <div class="person-card">
+                        <div class="person-grid">
+                            <p><strong>Name:</strong> ${v.name || 'N/A'}</p>
+                            <p><strong>Age:</strong> ${v.age || 'N/A'}</p>
+                            <p><strong>Contact:</strong> ${v.contact || 'N/A'}</p>
+                            <p><strong>Address:</strong> ${v.address || 'N/A'}</p>
+                            <p><strong>ID Proof:</strong> ${v.idProof || 'N/A'}</p>
+                            <p><strong>Occupation:</strong> ${v.occupation || 'N/A'}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            detailsHtml += `</div>`;
+        } else if (caseData.victimName && caseData.victimName !== 'Unknown') {
+            detailsHtml += `
+                <div class="detail-section">
+                    <h4><i class="fas fa-user-injured"></i> Victim Details</h4>
+                    <div class="person-card">
+                        <div class="person-grid">
+                            <p><strong>Name:</strong> ${caseData.victimName}</p>
+                            <p><strong>Contact:</strong> ${caseData.victimContact || 'N/A'}</p>
+                            <p><strong>Address:</strong> ${caseData.victimAddress || 'N/A'}</p>
+                            <p><strong>Age:</strong> ${caseData.victimAge || 'N/A'}</p>
+                            <p><strong>ID Proof:</strong> ${caseData.victimIdProof || 'N/A'}</p>
+                            <p><strong>Occupation:</strong> ${caseData.victimOccupation || 'N/A'}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Suspect Details
+        if (caseData.suspectDetails && caseData.suspectDetails.length > 0) {
+            detailsHtml += `<div class="detail-section">
+                <h4><i class="fas fa-user-secret"></i> Suspect Details</h4>`;
+            caseData.suspectDetails.forEach((s, i) => {
+                detailsHtml += `
+                    <div class="person-card">
+                        <div class="person-grid">
+                            <p><strong>Name:</strong> ${s.name || 'N/A'}</p>
+                            <p><strong>Age:</strong> ${s.age || 'N/A'}</p>
+                            <p><strong>Gender:</strong> ${s.gender || 'N/A'}</p>
+                            <p><strong>Height:</strong> ${s.height || 'N/A'}</p>
+                            <p><strong>Build:</strong> ${s.build || 'N/A'}</p>
+                            <p><strong>Marks:</strong> ${s.marks || 'N/A'}</p>
+                            <p><strong>Last Seen:</strong> ${s.lastSeen || 'N/A'}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            detailsHtml += `</div>`;
+        } else if (caseData.suspectName && caseData.suspectName !== 'Unknown') {
+            detailsHtml += `
+                <div class="detail-section">
+                    <h4><i class="fas fa-user-secret"></i> Suspect Details</h4>
+                    <div class="person-card">
+                        <p><strong>Name:</strong> ${caseData.suspectName}</p>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Criminal Details
+        if (caseData.criminalDetails && caseData.criminalDetails.length > 0) {
+            detailsHtml += `<div class="detail-section">
+                <h4><i class="fas fa-skull-crosswalk"></i> Criminal Details</h4>`;
+            caseData.criminalDetails.forEach((c, i) => {
+                detailsHtml += `
+                    <div class="person-card">
+                        <div class="person-grid">
+                            <p><strong>Name:</strong> ${c.name || 'N/A'}</p>
+                            <p><strong>Alias:</strong> ${c.alias || 'N/A'}</p>
+                            <p><strong>Age:</strong> ${c.age || 'N/A'}</p>
+                            <p><strong>Gender:</strong> ${c.gender || 'N/A'}</p>
+                            <p><strong>Address:</strong> ${c.address || 'N/A'}</p>
+                            <p><strong>Previous Record:</strong> ${c.record || 'N/A'}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            detailsHtml += `</div>`;
+        } else if (caseData.criminalName && caseData.criminalName !== '') {
+            detailsHtml += `
+                <div class="detail-section">
+                    <h4><i class="fas fa-skull-crosswalk"></i> Criminal Details</h4>
+                    <div class="person-card">
+                        <p><strong>Name:</strong> ${caseData.criminalName}</p>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Witnesses
+        if (caseData.witnesses && caseData.witnesses.length > 0) {
+            detailsHtml += `<div class="detail-section">
+                <h4><i class="fas fa-users"></i> Witness Details</h4>`;
+            caseData.witnesses.forEach((w, i) => {
+                detailsHtml += `
+                    <div class="person-card">
+                        <div class="person-grid">
+                            <p><strong>Name:</strong> ${w.name || 'N/A'}</p>
+                            <p><strong>Age:</strong> ${w.age || 'N/A'}</p>
+                            <p><strong>Contact:</strong> ${w.contact || 'N/A'}</p>
+                            <p><strong>Address:</strong> ${w.address || 'N/A'}</p>
+                            <p><strong>Statement:</strong> ${w.statement || 'N/A'}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            detailsHtml += `</div>`;
+        }
+        
+        // Case Description
+        detailsHtml += `
+            <div class="detail-section">
+                <h4><i class="fas fa-file-alt"></i> Case Description / Modus Operandi</h4>
+                <p>${caseData.complaint || 'No description available'}</p>
+            </div>
+        `;
+        
+        // Property Seizure
+        if (caseData.propertySeizure) {
+            detailsHtml += `
+                <div class="detail-section">
+                    <h4><i class="fas fa-box"></i> Property Seizure</h4>
+                    <p>${caseData.propertySeizure}</p>
+                </div>
+            `;
+        }
+        
+        // Judgement
+        if (caseData.judgement) {
+            detailsHtml += `
+                <div class="detail-section">
+                    <h4><i class="fas fa-gavel"></i> Court Judgement</h4>
+                    <p>${caseData.judgement}</p>
+                </div>
+            `;
+        }
+        
+        detailsHtml += `
+            <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+                <button class="btn" onclick="findSimilarToCase('${caseData.id}'); closeModal();">
+                    <i class="fas fa-link"></i> Find Similar Cases
+                </button>
+                <button class="btn" style="background: linear-gradient(135deg, #10b981, #059669);" onclick="closeModal()">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+        `;
+        
+        modalBody.innerHTML = detailsHtml;
+        modal.classList.add('active');
+    }
+
+    function closeModal() { 
+        document.getElementById('caseModal').classList.remove('active'); 
+    }
+
+    async function universalSearch() {
+        const searchTerm = document.getElementById('searchInput').value.trim();
+        if (!searchTerm) {
+            alert('Please enter a search term');
             return;
         }
-
-        container.innerHTML = cases.map(c => `
-            <div class="case-card ${c.priorityLevel}-priority">
-                <div class="case-header">
-                    <h3 class="case-title"><i class="fas fa-shield-alt"></i> ${c.refID || c.refNo} — ${engine.highlightKeywords(c.category, query)}</h3>
-                    <div class="priority-badge priority-${c.priorityLevel}">${c.priorityLevel} Priority</div>
-                </div>
-                <div class="case-details">
-                    <div class="detail-item"><span class="detail-label">Victim:</span> ${c.victimName}</div>
-                    <div class="detail-item"><span class="detail-label">Registry:</span> ${c.date}</div>
-                    <div class="detail-item"><span class="detail-label">Status:</span> ${c.status || 'Pending'}</div>
-                </div>
-                <div class="complaint-box">${engine.highlightKeywords(c.complaint, query)}</div>
-                <div class="match-score">
-                    <div class="score-text">Pattern Match: ${Math.round(c.relevanceScore)}%</div>
-                    <div class="score-bar"><div class="score-fill" style="width: ${c.relevanceScore}%"></div></div>
-                </div>
-            </div>
-        `).join('');
+        
+        const crimeFilter = document.getElementById('crimeTypeFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+        
+        const resultsDiv = document.getElementById('resultsContainer');
+        resultsDiv.innerHTML = '<div class="spinner"></div><div style="text-align:center;">🔍 Performing semantic search across all cases...</div>';
+        
+        setTimeout(() => {
+            const startTime = performance.now();
+            
+            const searchResults = linkingEngine.universalSearch(searchTerm, {
+                crimeType: crimeFilter,
+                status: statusFilter
+            });
+            
+            const processingTime = performance.now() - startTime;
+            document.getElementById('processingTime').textContent = Math.round(processingTime) + 'ms';
+            document.getElementById('linkedCases').textContent = searchResults.length;
+            
+            if (searchResults.length > 0) {
+                const avgConf = searchResults.reduce((a,b) => a + b.score, 0) / searchResults.length;
+                document.getElementById('avgConfidence').textContent = Math.round(avgConf) + '%';
+            }
+            
+            displaySearchResults(searchResults, searchTerm);
+        }, 100);
     }
 
-    document.getElementById('searchInput').addEventListener('keypress', e => e.key === 'Enter' && performSearch());
+    function toggleExplanation(rowId, caseId, matchDetails, confidence, searchTerm) {
+        const detailRow = document.getElementById(`detail-${rowId}`);
+        const expandIcon = document.getElementById(`icon-${rowId}`);
+        
+        if (detailRow.classList.contains('show')) {
+            detailRow.classList.remove('show');
+            expandIcon.innerHTML = '<i class="fas fa-chevron-right"></i>';
+        } else {
+            if (expandedRow) {
+                const prevRow = document.getElementById(`detail-${expandedRow}`);
+                const prevIcon = document.getElementById(`icon-${expandedRow}`);
+                if (prevRow) prevRow.classList.remove('show');
+                if (prevIcon) prevIcon.innerHTML = '<i class="fas fa-chevron-right"></i>';
+            }
+            
+            detailRow.classList.add('show');
+            expandIcon.innerHTML = '<i class="fas fa-chevron-down"></i>';
+            expandedRow = rowId;
+            
+            const caseData = allCases.find(c => c.id === caseId);
+            
+            let reasonsHtml = '';
+            if (matchDetails && matchDetails.length > 0) {
+                reasonsHtml = matchDetails.map(r => `<li><i class="fas fa-check-circle"></i> ${r}</li>`).join('');
+            } else {
+                reasonsHtml = `<li><i class="fas fa-info-circle"></i> Match found based on keyword relevance</li>`;
+            }
+            
+            detailRow.innerHTML = `
+                <td colspan="7" class="detail-cell">
+                    <div class="explanation-box">
+                        <div class="explanation-title">
+                            <i class="fas fa-brain"></i> Explainable AI - Semantic Link Analysis
+                            <span class="semantic-badge">Semantic Search</span>
+                        </div>
+                        <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 10px;">
+                            <div><strong style="color: var(--accent-gold);">Confidence Score:</strong> 
+                                <span class="confidence-badge ${confidence >= 70 ? 'confidence-high' : (confidence >= 40 ? 'confidence-medium' : 'confidence-low')}">
+                                    ${confidence}%
+                                </span>
+                            </div>
+                            <div><strong style="color: var(--accent-gold);">Case ID:</strong> ${caseData.refID}</div>
+                            <div><strong style="color: var(--accent-gold);">Crime Type:</strong> ${caseData.category}</div>
+                        </div>
+                        
+                        <div style="margin-top: 10px;">
+                            <strong style="color: var(--accent-blue);"><i class="fas fa-list"></i> Matching & Semantic Reasons:</strong>
+                            <ul class="explanation-reasons">
+                                ${reasonsHtml}
+                            </ul>
+                        </div>
+                        
+                        <div style="margin-top: 15px;">
+                            <button class="btn" onclick="event.stopPropagation(); showCaseDetails('${caseId}')">
+                                <i class="fas fa-eye"></i> View Full Case Details
+                            </button>
+                            <button class="btn btn-purple" onclick="event.stopPropagation(); findSimilarToCase('${caseId}')">
+                                <i class="fas fa-link"></i> Find Similar Cases
+                            </button>
+                        </div>
+                    </div>
+                </td>
+            `;
+        }
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    function displaySearchResults(results, searchTerm) {
+        const resultsDiv = document.getElementById('resultsContainer');
+        
+        if (results.length === 0) {
+            resultsDiv.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-search" style="font-size: 48px; margin-bottom: 15px;"></i>
+                    <p>No cases found matching "${escapeHtml(searchTerm)}"</p>
+                    <p style="font-size: 0.8rem;">Try different keywords or remove filters</p>
+                    <p style="font-size: 0.8rem; margin-top: 5px;">💡 Tip: Use multiple keywords like "John theft phone" or a full paragraph description</p>
+                </div>
+            `;
+            return;
+        }
+        
+        const topResult = results[0];
+        const hasSemanticResults = results.some(r => r.matchDetails && r.matchDetails.some(d => d.includes('semantically')));
+        
+        resultsDiv.innerHTML = `
+            <div class="explanation-box">
+                <div class="explanation-title">
+                    <i class="fas fa-search"></i> Semantic Search Results for: "${escapeHtml(searchTerm)}"
+                    ${hasSemanticResults ? '<span class="semantic-badge">✨ Semantic Matches Found</span>' : ''}
+                </div>
+                <div style="font-size: 0.85rem; color: var(--text-dim);">
+                    Found ${results.length} matching cases | Best match: ${topResult.score}% relevance
+                    ${hasSemanticResults ? '<br>🔗 <strong>Including semantically related cases</strong> (cases that share concepts even without exact keywords)' : ''}
+                </div>
+            </div>
+            
+            <div class="results-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 30px;"></th>
+                            <th>Case ID</th>
+                            <th>Crime Type</th>
+                            <th>Victim Name</th>
+                            <th>Status</th>
+                            <th>Match %</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${results.map((r, idx) => `
+                            <tr class="expandable-row" onclick="toggleExplanation(${idx}, '${r.case.id}', ${JSON.stringify(r.matchDetails || []).replace(/"/g, '&quot;')}, ${r.score}, '${escapeHtml(searchTerm).replace(/'/g, "\\'")}')">
+                                <td><span id="icon-${idx}" class="expand-icon"><i class="fas fa-chevron-right"></i></span></td>
+                                <td><strong>${r.case.refID}</strong></td>
+                                <td>${r.case.category}</td>
+                                <td>${r.case.victimName}</td>
+                                <td>${r.case.status}</td>
+                                <td>
+                                    <span class="confidence-badge ${r.score >= 70 ? 'confidence-high' : (r.score >= 40 ? 'confidence-medium' : 'confidence-low')}">
+                                        ${r.score}%
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn" onclick="event.stopPropagation(); findSimilarToCase('${r.case.id}')">
+                                        <i class="fas fa-link"></i> Find Similar
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr id="detail-${idx}" class="detail-row">
+                                <td colspan="7" class="detail-cell"></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    async function findSimilarToCase(caseId) {
+        const targetCase = allCases.find(c => c.id === caseId);
+        if (!targetCase) return;
+        
+        const matchType = document.getElementById('matchType').value;
+        const crimeFilter = document.getElementById('crimeTypeFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+        
+        const resultsDiv = document.getElementById('resultsContainer');
+        resultsDiv.innerHTML = '<div class="spinner"></div><div style="text-align:center;">Finding similar cases...</div>';
+        
+        setTimeout(() => {
+            const startTime = performance.now();
+            
+            const similarResults = linkingEngine.findSimilarCases(targetCase, matchType, {
+                crimeType: crimeFilter,
+                status: statusFilter
+            });
+            
+            const processingTime = performance.now() - startTime;
+            document.getElementById('processingTime').textContent = Math.round(processingTime) + 'ms';
+            document.getElementById('linkedCases').textContent = similarResults.length;
+            
+            if (similarResults.length > 0) {
+                const avgConf = similarResults.reduce((a,b) => a + b.confidence, 0) / similarResults.length;
+                document.getElementById('avgConfidence').textContent = Math.round(avgConf) + '%';
+            }
+            
+            displaySimilarResults(targetCase, similarResults);
+        }, 100);
+    }
+
+    function displaySimilarResults(targetCase, results) {
+        const resultsDiv = document.getElementById('resultsContainer');
+        
+        if (results.length === 0) {
+            resultsDiv.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-search" style="font-size: 48px; margin-bottom: 15px;"></i>
+                    <p>No similar cases found for Case ${targetCase.refID}</p>
+                </div>
+            `;
+            return;
+        }
+        
+        resultsDiv.innerHTML = `
+            <div class="explanation-box">
+                <div class="explanation-title">
+                    <i class="fas fa-link"></i> Cases Similar to: ${targetCase.refID} (${targetCase.category})
+                </div>
+                <div style="font-size: 0.85rem; color: var(--text-dim);">
+                    Victim: ${targetCase.victimName} | Status: ${targetCase.status} | Found ${results.length} similar cases
+                </div>
+            </div>
+            
+            <div class="results-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 30px;"></th>
+                            <th>Case ID</th>
+                            <th>Crime Type</th>
+                            <th>Victim Name</th>
+                            <th>Status</th>
+                            <th>Confidence</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${results.map((r, idx) => `
+                            <tr class="expandable-row" onclick="toggleExplanation(${idx}, '${r.case.id}', ${JSON.stringify(r.reasons || []).replace(/"/g, '&quot;')}, ${r.confidence}, '')">
+                                <td><span id="icon-${idx}" class="expand-icon"><i class="fas fa-chevron-right"></i></span></td>
+                                <td><strong>${r.case.refID}</strong></td>
+                                <td>${r.case.category}</td>
+                                <td>${r.case.victimName}</td>
+                                <td>${r.case.status}</td>
+                                <td>
+                                    <span class="confidence-badge ${r.confidence >= 70 ? 'confidence-high' : (r.confidence >= 40 ? 'confidence-medium' : 'confidence-low')}">
+                                        ${r.confidence}%
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn" onclick="event.stopPropagation(); findSimilarToCase('${r.case.id}')">
+                                        <i class="fas fa-link"></i> Find Similar
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr id="detail-${idx}" class="detail-row">
+                                <td colspan="7" class="detail-cell"></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    document.getElementById('searchInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') universalSearch();
+    });
+
+    if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+        window.location.href = 'index.html';
+    } else {
+        loadAllCases();
+    }
 </script>
+
 </body>
 </html>
