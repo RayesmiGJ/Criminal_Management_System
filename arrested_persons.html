@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arrested Persons Records | SecureCloud</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>Arrested Persons | SecureCloud Intelligence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -17,20 +17,19 @@
             --text-dim: #94a3b8;
             --glass: rgba(30, 41, 59, 0.7);
             --success: #22c55e;
-            --case-closed: #94a3b8;
+            --danger: #ef4444;
+            --warning: #f59e0b;
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            margin: 0;
             font-family: 'Inter', sans-serif;
-            background-color: var(--primary-bg);
+            background: radial-gradient(circle at top right, #1e293b 0%, #0f172a 100%);
             color: var(--text-main);
             min-height: 100vh;
-            background-image: radial-gradient(circle at top right, #1e293b 0%, #0f172a 100%);
-            background-attachment: fixed;
         }
 
-        /* Navigation */
         nav {
             background: rgba(15, 23, 42, 0.9);
             backdrop-filter: blur(12px);
@@ -38,7 +37,9 @@
             justify-content: center;
             padding: 15px 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            position: sticky; top: 0; z-index: 1000;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
         nav a {
@@ -48,139 +49,235 @@
             font-weight: 600;
             transition: 0.3s;
         }
-
         nav a:hover, nav a.active { color: var(--accent-gold); }
 
-        h2 {
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .page-header {
             text-align: center;
-            padding: 40px 0 10px;
+            margin-bottom: 30px;
+        }
+        .page-header h1 {
             font-size: 2.2rem;
             background: linear-gradient(to right, #fff, var(--accent-blue));
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-
-        /* Search & Filter Header */
-        .search-filter {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 25px;
-            background: var(--glass);
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        .page-header p {
+            color: var(--text-dim);
+            margin-top: 8px;
         }
 
-        input, select {
+        /* Filter Bar */
+        .filter-bar {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+            background: var(--glass);
+            padding: 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        .filter-bar input, .filter-bar select {
             background: #0b1120;
             border: 1px solid #334155;
             color: white;
-            padding: 12px;
-            border-radius: 8px;
+            padding: 12px 16px;
+            border-radius: 12px;
             outline: none;
             flex: 1;
+            min-width: 150px;
+            font-family: 'Inter', sans-serif;
+        }
+        .filter-bar input:focus, .filter-bar select:focus {
+            border-color: var(--accent-blue);
+        }
+        .btn-export {
+            background: linear-gradient(135deg, var(--accent-blue), #0284c7);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+        }
+        .btn-export:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(56,189,248,0.3);
         }
 
-        input:focus { border-color: var(--accent-blue); }
-
-        /* Table Design */
-        .table-wrapper {
+        /* Table – Modern Card Style */
+        .arrested-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 24px;
+        }
+        .arrested-card {
             background: var(--glass);
             backdrop-filter: blur(10px);
-            border-radius: 15px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.08);
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
-
-        table { width: 100%; border-collapse: collapse; text-align: left; }
-
-        th {
-            background: rgba(255, 255, 255, 0.05);
+        .arrested-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-blue);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px;
+            background: rgba(0,0,0,0.2);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .card-photo {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent-gold);
+        }
+        .card-photo-placeholder {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: rgba(56,189,248,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--accent-blue);
+        }
+        .card-title {
+            flex: 1;
+        }
+        .card-title h3 {
+            font-size: 1.2rem;
             color: var(--accent-gold);
-            padding: 18px;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 4px;
         }
-
-        td {
-            padding: 15px 18px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        .card-title .ref-id {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            font-family: monospace;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .status-arrested { background: rgba(34,197,94,0.2); color: var(--success); }
+        .status-closed { background: rgba(148,163,184,0.2); color: #94a3b8; }
+        .card-body {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
             color: var(--text-dim);
         }
-
-        tr:hover td { background: rgba(255, 255, 255, 0.02); color: white; }
-
-        /* Status Colors */
-        .status-pill {
-            font-weight: 700;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 0.8rem;
+        .info-item i {
+            width: 20px;
+            color: var(--accent-blue);
         }
-        .status-arrested { color: var(--success); }
-        .status-closed { color: var(--case-closed); }
-
-        .btn-view {
-            background: rgba(56, 189, 248, 0.1);
+        .card-footer {
+            padding: 15px 20px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: flex-end;
+        }
+        .btn-details {
+            background: rgba(56,189,248,0.1);
             color: var(--accent-blue);
             border: 1px solid var(--accent-blue);
-            padding: 6px 14px;
-            border-radius: 6px;
+            padding: 8px 20px;
+            border-radius: 30px;
             cursor: pointer;
             font-weight: 600;
             transition: 0.3s;
         }
+        .btn-details:hover {
+            background: var(--accent-blue);
+            color: #000;
+        }
 
-        .btn-view:hover { background: var(--accent-blue); color: #000; }
-
-        /* Modal Design */
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(0,0,0,0.9);
             backdrop-filter: blur(5px);
             justify-content: center;
             align-items: center;
             z-index: 2000;
         }
-
         .modal-content {
             background: var(--secondary-bg);
             padding: 30px;
-            border-radius: 20px;
-            max-width: 500px;
+            border-radius: 24px;
+            max-width: 600px;
             width: 90%;
             border: 1px solid var(--accent-blue);
-            box-shadow: 0 0 40px rgba(56, 189, 248, 0.2);
+            max-height: 85vh;
+            overflow-y: auto;
         }
-
         .modal-header {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--accent-gold);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
-            text-align: center;
             border-bottom: 1px solid rgba(255,255,255,0.1);
             padding-bottom: 10px;
         }
-
-        #modalBody p {
-            margin: 12px 0;
-            padding-bottom: 6px;
+        .modal-header h3 { color: var(--accent-gold); }
+        .close-modal { background: none; border: none; color: white; font-size: 28px; cursor: pointer; }
+        .detail-line {
+            margin-bottom: 12px;
             border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 6px;
+        }
+        .detail-line strong {
+            color: var(--accent-blue);
+            display: inline-block;
+            min-width: 130px;
+        }
+        .modal-photo {
+            max-width: 150px;
+            border-radius: 12px;
+            margin: 10px 0;
         }
 
-        #modalBody strong { color: var(--accent-blue); margin-right: 5px; }
-
-        .modal-footer { margin-top: 20px; text-align: right; }
-
+        @media (max-width: 768px) {
+            .arrested-grid { grid-template-columns: 1fr; }
+            .filter-bar { flex-direction: column; }
+            .card-body { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -193,47 +290,40 @@
 </nav>
 
 <div class="container">
-    <h2><i class="fas fa-handcuffs"></i> Arrested Persons Archive</h2>
+    <div class="page-header">
+        <h1><i class="fas fa-handcuffs"></i> Arrested Persons Database</h1>
+        <p>Complete record of arrested criminals | Click any card for full details</p>
+    </div>
 
-    
-
-    <div class="search-filter">
-        <input type="text" id="searchInput" placeholder="Search by Reference ID or Name..." onkeyup="filterTable()">
-        <select id="categoryFilter" onchange="filterByCategory()">
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+        <input type="text" id="searchInput" placeholder="Search by Ref ID or Criminal Name..." onkeyup="filterCards()">
+        <select id="categoryFilter" onchange="filterCards()">
             <option value="">All Crime Categories</option>
         </select>
+        <input type="date" id="dateFrom" placeholder="From Date">
+        <input type="date" id="dateTo" placeholder="To Date">
+        <button class="btn-export" onclick="exportToCSV()"><i class="fas fa-download"></i> Export CSV</button>
     </div>
 
-    <div class="table-wrapper">
-        <table id="arrestedTable">
-            <thead>
-                <tr>
-                    <th><i class="fas fa-hashtag"></i> Ref ID</th>
-                    <th><i class="fas fa-user-tag"></i> Criminal Name</th>
-                    <th><i class="fas fa-id-card"></i> Age</th>
-                    <th><i class="fas fa-info-circle"></i> Status</th>
-                    <th><i class="fas fa-gavel"></i> Judgement</th>
-                    <th><i class="fas fa-eye"></i> Details</th>
-                </tr>
-            </thead>
-            <tbody>
-                </tbody>
-        </table>
-    </div>
+    <!-- Arrested Persons Grid (Card Layout) -->
+    <div id="arrestedGrid" class="arrested-grid"></div>
 </div>
 
+<!-- Details Modal -->
 <div class="modal" id="detailsModal">
     <div class="modal-content">
-        <div class="modal-header"><i class="fas fa-user-secret"></i> Subject Dossier</div>
-        <div id="modalBody"></div>
-        <div class="modal-footer">
-            <button class="btn-view" onclick="closeModal()" style="background: transparent;">Close Dossier</button>
+        <div class="modal-header">
+            <h3><i class="fas fa-user-secret"></i> Criminal Dossier</h3>
+            <button class="close-modal" onclick="closeModal()">&times;</button>
         </div>
+        <div id="modalBody"></div>
     </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
 
 <script>
     const firebaseConfig = {
@@ -247,85 +337,200 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    async function loadArrestedPersons() {
-        let tbody = document.querySelector("#arrestedTable tbody");
-        tbody.innerHTML = "<tr><td colspan='6' style='text-align:center;'>Accessing Encrypted Records...</td></tr>";
+    let arrestedData = [];
+
+    // Helper: extract criminal details (handles new & old format)
+    function getCriminalDetails(record) {
+        if (record.criminals && record.criminals.length > 0) {
+            return record.criminals[0];
+        }
+        if (record.criminalDetails) {
+            return {
+                name: record.criminalDetails.name || record.criminalDetails.cName,
+                age: record.criminalDetails.age || record.criminalDetails.cAge,
+                address: record.criminalDetails.address || record.criminalDetails.cAddress,
+                marks: record.criminalDetails.marks || record.criminalDetails.cMarks,
+                extra: record.criminalDetails.extra || record.criminalDetails.cExtra,
+                imageUrl: record.criminalDetails.imageUrl,
+                alias: record.criminalDetails.alias,
+                gender: record.criminalDetails.gender,
+                record: record.criminalDetails.record,
+                history: record.criminalDetails.history
+            };
+        }
+        return null;
+    }
+
+    async function loadArrestedData() {
+        const grid = document.getElementById('arrestedGrid');
+        grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:50px;">Loading intelligence data...</div>';
         
-        let categories = new Set();
-        const snapshot = await db.collection("firs")
-            .where("status", "in", ["Arrested", "Case Closed"])
-            .get();
+        const snapshot = await db.collection("firs").where("status", "in", ["Arrested", "Case Closed"]).get();
+        arrestedData = [];
+        const categories = new Set();
 
-        tbody.innerHTML = "";
-        snapshot.forEach(doc => {
-            let record = doc.data();
-            if(record.criminalKnown === "Yes" && record.criminalDetails){
-                let statusClass = record.status === 'Arrested' ? 'status-arrested' : 'status-closed';
-                let row = document.createElement("tr");
-                row.setAttribute('data-category', record.category || '');
-                row.innerHTML = `
-                    <td><strong>${record.refID || record.refNo || ''}</strong></td>
-                    <td>${record.criminalDetails.cName || ''}</td>
-                    <td>${record.criminalDetails.cAge || ''}</td>
-                    <td><span class="status-pill ${statusClass}">${record.status}</span></td>
-                    <td>${record.status === "Case Closed" ? (record.judgement || "Verdict Rendered") : "<em>Pending Trial</em>"}</td>
-                    <td><button class="btn-view" onclick='showDetails(${JSON.stringify(record)})'>View</button></td>
-                `;
-                tbody.appendChild(row);
-                if(record.category) categories.add(record.category);
+        for (const doc of snapshot.docs) {
+            const record = doc.data();
+            const criminal = getCriminalDetails(record);
+            if (criminal && criminal.name) {
+                categories.add(record.category || 'Unknown');
+                arrestedData.push({
+                    id: doc.id,
+                    refID: record.refID || record.refNo,
+                    criminal: criminal,
+                    category: record.category || 'Unknown',
+                    status: record.status,
+                    judgement: record.judgement,
+                    date: record.date,
+                    incidentLocation: record.incidentLocation,
+                    complaint: record.complaint,
+                    incidentDescription: record.incidentDescription,
+                    propertySeizure: record.propertySeizure
+                });
             }
-        });
+        }
 
-        // Populate Category Filter
-        let categoryFilter = document.getElementById("categoryFilter");
-        categoryFilter.innerHTML = '<option value="">All Crime Categories</option>';
-        categories.forEach(cat => {
-            let opt = document.createElement("option");
+        // Populate category filter
+        const catFilter = document.getElementById('categoryFilter');
+        catFilter.innerHTML = '<option value="">All Crime Categories</option>';
+        Array.from(categories).sort().forEach(cat => {
+            const opt = document.createElement('option');
             opt.value = cat;
             opt.textContent = cat;
-            categoryFilter.appendChild(opt);
+            catFilter.appendChild(opt);
         });
+
+        renderCards(arrestedData);
     }
 
-    function filterTable(){
-        let searchValue = document.getElementById("searchInput").value.toLowerCase();
-        let rows = document.querySelectorAll("#arrestedTable tbody tr");
-        rows.forEach(row => {
-            let ref = row.cells[0].textContent.toLowerCase();
-            let name = row.cells[1].textContent.toLowerCase();
-            row.style.display = (ref.includes(searchValue) || name.includes(searchValue)) ? "" : "none";
-        });
-    }
-
-    function filterByCategory(){
-        let selected = document.getElementById("categoryFilter").value.toLowerCase();
-        let rows = document.querySelectorAll("#arrestedTable tbody tr");
-        rows.forEach(row => {
-            let rowCat = row.getAttribute('data-category').toLowerCase();
-            row.style.display = (!selected || rowCat === selected) ? "" : "none";
-        });
-    }
-
-    function showDetails(record){
-        let body = `
-            <p><strong><i class="fas fa-hashtag"></i> Case ID:</strong> ${record.refID || record.refNo || ''}</p>
-            <p><strong><i class="fas fa-folder"></i> Offense:</strong> ${record.category || ''}</p>
-            <p><strong><i class="fas fa-user-tag"></i> Name:</strong> ${record.criminalDetails?.cName || ''}</p>
-            <p><strong><i class="fas fa-birthday-cake"></i> Age:</strong> ${record.criminalDetails?.cAge || ''}</p>
-            <p><strong><i class="fas fa-map-marker-alt"></i> Address:</strong> ${record.criminalDetails?.cAddress || ''}</p>
-            <p><strong><i class="fas fa-fingerprint"></i> ID Marks:</strong> ${record.criminalDetails?.cMarks || 'None Listed'}</p>
-            <p><strong><i class="fas fa-notes-medical"></i> Profile:</strong> ${record.criminalDetails?.cExtra || 'N/A'}</p>
-            <p><strong><i class="fas fa-info-circle"></i> Status:</strong> ${record.status}</p>
-        `;
-        if(record.status === "Case Closed"){
-            body += `<p style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px;"><strong><i class="fas fa-balance-scale"></i> Court Judgement:</strong><br>${record.judgement || 'Finalized'}</p>`;
+    function renderCards(data) {
+        const grid = document.getElementById('arrestedGrid');
+        if (data.length === 0) {
+            grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:50px;">No arrested persons found.</div>';
+            return;
         }
-        document.getElementById("modalBody").innerHTML = body;
-        document.getElementById("detailsModal").style.display = "flex";
+
+        grid.innerHTML = '';
+        data.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'arrested-card';
+            card.onclick = () => showDetails(item);
+            
+            const photoUrl = item.criminal.imageUrl;
+            const photoHtml = photoUrl 
+                ? `<img src="${photoUrl}" class="card-photo" onerror="this.src='https://via.placeholder.com/70?text=No+Image'">`
+                : `<div class="card-photo-placeholder"><i class="fas fa-user"></i></div>`;
+            
+            const statusClass = item.status === 'Arrested' ? 'status-arrested' : 'status-closed';
+            
+            card.innerHTML = `
+                <div class="card-header">
+                    ${photoHtml}
+                    <div class="card-title">
+                        <h3>${escapeHtml(item.criminal.name)}</h3>
+                        <div class="ref-id">${item.refID}</div>
+                    </div>
+                    <div><span class="status-badge ${statusClass}">${item.status}</span></div>
+                </div>
+                <div class="card-body">
+                    <div class="info-item"><i class="fas fa-birthday-cake"></i> Age: ${item.criminal.age || 'N/A'}</div>
+                    <div class="info-item"><i class="fas fa-folder"></i> Crime: ${item.category}</div>
+                    <div class="info-item"><i class="fas fa-calendar"></i> Date: ${item.date || 'N/A'}</div>
+                    <div class="info-item"><i class="fas fa-map-marker-alt"></i> Location: ${item.incidentLocation ? item.incidentLocation.substring(0,30) : 'N/A'}</div>
+                </div>
+                <div class="card-footer">
+                    <button class="btn-details" onclick="event.stopPropagation(); showDetails(${JSON.stringify(item).replace(/'/g, "&#39;")})">View Full Details</button>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
     }
 
-    function closeModal(){ document.getElementById("detailsModal").style.display="none"; }
-    window.onload = loadArrestedPersons;
+    function filterCards() {
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        const category = document.getElementById('categoryFilter').value;
+        const fromDate = document.getElementById('dateFrom').value;
+        const toDate = document.getElementById('dateTo').value;
+
+        let filtered = [...arrestedData];
+        if (search) {
+            filtered = filtered.filter(item => 
+                item.refID.toLowerCase().includes(search) || 
+                (item.criminal.name && item.criminal.name.toLowerCase().includes(search))
+            );
+        }
+        if (category) {
+            filtered = filtered.filter(item => item.category === category);
+        }
+        if (fromDate) {
+            filtered = filtered.filter(item => item.date && item.date >= fromDate);
+        }
+        if (toDate) {
+            filtered = filtered.filter(item => item.date && item.date <= toDate);
+        }
+        renderCards(filtered);
+    }
+
+    function showDetails(item) {
+        const criminal = item.criminal;
+        const modalBody = document.getElementById('modalBody');
+        let photoHtml = '';
+        if (criminal.imageUrl) {
+            photoHtml = `<div><img src="${criminal.imageUrl}" class="modal-photo" alt="Criminal Photo"></div>`;
+        }
+        modalBody.innerHTML = `
+            ${photoHtml}
+            <div class="detail-line"><strong>Case ID:</strong> ${item.refID}</div>
+            <div class="detail-line"><strong>Crime Category:</strong> ${item.category}</div>
+            <div class="detail-line"><strong>Criminal Name:</strong> ${criminal.name || 'N/A'}</div>
+            <div class="detail-line"><strong>Alias:</strong> ${criminal.alias || 'N/A'}</div>
+            <div class="detail-line"><strong>Age:</strong> ${criminal.age || 'N/A'}</div>
+            <div class="detail-line"><strong>Gender:</strong> ${criminal.gender || 'N/A'}</div>
+            <div class="detail-line"><strong>Address:</strong> ${criminal.address || 'N/A'}</div>
+            <div class="detail-line"><strong>Distinguishing Marks:</strong> ${criminal.marks || 'N/A'}</div>
+            <div class="detail-line"><strong>Previous Record:</strong> ${criminal.record || 'N/A'}</div>
+            <div class="detail-line"><strong>Criminal History:</strong> ${criminal.history || 'N/A'}</div>
+            <div class="detail-line"><strong>Incident Location:</strong> ${item.incidentLocation || 'N/A'}</div>
+            <div class="detail-line"><strong>Date of Incident:</strong> ${item.date || 'N/A'}</div>
+            <div class="detail-line"><strong>Status:</strong> ${item.status}</div>
+            ${item.status === 'Case Closed' && item.judgement ? `<div class="detail-line"><strong>Judgement:</strong> ${item.judgement}</div>` : ''}
+        `;
+        document.getElementById('detailsModal').style.display = 'flex';
+    }
+
+    function closeModal() { document.getElementById('detailsModal').style.display = 'none'; }
+
+    function exportToCSV() {
+        let csvRows = [["Ref ID", "Criminal Name", "Age", "Gender", "Crime Category", "Arrest Date", "Status", "Address", "Previous Record", "Judgement"]];
+        arrestedData.forEach(item => {
+            csvRows.push([
+                item.refID,
+                item.criminal.name || '',
+                item.criminal.age || '',
+                item.criminal.gender || '',
+                item.category,
+                item.date || '',
+                item.status,
+                item.criminal.address || '',
+                item.criminal.record || '',
+                item.status === 'Case Closed' ? (item.judgement || '') : ''
+            ]);
+        });
+        const csvContent = csvRows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
+        const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `arrested_persons_${new Date().toISOString().slice(0,10)}.csv`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+    }
+
+    window.onload = loadArrestedData;
 </script>
 </body>
 </html>

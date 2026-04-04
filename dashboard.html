@@ -3,41 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Police Analytics | SecureCloud Portal</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>Command Analytics | SecureCloud Intelligence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
-            --primary-bg: #0f172a;
-            --secondary-bg: #1e293b;
+            --primary-bg: #0a0f1e;
+            --secondary-bg: #111827;
             --accent-gold: #fbbf24;
-            --accent-blue: #38bdf8;
-            --text-main: #f8fafc;
-            --text-dim: #94a3b8;
-            --glass: rgba(30, 41, 59, 0.7);
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --accent-cyan: #06b6d4;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --text-main: #f9fafb;
+            --text-dim: #9ca3af;
+            --glass: rgba(17, 24, 39, 0.7);
+            --card-bg: rgba(31, 41, 55, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            margin: 0;
             font-family: 'Inter', sans-serif;
-            background-color: var(--primary-bg);
+            background: linear-gradient(135deg, #0a0f1e 0%, #0f172a 100%);
             color: var(--text-main);
             min-height: 100vh;
-            background-image: radial-gradient(circle at top right, #1e293b 0%, #0f172a 100%);
-            background-attachment: fixed;
         }
 
-        /* Navbar */
+        /* Navigation */
         nav {
-            background: rgba(15, 23, 42, 0.9);
+            background: rgba(15, 23, 42, 0.95);
             backdrop-filter: blur(12px);
             display: flex;
             justify-content: center;
             padding: 15px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
         nav a {
@@ -45,74 +56,173 @@
             text-decoration: none;
             margin: 0 20px;
             font-weight: 600;
+            font-size: 0.9rem;
             transition: 0.3s;
+            letter-spacing: 0.5px;
         }
 
-        nav a:hover, nav a.active { color: var(--accent-gold); }
+        nav a:hover, nav a.active {
+            color: var(--accent-gold);
+        }
 
-        .title {
+        /* Header */
+        .dashboard-header {
             text-align: center;
-            padding: 40px 0 10px;
-            font-size: 2.2rem;
-            font-weight: 700;
-            background: linear-gradient(to right, #fff, var(--accent-blue));
+            padding: 40px 20px 20px;
+        }
+
+        .dashboard-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, var(--accent-blue), var(--accent-purple));
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
         }
 
-        .subtitle {
-            text-align: center;
+        .dashboard-header p {
             color: var(--text-dim);
             font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 30px;
+            letter-spacing: 1px;
         }
 
-        /* Grid Layout */
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 24px;
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 24px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(59,130,246,0.3);
+            box-shadow: 0 20px 30px -12px rgba(0,0,0,0.4);
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            color: var(--accent-gold);
+            margin-bottom: 12px;
+        }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: white;
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 8px;
+        }
+
+        .stat-trend {
+            font-size: 0.75rem;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .trend-up { color: var(--accent-green); }
+        .trend-down { color: var(--accent-red); }
+
+        /* Charts Grid */
         .charts-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 25px;
-            max-width: 1300px;
-            margin: 0 auto;
-            padding: 0 30px 50px 30px;
+            gap: 28px;
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 24px;
         }
 
         .chart-card {
-            background: var(--glass);
+            background: var(--card-bg);
             backdrop-filter: blur(10px);
-            padding: 25px;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 24px;
             transition: 0.3s;
         }
 
         .chart-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--accent-blue);
+            border-color: rgba(59,130,246,0.3);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
         }
 
         .chart-card h3 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: var(--accent-gold);
             font-size: 1.1rem;
-            letter-spacing: 0.5px;
+            font-weight: 600;
+            color: var(--accent-gold);
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
-            justify-content: center;
             gap: 10px;
+            border-left: 3px solid var(--accent-blue);
+            padding-left: 12px;
         }
 
         canvas {
+            max-height: 320px;
             width: 100% !important;
-            height: 300px !important;
+        }
+
+        /* Footer */
+        .footer-note {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-dim);
+            font-size: 0.75rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            margin-top: 20px;
         }
 
         @media (max-width: 900px) {
-            .charts-grid { grid-template-columns: 1fr; }
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .dashboard-header h1 {
+                font-size: 1.8rem;
+            }
         }
     </style>
 </head>
@@ -125,162 +235,242 @@
     <a href="contact_us.html">Contact Us</a>
 </nav>
 
-<div class="title">Command Center Analytics</div>
-<div class="subtitle">Live Intelligence & Data Visualization</div>
+<div class="dashboard-header">
+    <h1><i class="fas fa-chart-line"></i>   Analytic Dashboard</h1>
+    <p>Real-time analytics & forensic data insights</p>
+</div>
+
+<!-- Dynamic Stats Cards -->
+<div class="stats-grid" id="statsGrid">
+    <div class="stat-card"><div class="stat-icon"><i class="fas fa-folder-open"></i></div><div class="stat-value" id="totalCases">0</div><div class="stat-label">Total FIRs</div><div class="stat-trend"><i class="fas fa-chart-line"></i> <span id="trendTotal">--</span></div></div>
+    <div class="stat-card"><div class="stat-icon"><i class="fas fa-user-shield"></i></div><div class="stat-value" id="activeCases">0</div><div class="stat-label">Active Investigations</div><div class="stat-trend"><i class="fas fa-hourglass-half"></i> <span id="trendActive">--</span></div></div>
+    <div class="stat-card"><div class="stat-icon"><i class="fas fa-check-circle"></i></div><div class="stat-value" id="closedCases">0</div><div class="stat-label">Case Closed</div><div class="stat-trend"><i class="fas fa-gavel"></i> <span id="trendClosed">--</span></div></div>
+    <div class="stat-card"><div class="stat-icon"><i class="fas fa-handcuffs"></i></div><div class="stat-value" id="arrestRate">0%</div><div class="stat-label">Apprehension Rate</div><div class="stat-trend"><i class="fas fa-chart-simple"></i> <span id="trendArrest">--</span></div></div>
+</div>
 
 <div class="charts-grid">
     <div class="chart-card">
-        <h3><i class="fas fa-folder-open"></i> FIRs by Crime Category</h3>
+        <h3><i class="fas fa-chart-pie"></i> Crime Category Distribution</h3>
         <canvas id="categoryChart"></canvas>
     </div>
-    
     <div class="chart-card">
-        <h3><i class="fas fa-signal"></i> Case Status Distribution</h3>
+        <h3><i class="fas fa-chart-simple"></i> Case Status Overview</h3>
         <canvas id="statusChart"></canvas>
     </div>
-
     <div class="chart-card">
-        <h3><i class="fas fa-chart-line"></i> Monthly FIR Trends</h3>
+        <h3><i class="fas fa-calendar-week"></i> Monthly FIR Trends</h3>
         <canvas id="monthlyTrendChart"></canvas>
     </div>
-
     <div class="chart-card">
-        <h3><i class="fas fa-user-secret"></i> Intelligence Breakdown</h3>
-        <canvas id="criminalSuspectChart"></canvas>
+        <h3><i class="fas fa-brain"></i> Intelligence Breakdown</h3>
+        <canvas id="intelChart"></canvas>
     </div>
+</div>
+
+<div class="footer-note">
+    <i class="fas fa-sync-alt"></i> &copy; 2026 Cloud Based Intelligent Crime Reporting And Case Management Using Natural Language Processing. All Rights Reserved.
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-
 <script>
-    // Firebase Config (Keep original)
     const firebaseConfig = {
         apiKey: "AIzaSyBnMI6S8fig-fl8exIAt5tDz9qWWrWGHAM",
         authDomain: "crime-management-fdd43.firebaseapp.com",
         projectId: "crime-management-fdd43",
         storageBucket: "crime-management-fdd43.firebasestorage.app",
         messagingSenderId: "990509285734",
-        appId: "1:990509285734:web:4798f9666ff2dea537c8a7",
-        measurementId: "G-QTG266883M"
+        appId: "1:990509285734:web:4798f9666ff2dea537c8a7"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
     let charts = {};
 
+    // Helper: Parse date in DD/MM/YYYY or YYYY-MM-DD
+    function parseDate(dateStr) {
+        if (!dateStr) return null;
+        if (dateStr.includes('/')) {
+            let parts = dateStr.split('/');
+            if (parts.length === 3) {
+                return new Date(parts[2], parts[1]-1, parts[0]);
+            }
+        }
+        let d = new Date(dateStr);
+        return isNaN(d.getTime()) ? null : d;
+    }
+
     async function loadDashboardData() {
         const snapshot = await db.collection("firs").get();
         const firs = snapshot.docs.map(doc => doc.data());
-        renderCharts(firs);
+        renderAll(firs);
     }
 
-    function renderCharts(firs) {
-        // Global Chart Defaults
-        Chart.defaults.color = '#94a3b8';
-        Chart.defaults.font.family = "'Inter', sans-serif";
+    function renderAll(firs) {
+        // ----- Statistics & Trends -----
+        const total = firs.length;
+        const active = firs.filter(f => f.status === 'Pending' || !f.status).length;
+        const closed = firs.filter(f => f.status === 'Case Closed').length;
+        const arrested = firs.filter(f => f.status === 'Arrested').length;
+        const arrestRate = total ? Math.round((arrested / total) * 100) : 0;
 
-        // 1. FIR Category Chart (Bar)
-        const catData = {};
+        document.getElementById('totalCases').innerText = total;
+        document.getElementById('activeCases').innerText = active;
+        document.getElementById('closedCases').innerText = closed;
+        document.getElementById('arrestRate').innerText = arrestRate + '%';
+
+        // Simple trend indicators (compared to last month – mock, but functional)
+        const lastMonth = new Date(); lastMonth.setMonth(lastMonth.getMonth()-1);
+        const recentCount = firs.filter(f => {
+            let d = parseDate(f.date);
+            return d && d >= lastMonth;
+        }).length;
+        document.getElementById('trendTotal').innerHTML = recentCount > 0 ? `+${recentCount} this month` : 'No change';
+        document.getElementById('trendActive').innerHTML = active > 0 ? `${active} under probe` : 'None';
+        document.getElementById('trendClosed').innerHTML = closed > 0 ? `${closed} resolved` : '--';
+        document.getElementById('trendArrest').innerHTML = arrestRate > 0 ? `${arrestRate}% closure` : 'Pending';
+
+        // ---- Category Chart (Bar) ----
+        const catMap = new Map();
         firs.forEach(f => {
-            const c = f.category || 'Unknown';
-            catData[c] = (catData[c] || 0) + 1;
+            let cat = f.category || 'Uncategorized';
+            catMap.set(cat, (catMap.get(cat) || 0) + 1);
         });
-        charts.cat = new Chart(document.getElementById('categoryChart'), {
+        const categories = Array.from(catMap.keys());
+        const catCounts = Array.from(catMap.values());
+
+        if (charts.category) charts.category.destroy();
+        charts.category = new Chart(document.getElementById('categoryChart'), {
             type: 'bar',
             data: {
-                labels: Object.keys(catData),
+                labels: categories,
                 datasets: [{
-                    label: 'Records',
-                    data: Object.values(catData),
-                    backgroundColor: '#38bdf8',
-                    borderRadius: 10
+                    label: 'Number of FIRs',
+                    data: catCounts,
+                    backgroundColor: 'rgba(59,130,246,0.7)',
+                    borderRadius: 8,
+                    borderSkipped: false
                 }]
             },
             options: {
-                plugins: { legend: { display: false } },
-                scales: { 
-                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } },
-                    x: { grid: { display: false } }
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { position: 'top', labels: { color: '#9ca3af' } },
+                    tooltip: { backgroundColor: '#1f2937', titleColor: '#fbbf24' }
+                },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af' } },
+                    x: { ticks: { color: '#9ca3af', rotate: 45 }, grid: { display: false } }
                 }
             }
         });
 
-        // 2. Case Status Chart (Doughnut)
-        const statusData = {
-            'Pending': firs.filter(f => !f.status || f.status === 'Pending').length,
+        // ---- Status Chart (Doughnut) ----
+        const statusCounts = {
+            'Pending': firs.filter(f => f.status === 'Pending' || !f.status).length,
             'Arrested': firs.filter(f => f.status === 'Arrested').length,
-            'Closed': firs.filter(f => f.status === 'Case Closed').length
+            'Case Closed': firs.filter(f => f.status === 'Case Closed').length
         };
+        if (charts.status) charts.status.destroy();
         charts.status = new Chart(document.getElementById('statusChart'), {
             type: 'doughnut',
             data: {
-                labels: Object.keys(statusData),
+                labels: ['Under Investigation', 'Arrested', 'Case Closed'],
                 datasets: [{
-                    data: Object.values(statusData),
-                    backgroundColor: ['#ef4444', '#38bdf8', '#fbbf24'],
+                    data: [statusCounts.Pending, statusCounts.Arrested, statusCounts['Case Closed']],
+                    backgroundColor: ['#ef4444', '#3b82f6', '#fbbf24'],
                     borderWidth: 0,
-                    hoverOffset: 15
+                    hoverOffset: 10
                 }]
             },
             options: {
-                cutout: '70%',
-                plugins: { legend: { position: 'bottom' } }
+                cutout: '65%',
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: '#9ca3af' } },
+                    tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${ctx.raw} cases` } }
+                }
             }
         });
 
-        // 3. Monthly Trend (Line)
-        const months = { 'Jan':0, 'Feb':0, 'Mar':0, 'Apr':0, 'May':0, 'Jun':0, 'Jul':0, 'Aug':0, 'Sep':0, 'Oct':0, 'Nov':0, 'Dec':0 };
+        // ---- Monthly Trend (Line) ----
+        const monthMap = { 'Jan':0,'Feb':0,'Mar':0,'Apr':0,'May':0,'Jun':0,'Jul':0,'Aug':0,'Sep':0,'Oct':0,'Nov':0,'Dec':0 };
         firs.forEach(f => {
-            const date = f.date ? new Date(f.date) : null;
-            if (date && !isNaN(date.getTime())) {
-                months[date.toLocaleString('default', { month: 'short' })]++;
+            let d = parseDate(f.date);
+            if (d) {
+                let month = d.toLocaleString('default', { month: 'short' });
+                monthMap[month] = (monthMap[month] || 0) + 1;
             }
         });
+        const months = Object.keys(monthMap);
+        const monthData = Object.values(monthMap);
+        if (charts.trend) charts.trend.destroy();
         charts.trend = new Chart(document.getElementById('monthlyTrendChart'), {
             type: 'line',
             data: {
-                labels: Object.keys(months),
+                labels: months,
                 datasets: [{
                     label: 'FIR Volume',
-                    data: Object.values(months),
+                    data: monthData,
                     borderColor: '#fbbf24',
-                    backgroundColor: 'rgba(251, 191, 36, 0.1)',
+                    backgroundColor: 'rgba(251,191,36,0.1)',
                     fill: true,
-                    tension: 0.4,
-                    pointBackgroundColor: '#fbbf24'
+                    tension: 0.3,
+                    pointBackgroundColor: '#fbbf24',
+                    pointBorderColor: '#0f172a',
+                    pointRadius: 4,
+                    pointHoverRadius: 6
                 }]
             },
             options: {
-                scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' } } }
+                responsive: true,
+                plugins: {
+                    tooltip: { backgroundColor: '#1f2937' },
+                    legend: { labels: { color: '#9ca3af' } }
+                },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af' } },
+                    x: { ticks: { color: '#9ca3af' }, grid: { display: false } }
+                }
             }
         });
 
-        // 4. Intelligence Breakdown (Pie)
-        const intel = { 'Criminal Known': 0, 'Suspect Identified': 0, 'Blind Cases': 0 };
+        // ---- Intelligence Breakdown (based on suspects/criminals arrays) ----
+        let criminalKnown = 0;
+        let suspectIdentified = 0;
+        let blindCases = 0;
         firs.forEach(f => {
-            if(f.criminalKnown==='Yes') intel['Criminal Known']++;
-            else if(f.suspectKnown==='Yes') intel['Suspect Identified']++;
-            else intel['Blind Cases']++;
+            const hasCriminals = f.criminals && Array.isArray(f.criminals) && f.criminals.length > 0;
+            const hasSuspects = f.suspects && Array.isArray(f.suspects) && f.suspects.length > 0;
+            if (hasCriminals) criminalKnown++;
+            else if (hasSuspects) suspectIdentified++;
+            else blindCases++;
         });
-        charts.intel = new Chart(document.getElementById('criminalSuspectChart'), {
+        if (charts.intel) charts.intel.destroy();
+        charts.intel = new Chart(document.getElementById('intelChart'), {
             type: 'pie',
             data: {
-                labels: Object.keys(intel),
+                labels: ['Criminal Known', 'Suspect Identified', 'Blind Cases'],
                 datasets: [{
-                    data: Object.values(intel),
-                    backgroundColor: ['#38bdf8', '#818cf8', '#334155'],
+                    data: [criminalKnown, suspectIdentified, blindCases],
+                    backgroundColor: ['#8b5cf6', '#3b82f6', '#475569'],
                     borderWidth: 0
                 }]
             },
             options: {
-                plugins: { legend: { position: 'bottom' } }
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: '#9ca3af' } },
+                    tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${ctx.raw} cases` } }
+                }
             }
         });
     }
 
-    window.onload = loadDashboardData;
+    window.onload = () => {
+        loadDashboardData();
+        // Auto-refresh every 60 seconds
+        setInterval(loadDashboardData, 60000);
+    };
 </script>
-
 </body>
 </html>
