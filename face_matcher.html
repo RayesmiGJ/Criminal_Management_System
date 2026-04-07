@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIR Management | Face Recognition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/face_matcher.css">
+    
+    <!-- TensorFlow.js and Face-api.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core@4.15.0/dist/tf-core.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter@4.15.0/dist/tf-converter.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl@4.15.0/dist/tf-backend-webgl.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <script src="auth_check.js"></script>
+    <div class="container">
+        <h1><i class="fas fa-gavel"></i> FIR Management System</h1>
+        
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-card">Total Cases: <span id="totalCases">0</span></div>
+            <div class="stat-card">Processing Time: <span id="processingTime">0ms</span></div>
+            <div class="stat-card">Linked Cases: <span id="linkedCases">0</span></div>
+            <div class="stat-card">Avg Confidence: <span id="avgConfidence">0%</span></div>
+        </div>
+        
+        <!-- Controls -->
+        <div class="controls">
+            <div class="search-group">
+                <input type="text" id="searchInput" placeholder="Search by case ID, victim, suspect, description...">
+                <button class="btn btn-primary" onclick="universalSearch()"><i class="fas fa-search"></i> Search</button>
+            </div>
+            <div class="filters">
+                <select id="crimeTypeFilter">
+                    <option value="">All Crime Types</option>
+                </select>
+                <select id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Arrested">Arrested</option>
+                    <option value="Case Closed">Case Closed</option>
+                </select>
+                <select id="matchType">
+                    <option value="hybrid">Hybrid Match</option>
+                    <option value="exact">Exact Match</option>
+                </select>
+                <button class="btn btn-purple" onclick="document.getElementById('faceMatchInput').click()">
+                    <i class="fas fa-face-smile"></i> Match Face
+                </button>
+                <button class="btn btn-secondary" onclick="loadAllCases()"><i class="fas fa-sync-alt"></i> Refresh</button>
+            </div>
+        </div>
+        <input type="file" id="faceMatchInput" accept="image/*" style="display:none" onchange="matchFaceFromUpload(this)">
+        
+        <!-- Results Table -->
+        <div id="resultsContainer">
+            <div class="empty-state">
+                <i class="fas fa-check-circle"></i>
+                <p>Ready to search. Enter keywords or click Refresh to load all cases.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Case Details Modal -->
+    <div id="caseModal" class="modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-file-alt"></i> Case Details</h3>
+            <div id="modalBody"></div>
+            <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+    
+    <!-- Edit Case Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <h3>Edit FIR: <span id="editRefNo"></span></h3>
+            <div id="editFormContainer"></div>
+            <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+        </div>
+    </div>
+    
+    <!-- Face Match Results Modal -->
+    <div id="faceMatchModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <h3><i class="fas fa-face-smile"></i> Face Matching Results</h3>
+            <div id="faceMatchResults"></div>
+            <button class="btn btn-secondary" onclick="closeFaceMatchModal()">Close</button>
+        </div>
+    </div>
+    
+    <!-- Fullscreen Image Modal -->
+    <div id="fullscreenModal" class="modal">
+        <div class="modal-content" style="max-width: 90%; text-align: center;">
+            <img id="fullscreenImage" style="max-width: 100%; max-height: 80vh;">
+            <button class="btn btn-secondary" onclick="closeFullscreen()">Close</button>
+        </div>
+    </div>
+    
+    <!-- Face Model Status (optional) -->
+    <div id="faceModelStatus" style="position: fixed; bottom: 10px; right: 10px; background: #1e293b; padding: 5px 10px; border-radius: 20px; font-size: 12px;"></div>
+    
+    <script src="js/face_matcher.js"></script>
+</body>
+</html>

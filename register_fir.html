@@ -13,7 +13,7 @@
     <!-- Puter.js for FREE Claude API access -->
     <script src="https://js.puter.com/v2/"></script>
     
-     <link rel="stylesheet" href="css/register_fir.css">
+    <link rel="stylesheet" href="css/register_fir.css">
 </head>
 <body>
 <script src="auth-check.js"></script>
@@ -25,6 +25,12 @@
 </nav>
 
 <header><i class="fas fa-shield-alt"></i> Official FIR Registration Portal</header>
+
+<div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+    <button type="button" class="btn-submit" onclick="showAllFIRs()" style="background: #334155; padding: 8px 20px;">
+        <i class="fas fa-database"></i> View All FIRs
+    </button>
+</div>
 
 <form id="firForm">
     <fieldset>
@@ -151,8 +157,8 @@
     <fieldset class="full-width">
         <legend>Unlimited Evidence Management <span class="optional">(Optional)</span></legend>
         <div class="btn-add-media" onclick="document.getElementById('mediaInput').click()">
-            <i class="fas fa-cloud-upload-alt"></i> Click to add multiple Photos, Audio or Video files
-            <input type="file" id="mediaInput" multiple accept="image/*,audio/*,video/*" style="display:none" onchange="manageMedia(this)">
+            <i class="fas fa-cloud-upload-alt"></i> Click to add multiple Photos (JPEG/PNG) - stored as Base64
+            <input type="file" id="mediaInput" multiple accept="image/*" style="display:none" onchange="manageMedia(this)">
         </div>
         <div class="evidence-grid" id="mediaGallery"></div>
         <label>Property Seizure List <span class="optional">(if any)</span>:</label>
@@ -163,10 +169,11 @@
         <button type="button" class="btn-submit" onclick="submitFIR()">Finalize & Submit FIR</button>
     </div>
     <div id="bgUploadStatus" class="bg-upload-status">
-        <i class="fas fa-spinner fa-spin"></i> Images are uploading in background...
+        <i class="fas fa-spinner fa-spin"></i> Processing images...
     </div>
 </form>
 
+<!-- Modal for showing FIR submission success -->
 <div class="modal" id="resultModal">
     <div class="modal-content">
         <i class="fas fa-check-circle" style="font-size: 3rem; color: var(--accent-blue); margin-bottom: 15px;"></i>
@@ -179,9 +186,18 @@
     </div>
 </div>
 
+<!-- Modal for displaying retrieved FIRs -->
+<div class="modal" id="retrieveModal">
+    <div class="modal-content" style="max-width: 900px;">
+        <i class="fas fa-folder-open" style="font-size: 2rem; color: var(--accent-blue);"></i>
+        <h3>All FIR Records</h3>
+        <div id="firListContainer" style="max-height: 500px; overflow-y: auto; margin: 15px 0;"></div>
+        <button onclick="closeRetrieveModal()" class="btn-submit" style="width: 100%; background: #334155;">Close</button>
+    </div>
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
 <script src="js/register_fir.js"></script>
 </body>
 </html>
