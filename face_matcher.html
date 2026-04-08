@@ -1,111 +1,493 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FIR Management | Face Recognition</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/face_matcher.css">
-    
-    <!-- TensorFlow.js and Face-api.js -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core@4.15.0/dist/tf-core.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter@4.15.0/dist/tf-converter.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl@4.15.0/dist/tf-backend-webgl.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
-    
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIR Management System</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.7.4"></script>
+<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+
+
+
+<style>
+body{
+    font-family:Inter,sans-serif;
+    background:#0f172a;
+    color:white;
+    margin:0;
+    padding:20px;
+}
+.container{
+    max-width:1200px;
+    margin:auto;
+}
+h1{
+    text-align:center;
+    margin-bottom:30px;
+}
+.stats-bar{
+    display:flex;
+    gap:15px;
+    margin-bottom:20px;
+}
+.stat-card{
+    flex:1;
+    background:#1e293b;
+    padding:15px;
+    border-radius:10px;
+    text-align:center;
+}
+.controls{
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+    margin-bottom:20px;
+}
+.search-group{
+    display:flex;
+    gap:10px;
+}
+input,select{
+    padding:12px;
+    border:none;
+    border-radius:8px;
+}
+input{
+    flex:1;
+}
+button{
+    padding:12px 18px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+.btn-primary{background:#2563eb;color:white;}
+.btn-secondary{background:#475569;color:white;}
+.btn-purple{background:#7c3aed;color:white;}
+#resultsContainer{
+    background:#1e293b;
+    padding:20px;
+    border-radius:12px;
+}
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.7);
+    justify-content:center;
+    align-items:center;
+}
+.modal-content{
+    background:#1e293b;
+    padding:25px;
+    border-radius:12px;
+    width:500px;
+}
+.person-card{
+    border:1px solid #334155;
+    padding:15px;
+    margin:10px 0;
+    border-radius:10px;
+}
+#faceModelStatus{
+    position:fixed;
+    bottom:10px;
+    right:10px;
+    background:#1e293b;
+    padding:8px 14px;
+    border-radius:20px;
+}
+</style>
 </head>
 <body>
-    <script src="auth_check.js"></script>
-    <div class="container">
-        <h1><i class="fas fa-gavel"></i> FIR Management System</h1>
-        
-        <!-- Stats Bar -->
-        <div class="stats-bar">
-            <div class="stat-card">Total Cases: <span id="totalCases">0</span></div>
-            <div class="stat-card">Processing Time: <span id="processingTime">0ms</span></div>
-            <div class="stat-card">Linked Cases: <span id="linkedCases">0</span></div>
-            <div class="stat-card">Avg Confidence: <span id="avgConfidence">0%</span></div>
+
+<div class="container">
+    <h1><i class="fas fa-gavel"></i> FIR Management System</h1>
+
+    <div class="stats-bar">
+        <div class="stat-card">Total Cases: <span id="totalCases">0</span></div>
+        <div class="stat-card">Processing: <span id="processingTime">0ms</span></div>
+        <div class="stat-card">Matches: <span id="linkedCases">0</span></div>
+        <div class="stat-card">Confidence: <span id="avgConfidence">0%</span></div>
+    </div>
+
+    <div class="controls">
+        <div class="search-group">
+            <input type="text" id="searchInput" placeholder="Search cases">
+            <button class="btn-primary" onclick="searchCases()">Search</button>
         </div>
-        
-        <!-- Controls -->
-        <div class="controls">
-            <div class="search-group">
-                <input type="text" id="searchInput" placeholder="Search by case ID, victim, suspect, description...">
-                <button class="btn btn-primary" onclick="universalSearch()"><i class="fas fa-search"></i> Search</button>
+
+        <div>
+            <button class="btn-purple" onclick="document.getElementById('faceInput').click()">
+                Match Face
+            </button>
+            <button class="btn-secondary" onclick="loadCases()">Refresh</button>
+        </div>
+    </div>
+
+    <input type="file" id="faceInput" accept="image/*" style="display:none" onchange="matchFace(this)">
+
+    <div id="resultsContainer">
+        Ready to search and face match
+    </div>
+</div>
+
+<div id="faceMatchModal" class="modal">
+    <div class="modal-content">
+        <h3>Face Match Results</h3>
+        <div id="faceMatchResults"></div>
+        <button class="btn-secondary" onclick="closeModal()">Close</button>
+    </div>
+</div>
+
+<div id="faceModelStatus">Loading...</div>
+
+<script>
+const firebaseConfig = {
+    apiKey: "AIzaSyBnMI6S8fig-fl8exIAt5tDz9qWWrWGHAM",
+    authDomain: "crime-management-fdd43.firebaseapp.com",
+    projectId: "crime-management-fdd43",
+    storageBucket: "crime-management-fdd43.appspot.com",
+    messagingSenderId: "990509285734",
+    appId: "1:990509285734:web:4798f9666ff2dea537c8a7"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+let allCases = [];
+let faceMatcher = [];
+let modelsLoaded = false;
+
+// LOAD MODELS
+async function loadModels() {
+    const status = document.getElementById("faceModelStatus");
+
+    try {
+        status.innerHTML = "Loading models...";
+
+        const MODEL_URL =
+            "https://justadudewhohacks.github.io/face-api.js/models";
+
+        await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+        await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+        await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+
+        modelsLoaded = true;
+
+        status.innerHTML = "Face AI Ready";
+
+        console.log("Models loaded");
+
+    } catch (error) {
+        console.error(error);
+        status.innerHTML = "Model failed";
+    }
+}
+
+// LOAD CASES
+async function loadCases(showList = false) {
+    try {
+        console.log("Loading cases...");
+
+        const snapshot = await db.collection("firs").get();
+
+        allCases = [];
+
+        snapshot.forEach(doc => {
+            const data = doc.data();
+
+            allCases.push({
+                id: doc.id,
+                refID: data.refID || doc.id,
+                complaint: data.complaint || "",
+                criminals: data.criminals || []
+            });
+        });
+
+        document.getElementById("totalCases").innerText = allCases.length;
+
+        // Do NOT show all cases on page load
+        if (showList) {
+            document.getElementById("resultsContainer").innerHTML =
+                allCases.map(c =>
+                    `<p>${c.refID} - ${c.complaint}</p>`
+                ).join("");
+        }
+
+    } catch (error) {
+        console.error("LOAD CASE ERROR:", error);
+
+        document.getElementById("resultsContainer").innerHTML =
+            `<p style="color:red;">${error.message}</p>`;
+    }
+}
+lk
+
+// PRELOAD CRIMINAL FACES
+async function preloadDescriptors() {
+    faceMatcher = [];
+
+    const snapshot = await db.collection("firs").get();
+
+    for (const doc of snapshot.docs) {
+        const data = doc.data();
+
+        const categories = [
+            { type: "Criminal", list: data.criminals || [] },
+            { type: "Suspect", list: data.suspects || [] },
+            { type: "Witness", list: data.witnesses || [] },
+            { type: "Victim", list: data.victims || [] }
+        ];
+
+        for (const category of categories) {
+            for (const person of category.list) {
+                if (person.imageBase64) {
+                    try {
+                        const descriptor =
+                            await getDescriptor(person.imageBase64);
+
+                        if (descriptor) {
+                            faceMatcher.push({
+                                descriptor,
+                                caseId: doc.id,
+                                name: person.name || "Unknown",
+                                refID: data.refID || doc.id,
+                                image: person.imageBase64,
+                                personType: category.type,
+                                fullCase: data
+                            });
+                        }
+                    } catch (error) {
+                        console.log(
+                            "Face detection failed:",
+                            person.name
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    console.log("Total descriptors:", faceMatcher.length);
+}
+
+
+
+
+// BASE64 TO IMAGE
+function base64ToImage(base64) {
+    return new Promise(resolve => {
+        const img = new Image();
+        img.src = base64;
+        img.onload = () => resolve(img);
+    });
+}
+
+// GET FACE VECTOR
+async function getDescriptor(base64) {
+    const img = await base64ToImage(base64);
+
+    const detection = await faceapi
+        .detectSingleFace(
+            img,
+            new faceapi.TinyFaceDetectorOptions()
+        )
+        .withFaceLandmarks()
+        .withFaceDescriptor();
+
+    return detection ? detection.descriptor : null;
+}
+
+// FACE MATCH
+async function matchFace(input) {
+    if (!modelsLoaded) {
+        alert("Models still loading");
+        return;
+    }
+
+    if (faceMatcher.length === 0) {
+        await preloadDescriptors();
+    }
+
+    const file = input.files[0];
+    if (!file) return;
+
+    const base64 = await fileToBase64(file);
+    const uploadedDescriptor = await getDescriptor(base64);
+
+    if (!uploadedDescriptor) {
+        showNoFaceDetected();
+        return;
+    }
+
+    let matches = [];
+
+    for (let person of faceMatcher) {
+        const distance = faceapi.euclideanDistance(
+            uploadedDescriptor,
+            person.descriptor
+        );
+
+        const similarity = Math.max(
+            0,
+            ((1 - distance) * 100)
+        ).toFixed(2);
+
+        console.log(person.name, similarity);
+
+        if (distance < 0.65) {
+            matches.push({
+                ...person,
+                similarity
+            });
+        }
+    }
+
+    matches.sort((a, b) =>
+        parseFloat(b.similarity) -
+        parseFloat(a.similarity)
+    );
+
+    showMatches(matches);
+}
+
+function showNoFaceDetected() {
+    document.getElementById("resultsContainer").innerHTML = `
+        <div class="person-card">
+            <h3>No Face Detected</h3>
+            <p>Please upload a clear frontal face image.</p>
+        </div>
+    `;
+}
+
+// FILE TO BASE64
+function fileToBase64(file) {
+    return new Promise(resolve => {
+        const reader = new FileReader();
+
+        reader.onload =
+            () => resolve(reader.result);
+
+        reader.readAsDataURL(file);
+    });
+}
+
+// SHOW RESULTS
+function showMatches(matches) {
+    const result = document.getElementById("resultsContainer");
+
+    if (!matches || matches.length === 0) {
+        result.innerHTML = `
+            <div class="person-card">
+                <h3>No Match Found</h3>
+                <p>No person matched with uploaded image.</p>
             </div>
-            <div class="filters">
-                <select id="crimeTypeFilter">
-                    <option value="">All Crime Types</option>
-                </select>
-                <select id="statusFilter">
-                    <option value="">All Status</option>
-                    <option value="Pending">Pending</option>
-                    <option value="Arrested">Arrested</option>
-                    <option value="Case Closed">Case Closed</option>
-                </select>
-                <select id="matchType">
-                    <option value="hybrid">Hybrid Match</option>
-                    <option value="exact">Exact Match</option>
-                </select>
-                <button class="btn btn-purple" onclick="document.getElementById('faceMatchInput').click()">
-                    <i class="fas fa-face-smile"></i> Match Face
-                </button>
-                <button class="btn btn-secondary" onclick="loadAllCases()"><i class="fas fa-sync-alt"></i> Refresh</button>
+        `;
+        return;
+    }
+
+    let html = `<h2>Face Match Results</h2>`;
+
+    matches.slice(0, 5).forEach((m, index) => {
+        html += `
+            <div class="person-card">
+                <div style="display:flex; gap:15px;">
+                    <img src="${m.image}"
+                        style="
+                            width:100px;
+                            height:100px;
+                            object-fit:cover;
+                            border-radius:10px;
+                        ">
+
+                    <div>
+                        ${index === 0 ? `<p style="color:lime;"><b>Best Match</b></p>` : ""}
+
+                        <p><b>Name:</b> ${m.name}</p>
+                        <p><b>Type:</b> ${m.personType}</p>
+                        <p><b>Case:</b> ${m.refID}</p>
+                        <p><b>Similarity:</b> ${m.similarity}%</p>
+
+                        <button
+                            onclick="viewCaseDetails('${m.caseId}')"
+                            class="btn-primary"
+                        >
+                            View Case
+                        </button>
+                    </div>
+                </div>
             </div>
-        </div>
-        <input type="file" id="faceMatchInput" accept="image/*" style="display:none" onchange="matchFaceFromUpload(this)">
-        
-        <!-- Results Table -->
-        <div id="resultsContainer">
-            <div class="empty-state">
-                <i class="fas fa-check-circle"></i>
-                <p>Ready to search. Enter keywords or click Refresh to load all cases.</p>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Case Details Modal -->
-    <div id="caseModal" class="modal">
-        <div class="modal-content">
-            <h3><i class="fas fa-file-alt"></i> Case Details</h3>
-            <div id="modalBody"></div>
-            <button class="btn btn-secondary" onclick="closeModal()">Close</button>
-        </div>
-    </div>
-    
-    <!-- Edit Case Modal -->
-    <div id="editModal" class="modal">
-        <div class="modal-content" style="max-width: 900px;">
-            <h3>Edit FIR: <span id="editRefNo"></span></h3>
-            <div id="editFormContainer"></div>
-            <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
-        </div>
-    </div>
-    
-    <!-- Face Match Results Modal -->
-    <div id="faceMatchModal" class="modal">
-        <div class="modal-content" style="max-width: 500px;">
-            <h3><i class="fas fa-face-smile"></i> Face Matching Results</h3>
-            <div id="faceMatchResults"></div>
-            <button class="btn btn-secondary" onclick="closeFaceMatchModal()">Close</button>
-        </div>
-    </div>
-    
-    <!-- Fullscreen Image Modal -->
-    <div id="fullscreenModal" class="modal">
-        <div class="modal-content" style="max-width: 90%; text-align: center;">
-            <img id="fullscreenImage" style="max-width: 100%; max-height: 80vh;">
-            <button class="btn btn-secondary" onclick="closeFullscreen()">Close</button>
-        </div>
-    </div>
-    
-    <!-- Face Model Status (optional) -->
-    <div id="faceModelStatus" style="position: fixed; bottom: 10px; right: 10px; background: #1e293b; padding: 5px 10px; border-radius: 20px; font-size: 12px;"></div>
-    
-    <script src="js/face_matcher.js"></script>
+        `;
+    });
+
+    result.innerHTML = html;
+}
+
+
+
+async function viewCaseDetails(caseId) {
+    const doc = await db.collection("firs").doc(caseId).get();
+
+    if (!doc.exists) {
+        alert("Case not found");
+        return;
+    }
+
+    const caseData = doc.data();
+
+    let details = `
+Case Reference: ${caseData.refID}
+Category: ${caseData.category || "N/A"}
+Location: ${caseData.incidentLocation || "N/A"}
+
+Description:
+${caseData.incidentDescription || caseData.complaint || "N/A"}
+    `;
+
+    alert(details);
+}
+
+
+
+// CLOSE MODAL
+function closeModal() {
+    document.getElementById(
+        "faceMatchModal"
+    ).style.display = "none";
+}
+
+// SEARCH
+function searchCases() {
+    const term =
+        document.getElementById("searchInput")
+        .value.toLowerCase();
+
+    const results = allCases.filter(c =>
+        c.refID.toLowerCase().includes(term) ||
+        c.complaint.toLowerCase().includes(term)
+    );
+
+    document.getElementById("resultsContainer")
+        .innerHTML =
+        results.map(r =>
+            `<p>${r.refID} - ${r.complaint}</p>`
+        ).join("");
+}
+
+// INIT
+loadCases();
+loadModels();
+</script>
+
+
 </body>
 </html>
