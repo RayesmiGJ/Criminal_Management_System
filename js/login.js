@@ -10,6 +10,7 @@ const firebaseConfig = {
 
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
 
 const OFFICER_CACHE_KEY = 'cachedOfficers_v1';
 let currentRole = 'officer';
@@ -202,6 +203,12 @@ async function validateLogin() {
     const officer = officersList.find(o => o.id === selectedDocId);
     if (!officer) {
         errorDiv.textContent = 'Officer not found in loaded list.';
+        errorDiv.style.display = 'block';
+        return;
+    }
+
+    if ((officer.role || '').toLowerCase() !== 'officer') {
+        errorDiv.textContent = 'Selected user does not have officer access.';
         errorDiv.style.display = 'block';
         return;
     }

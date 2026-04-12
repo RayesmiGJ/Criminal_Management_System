@@ -48,6 +48,30 @@
         return;
     }
 
+    function prefetchByRole() {
+        const officerPages = [
+            'home.html',
+            'register_fir.html',
+            'view_fir.html',
+            'search.html',
+            'dashboard.html',
+            'crime_hotspot.html',
+            'arrested_persons.html',
+            'face_matcher.html',
+            'prompt_results.html'
+        ];
+        const adminPages = ['admin_home.html', 'log_details.html'];
+        const pages = userRole === 'admin' ? adminPages : officerPages;
+        pages
+            .filter((p) => p !== currentPage)
+            .forEach((p) => {
+                const link = document.createElement('link');
+                link.rel = 'prefetch';
+                link.href = p;
+                document.head.appendChild(link);
+            });
+    }
+
     function updateDisplay() {
         const displayName = (user.name || 'Officer').split(' ')[0];
         const userNameSpan = document.getElementById('userNameDisplay');
@@ -85,6 +109,12 @@
         document.addEventListener('DOMContentLoaded', updateDisplay);
     } else {
         updateDisplay();
+    }
+
+    if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(prefetchByRole, { timeout: 1500 });
+    } else {
+        setTimeout(prefetchByRole, 500);
     }
 
     window.logout = function () {

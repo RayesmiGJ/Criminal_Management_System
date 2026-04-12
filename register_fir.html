@@ -1,203 +1,190 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Secure Register FIR | Law Enforcement Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Tesseract for offline OCR -->
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-    
-    <!-- Puter.js for FREE Claude API access -->
-    <script src="https://js.puter.com/v2/"></script>
-    
+
     <link rel="stylesheet" href="css/register_fir.css">
 </head>
+
 <body>
-<script src="auth-check.js"></script>
-<nav>
-    <a href="home.html">Home</a>
-    <a href="about_us.html">About Us</a>
-    <a href="martyrs.html">Martyrs</a>
-    <a href="contact_us.html">Contact Us</a>
-</nav>
+    <script src="auth-check.js"></script>
+    <nav>
+        <a href="home.html">Home</a>
+        <a href="about_us.html">About Us</a>
+        <a href="martyrs.html">Martyrs</a>
+        <a href="contact_us.html">Contact Us</a>
+    </nav>
 
-<header><i class="fas fa-shield-alt"></i> Official FIR Registration Portal</header>
+    <header><i class="fas fa-shield-alt"></i> Official FIR Registration Portal</header>
 
-<div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
-    <button type="button" class="btn-submit" onclick="showAllFIRs()" style="background: #334155; padding: 8px 20px;">
-        <i class="fas fa-database"></i> View All FIRs
-    </button>
-</div>
+    <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+        <button type="button" class="btn-submit" onclick="showAllFIRs()"
+            style="background: #334155; padding: 8px 20px;">
+            <i class="fas fa-database"></i> View All FIRs
+        </button>
+    </div>
 
-<form id="firForm">
-    <fieldset>
-        <legend>Official Case Record</legend>
-        <label class="required">Reference ID:</label>
-        <input type="text" id="refNo" readonly style="color: var(--accent-gold);">
-        <label>Date of Registration:</label>
-        <input type="text" id="date" readonly>
-        <label class="required">Incident Category:</label>
-        <select id="category">
-            <option value="">--Select Category--</option>
-            <option>Murder / Homicide</option>
-            <option>Theft / Burglary</option>
-            <option>Cyber Crime</option>
-            <option>Assault / Harassment</option>
-            <option>Kidnapping</option>
-            <option>Fraud</option>
-            <option>Riot</option>
-        </select>
-        <label class="required">Incident Location:</label>
-        <input type="text" id="incidentLocation" placeholder="Full address where incident occurred" onblur="geocodeAddress(this.value)">
-        <div id="locationStatus" class="location-status"></div>
-        <label class="required">Incident Description:</label>
-        <textarea id="incidentDescription" rows="3" placeholder="Brief description of the incident..."></textarea>
-    </fieldset>
-
-    <fieldset>
-        <legend>OCR Text Extraction <span class="optional">(Optional)</span></legend>
-
-        <!-- Engine selector -->
-        <label style="margin-top:0;">OCR Engine:</label>
-        <div class="ocr-engine-row">
-            <button type="button" class="ocr-engine-btn active" id="eng-tesseract" onclick="selectOcrEngine('tesseract')">
-                ⚙ Tesseract<br><span style="font-weight:400;font-size:0.7rem;">Free · Offline</span>
-            </button>
-            <button type="button" class="ocr-engine-btn" id="eng-google" onclick="selectOcrEngine('google')">
-                ☁ Google Vision<br><span style="font-weight:400;font-size:0.7rem;">API key required</span>
-            </button>
-            <button type="button" class="ocr-engine-btn" id="eng-claude" onclick="selectOcrEngine('claude')">
-                🤖 Claude AI<br><span style="font-weight:400;font-size:0.7rem;">✨ FREE via Puter</span>
-            </button>
-        </div>
-
-        <!-- API key input - only for Google Vision -->
-        <div id="ocrApiKeyWrap" style="display:none; margin-bottom:8px;">
-            <label id="ocrApiKeyLabel">Google Vision API Key:</label>
-            <input type="password" id="ocrApiKey" placeholder="Enter your Google Vision API key">
-        </div>
-
-        <!-- Claude Settings -->
-        <div id="claudeSettingsWrap" style="display:block; margin-bottom:8px;">
-            <label>Claude Model:</label>
-            <select id="claudeModel">
-                <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet (Best)</option>
-                <option value="claude-3-haiku-20240307">Claude 3 Haiku (Fastest)</option>
+    <form id="firForm">
+        <fieldset>
+            <legend>Official Case Record</legend>
+            <label class="required">Reference ID:</label>
+            <input type="text" id="refNo" readonly style="color: var(--accent-gold);">
+            <label>Date of Registration:</label>
+            <input type="text" id="date" readonly>
+            <label class="required">Incident Category:</label>
+            <select id="category">
+                <option value="">--Select Category--</option>
+                <option>Murder / Homicide</option>
+                <option>Theft / Burglary</option>
+                <option>Cyber Crime</option>
+                <option>Assault / Harassment</option>
+                <option>Kidnapping</option>
+                <option>Fraud</option>
+                <option>Riot</option>
             </select>
-            
-            <!-- Puter Status -->
-            <div id="puterStatus" style="margin-top: 10px; padding: 8px; border-radius: 4px; background: rgba(56, 189, 248, 0.1);">
-                <span id="puterStatusText">Initializing Puter...</span>
-                <button id="retryPuterBtn" onclick="initializePuter()" style="margin-left: 10px; padding: 2px 8px; background: var(--accent-blue); border: none; border-radius: 4px; color: black; cursor: pointer; display: none;">Retry</button>
+            <label class="required">Incident Location:</label>
+            <input type="text" id="incidentLocation" placeholder="Full address where incident occurred"
+                onblur="geocodeAddress(this.value)">
+            <div id="locationStatus" class="location-status"></div>
+            <label class="required">Incident Description:</label>
+            <textarea id="incidentDescription" rows="3" placeholder="Brief description of the incident..."></textarea>
+        </fieldset>
+
+        <fieldset>
+            <legend>OCR Text Extraction <span class="optional">(Optional)</span></legend>
+
+            <label style="margin-top:0;">OCR Engine:</label>
+            <div class="ocr-engine-row">
+                <button type="button" class="ocr-engine-btn active" id="eng-ocrspace"
+                    onclick="selectOcrEngine('ocrspace')">
+                    ☁ OCR.Space<br><span style="font-weight:400;font-size:0.7rem;">Cloud OCR</span>
+                </button>
             </div>
-        </div>
 
-        <div class="ocr-drop-zone" onclick="document.getElementById('ocrInput').click()">
-            <i class="fas fa-file-contract" style="font-size: 1.5rem;"></i>
-            <p>Upload handwritten or typed statement for extraction <span class="optional">(Optional)</span></p>
-            <input type="file" id="ocrInput" accept="image/*" style="display:none" onchange="runOCR(this)">
-        </div>
-        <div class="ocr-progress" id="progressWrapper"><div class="ocr-bar" id="progressBar"></div></div>
-        <div class="ocr-status-line" id="ocrStatusLine"></div>
-
-        <label>Complaint Statement <span class="optional">(Optional - Can be typed or OCR)</span>:</label>
-        <textarea id="complaint" placeholder="Type statement here or use OCR above..." rows="6"></textarea>
-    </fieldset>
-
-    <fieldset class="full-width">
-        <legend>Parties Involved</legend>
-        <div class="stats-summary" id="statsSummary">
-            <span class="stat-badge"><i class="fas fa-user-injured"></i> Victims: <span id="victimCount">1</span></span>
-            <span class="stat-badge"><i class="fas fa-user"></i> Witnesses: <span id="witnessCount">0</span></span>
-            <span class="stat-badge"><i class="fas fa-user-secret"></i> Suspects: <span id="suspectCount">0</span></span>
-            <span class="stat-badge"><i class="fas fa-skull-crosswalk"></i> Criminals: <span id="criminalCount">0</span></span>
-        </div>
-        <div class="counter-control">
-            <label><i class="fas fa-user-injured"></i> Number of Victims:</label>
-            <div class="counter-buttons">
-                <button type="button" class="counter-btn" onclick="updatePersonCount('victim', -1)">-</button>
-                <span class="counter-value" id="victimCounter">1</span>
-                <button type="button" class="counter-btn" onclick="updatePersonCount('victim', 1)">+</button>
+            <div class="optional" style="margin-top:10px; font-size:0.8rem;">
+                OCR language mode: Auto-detect (OCR.Space Engine 3)
             </div>
-            <span style="color: var(--text-dim); font-size: 0.8rem;">Minimum 1 victim required</span>
-        </div>
-        <div id="victimsContainer"></div>
-        <div class="counter-control">
-          <label><i class="fas fa-user"></i> Number of Witnesses:</label>
-          <div class="counter-buttons">
-             <button type="button" class="counter-btn" onclick="updatePersonCount('witness', -1)">-</button>
-             <span class="counter-value" id="witnessCounter">0</span>
-             <button type="button" class="counter-btn" onclick="updatePersonCount('witness', 1)">+</button>
-          </div>
-        </div>
-        <div id="witnessesContainer"></div>
-        <div class="counter-control">
-            <label><i class="fas fa-user-secret"></i> Number of Suspects:</label>
-            <div class="counter-buttons">
-                <button type="button" class="counter-btn" onclick="updatePersonCount('suspect', -1)">-</button>
-                <span class="counter-value" id="suspectCounter">0</span>
-                <button type="button" class="counter-btn" onclick="updatePersonCount('suspect', 1)">+</button>
+
+            <div class="ocr-drop-zone" onclick="document.getElementById('ocrInput').click()">
+                <i class="fas fa-file-contract" style="font-size: 1.5rem;"></i>
+                <p>Upload handwritten or typed statement for extraction <span class="optional">(Optional)</span></p>
+                <input type="file" id="ocrInput" accept="image/*" style="display:none" onchange="runOCR(this)">
             </div>
-        </div>
-        <div id="suspectsContainer"></div>
-        <div class="counter-control">
-            <label><i class="fas fa-skull-crosswalk"></i> Number of Criminals:</label>
-            <div class="counter-buttons">
-                <button type="button" class="counter-btn" onclick="updatePersonCount('criminal', -1)">-</button>
-                <span class="counter-value" id="criminalCounter">0</span>
-                <button type="button" class="counter-btn" onclick="updatePersonCount('criminal', 1)">+</button>
+            <div class="ocr-progress" id="progressWrapper">
+                <div class="ocr-bar" id="progressBar"></div>
             </div>
+            <div class="ocr-status-line" id="ocrStatusLine"></div>
+
+            <label>Complaint Statement <span class="optional">(Optional - Can be typed or OCR)</span>:</label>
+            <textarea id="complaint" placeholder="Type statement here or use OCR above..." rows="6"></textarea>
+        </fieldset>
+
+        <fieldset class="full-width">
+            <legend>Parties Involved</legend>
+            <div class="stats-summary" id="statsSummary">
+                <span class="stat-badge"><i class="fas fa-user-injured"></i> Victims: <span
+                        id="victimCount">1</span></span>
+                <span class="stat-badge"><i class="fas fa-user"></i> Witnesses: <span id="witnessCount">0</span></span>
+                <span class="stat-badge"><i class="fas fa-user-secret"></i> Suspects: <span
+                        id="suspectCount">0</span></span>
+                <span class="stat-badge"><i class="fas fa-skull-crosswalk"></i> Criminals: <span
+                        id="criminalCount">0</span></span>
+            </div>
+            <div class="counter-control">
+                <label><i class="fas fa-user-injured"></i> Number of Victims:</label>
+                <div class="counter-buttons">
+                    <button type="button" class="counter-btn" onclick="updatePersonCount('victim', -1)">-</button>
+                    <span class="counter-value" id="victimCounter">1</span>
+                    <button type="button" class="counter-btn" onclick="updatePersonCount('victim', 1)">+</button>
+                </div>
+                <span style="color: var(--text-dim); font-size: 0.8rem;">Minimum 1 victim required</span>
+            </div>
+            <div id="victimsContainer"></div>
+            <div class="counter-control">
+                <label><i class="fas fa-user"></i> Number of Witnesses:</label>
+                <div class="counter-buttons">
+                    <button type="button" class="counter-btn" onclick="updatePersonCount('witness', -1)">-</button>
+                    <span class="counter-value" id="witnessCounter">0</span>
+                    <button type="button" class="counter-btn" onclick="updatePersonCount('witness', 1)">+</button>
+                </div>
+            </div>
+            <div id="witnessesContainer"></div>
+            <div class="counter-control">
+                <label><i class="fas fa-user-secret"></i> Number of Suspects:</label>
+                <div class="counter-buttons">
+                    <button type="button" class="counter-btn" onclick="updatePersonCount('suspect', -1)">-</button>
+                    <span class="counter-value" id="suspectCounter">0</span>
+                    <button type="button" class="counter-btn" onclick="updatePersonCount('suspect', 1)">+</button>
+                </div>
+            </div>
+            <div id="suspectsContainer"></div>
+            <div class="counter-control">
+                <label><i class="fas fa-skull-crosswalk"></i> Number of Criminals:</label>
+                <div class="counter-buttons">
+                    <button type="button" class="counter-btn" onclick="updatePersonCount('criminal', -1)">-</button>
+                    <span class="counter-value" id="criminalCounter">0</span>
+                    <button type="button" class="counter-btn" onclick="updatePersonCount('criminal', 1)">+</button>
+                </div>
+            </div>
+            <div id="criminalsContainer"></div>
+        </fieldset>
+
+        <fieldset class="full-width">
+            <legend>Unlimited Evidence Management <span class="optional">(Optional)</span></legend>
+            <div class="btn-add-media" onclick="document.getElementById('mediaInput').click()">
+                <i class="fas fa-cloud-upload-alt"></i> Click to add multiple Photos (JPEG/PNG) - stored as Base64
+                <input type="file" id="mediaInput" multiple accept="image/*" style="display:none"
+                    onchange="manageMedia(this)">
+            </div>
+            <div class="evidence-grid" id="mediaGallery"></div>
+            <label>Property Seizure List <span class="optional">(if any)</span>:</label>
+            <textarea id="propertySeizure"
+                placeholder="List all physical items seized (e.g., 1 Gold Chain, 1 Mobile Phone)..."
+                rows="3"></textarea>
+        </fieldset>
+
+        <div class="buttons">
+            <button type="button" class="btn-submit" onclick="submitFIR()">Finalize & Submit FIR</button>
         </div>
-        <div id="criminalsContainer"></div>
-    </fieldset>
-
-    <fieldset class="full-width">
-        <legend>Unlimited Evidence Management <span class="optional">(Optional)</span></legend>
-        <div class="btn-add-media" onclick="document.getElementById('mediaInput').click()">
-            <i class="fas fa-cloud-upload-alt"></i> Click to add multiple Photos (JPEG/PNG) - stored as Base64
-            <input type="file" id="mediaInput" multiple accept="image/*" style="display:none" onchange="manageMedia(this)">
+        <div id="bgUploadStatus" class="bg-upload-status">
+            <i class="fas fa-spinner fa-spin"></i> Processing images...
         </div>
-        <div class="evidence-grid" id="mediaGallery"></div>
-        <label>Property Seizure List <span class="optional">(if any)</span>:</label>
-        <textarea id="propertySeizure" placeholder="List all physical items seized (e.g., 1 Gold Chain, 1 Mobile Phone)..." rows="3"></textarea>
-    </fieldset>
+    </form>
 
-    <div class="buttons">
-        <button type="button" class="btn-submit" onclick="submitFIR()">Finalize & Submit FIR</button>
+    <!-- Modal for showing FIR submission success -->
+    <div class="modal" id="resultModal">
+        <div class="modal-content">
+            <i class="fas fa-check-circle" style="font-size: 3rem; color: var(--accent-blue); margin-bottom: 15px;"></i>
+            <h3>FIR Successfully Filed</h3>
+            <p id="modalRef" style="color: var(--accent-gold); font-weight: bold;"></p>
+            <p id="modalSummary"></p>
+            <div id="modalImages" class="modal-image-grid"></div>
+            <button onclick="window.print()" class="btn-submit" style="width: 100%; margin-top: 10px;">Print
+                Report</button>
+            <button onclick="closeModal()" class="btn-submit"
+                style="width: 100%; margin-top: 10px; background: #334155;">OK</button>
+        </div>
     </div>
-    <div id="bgUploadStatus" class="bg-upload-status">
-        <i class="fas fa-spinner fa-spin"></i> Processing images...
-    </div>
-</form>
 
-<!-- Modal for showing FIR submission success -->
-<div class="modal" id="resultModal">
-    <div class="modal-content">
-        <i class="fas fa-check-circle" style="font-size: 3rem; color: var(--accent-blue); margin-bottom: 15px;"></i>
-        <h3>FIR Successfully Filed</h3>
-        <p id="modalRef" style="color: var(--accent-gold); font-weight: bold;"></p>
-        <p id="modalSummary"></p>
-        <div id="modalImages" class="modal-image-grid"></div>
-        <button onclick="window.print()" class="btn-submit" style="width: 100%; margin-top: 10px;">Print Report</button>
-        <button onclick="closeModal()" class="btn-submit" style="width: 100%; margin-top: 10px; background: #334155;">OK</button>
+    <!-- Modal for displaying retrieved FIRs -->
+    <div class="modal" id="retrieveModal">
+        <div class="modal-content" style="max-width: 900px;">
+            <i class="fas fa-folder-open" style="font-size: 2rem; color: var(--accent-blue);"></i>
+            <h3>All FIR Records</h3>
+            <div id="firListContainer" style="max-height: 500px; overflow-y: auto; margin: 15px 0;"></div>
+            <button onclick="closeRetrieveModal()" class="btn-submit"
+                style="width: 100%; background: #334155;">Close</button>
+        </div>
     </div>
-</div>
 
-<!-- Modal for displaying retrieved FIRs -->
-<div class="modal" id="retrieveModal">
-    <div class="modal-content" style="max-width: 900px;">
-        <i class="fas fa-folder-open" style="font-size: 2rem; color: var(--accent-blue);"></i>
-        <h3>All FIR Records</h3>
-        <div id="firListContainer" style="max-height: 500px; overflow-y: auto; margin: 15px 0;"></div>
-        <button onclick="closeRetrieveModal()" class="btn-submit" style="width: 100%; background: #334155;">Close</button>
-    </div>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-<script src="js/register_fir.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="js/register_fir.js"></script>
 </body>
+
 </html>

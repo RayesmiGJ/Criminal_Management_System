@@ -1,7 +1,6 @@
 ﻿// Global variables
 let personData = { victims: [], witnesses: [], suspects: [], criminals: [] };
-let activeOcrEngine = 'tesseract';
-let puterReady = false;
+let activeOcrEngine = 'ocrspace';
 
 // Store geocoding results for crime hotspot mapping
 let currentCoordinates = { lat: null, lng: null };
@@ -10,6 +9,9 @@ let currentCoordinates = { lat: null, lng: null };
 let evidenceImages = []; // each item: { id, base64, name, details }
 const REF_COUNTER_KEY = 'firLocalCounter_v1';
 const FIR_CACHE_KEY = 'firListCache_v1';
+const OCR_SPACE_API_KEY = 'K88367723088957';
+const OCR_SPACE_LANGUAGE = 'auto';
+const OCR_SPACE_ENGINE = '3';
 
 // Firebase Config
 const firebaseConfig = {
@@ -24,47 +26,32 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+// Best-effort local persistence for faster loads/offline reads.
+db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
+
+function openImageViewer(src, caption) {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(2,6,23,.92);display:flex;align-items:center;justify-content:center;z-index:99999;padding:16px;';
+    overlay.innerHTML = `
+        <div style="max-width:92vw;max-height:92vh;text-align:center;">
+            <img src="${src}" alt="Evidence preview" style="max-width:92vw;max-height:84vh;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.5);">
+            <div style="color:#e2e8f0;margin-top:10px;font-size:13px;">${caption || ''}</div>
+            <button type="button" style="margin-top:10px;background:#1e293b;color:#fff;border:none;padding:8px 14px;border-radius:6px;cursor:pointer;">Close</button>
+        </div>
+    `;
+    const closeBtn = overlay.querySelector('button');
+    const close = () => overlay.remove();
+    closeBtn.addEventListener('click', close);
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) close();
+    });
+    document.body.appendChild(overlay);
+}
+
 // Helper Functions
 function getPlural(type) {
     if (type === "witness") return "witnesses";
     return type + "s";
-}
-
-// Initialize Puter
-function initializePuter() {
-    const statusDiv = document.getElementById('puterStatus');
-    const statusText = document.getElementById('puterStatusText');
-    const retryBtn = document.getElementById('retryPuterBtn');
-    
-    statusDiv.style.display = 'block';
-    retryBtn.style.display = 'none';
-    statusText.innerHTML = 'â³ Initializing Puter...';
-    
-    let attempts = 0;
-    const maxAttempts = 20;
-    
-    const checkPuter = setInterval(() => {
-        attempts++;
-        
-        if (typeof puter !== 'undefined') {
-            if (puter.ai) {
-                puterReady = true;
-                statusText.innerHTML = 'âœ… Puter is ready! Claude AI available.';
-                statusDiv.style.backgroundColor = 'rgba(52, 211, 153, 0.2)';
-                clearInterval(checkPuter);
-            } else if (attempts >= maxAttempts) {
-                statusText.innerHTML = 'âŒ Puter AI not available. Click retry.';
-                statusDiv.style.backgroundColor = 'rgba(239, 68, 68, 0.2)';
-                retryBtn.style.display = 'inline-block';
-                clearInterval(checkPuter);
-            }
-        } else if (attempts >= maxAttempts) {
-            statusText.innerHTML = 'âŒ Puter failed to load. Click retry.';
-            statusDiv.style.backgroundColor = 'rgba(239, 68, 68, 0.2)';
-            retryBtn.style.display = 'inline-block';
-            clearInterval(checkPuter);
-        }
-    }, 500);
 }
 
 function readLocalRefCounter() {
@@ -119,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setDate();
     addPerson('victim');
     updateStats();
-    setTimeout(initializePuter, 1000);
+    selectOcrEngine('ocrspace');
 });
 
 // Person Management Functions
@@ -394,6 +381,10 @@ function normalizeEvidenceItem(item) {
     };
 }
 
+function safeTitle(text) {
+    return String(text || '').replace(/'/g, '&#39;').replace(/"/g, '&quot;');
+}
+
 function updateEvidenceDetails(id, value) {
     const evidence = evidenceImages.find(e => e.id === id);
     if (evidence) evidence.details = value;
@@ -436,10 +427,11 @@ function renderEvidenceGallery() {
     evidenceImages = evidenceImages.map(normalizeEvidenceItem).filter(Boolean);
 
     evidenceImages.forEach(img => {
+        const caption = img.details ? `${img.name} - ${img.details}` : img.name;
         const item = document.createElement('div');
         item.className = 'evidence-item';
         item.innerHTML = `
-            <img src="${img.base64}" style="width:100%; height:90px; object-fit:cover; border-radius:8px; cursor:pointer;" title="Click to view full image" onclick="window.open('${img.base64}', '_blank')">
+            <img src="${img.base64}" style="width:100%; height:90px; object-fit:cover; border-radius:8px; cursor:pointer;" title="Click to view full image" onclick="openImageViewer('${img.base64}', '${safeTitle(caption)}')">
             <p>${(img.name || '').substring(0, 30)}</p>
             <input type="text" class="evidence-detail-input" placeholder="Add image details..." value="${(img.details || '').replace(/\"/g, '&quot;')}" oninput="updateEvidenceDetails('${img.id}', this.value)">
             <button type="button" class="remove-evidence" onclick="removeEvidenceImage('${img.id}')">×</button>
@@ -480,19 +472,8 @@ async function geocodeAddress(address) {
 function selectOcrEngine(engine) {
     activeOcrEngine = engine;
     document.querySelectorAll('.ocr-engine-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('eng-' + engine).classList.add('active');
-    const keyWrap = document.getElementById('ocrApiKeyWrap');
-    const claudeWrap = document.getElementById('claudeSettingsWrap');
-    if (engine === 'google') {
-        keyWrap.style.display = 'block';
-        claudeWrap.style.display = 'none';
-    } else if (engine === 'claude') {
-        keyWrap.style.display = 'none';
-        claudeWrap.style.display = 'block';
-    } else {
-        keyWrap.style.display = 'none';
-        claudeWrap.style.display = 'none';
-    }
+    const btn = document.getElementById('eng-' + engine);
+    if (btn) btn.classList.add('active');
     setOcrStatus('');
 }
 
@@ -511,97 +492,143 @@ function fileToBase64(file) {
     });
 }
 
-async function ocrTesseract(file, bar) {
-    setOcrStatus('Processing with Tesseract...');
-    const worker = await Tesseract.createWorker('eng', 1, {
-        logger: m => {
-            if (m.status === 'recognizing text') {
-                bar.style.width = (m.progress * 100) + '%';
-                setOcrStatus('Recognizing... ' + Math.round(m.progress * 100) + '%');
-            }
-        }
-    });
-    try {
-        const { data: { text } } = await worker.recognize(file);
-        return text;
-    } finally {
-        await worker.terminate();
-    }
+function dataUrlToBlob(dataUrl) {
+    const [header, base64] = dataUrl.split(',');
+    const mime = (header.match(/:(.*?);/) || [])[1] || 'image/jpeg';
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return new Blob([bytes], { type: mime });
 }
 
-async function ocrGoogle(file, bar) {
-    const key = document.getElementById('ocrApiKey').value.trim();
-    if (!key) throw new Error('Please enter your Google Vision API key.');
-    setOcrStatus('Uploading to Google Vision...');
-    bar.style.width = '30%';
-    const b64 = await fileToBase64(file);
-    bar.style.width = '60%';
-    setOcrStatus('Analysing handwriting...');
-    const response = await fetch(`https://vision.googleapis.com/v1/images:annotate?key=${key}`, {
+async function preprocessImageForOCR(file) {
+    if (!file?.type?.startsWith('image/')) return file;
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                const maxSide = 1800;
+                const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+                canvas.width = Math.max(1, Math.round(img.width * scale));
+                canvas.height = Math.max(1, Math.round(img.height * scale));
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const d = imageData.data;
+
+                // Gentle contrast + grayscale (avoid over-binarizing, which can scramble handwriting).
+                for (let i = 0; i < d.length; i += 4) {
+                    const gray = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+                    const boosted = Math.min(255, Math.max(0, (gray - 128) * 1.18 + 128));
+                    d[i] = boosted;
+                    d[i + 1] = boosted;
+                    d[i + 2] = boosted;
+                }
+
+                ctx.putImageData(imageData, 0, 0);
+                resolve(dataUrlToBlob(canvas.toDataURL('image/jpeg', 0.92)));
+            };
+            img.onerror = () => resolve(file);
+            img.src = e.target.result;
+        };
+        reader.onerror = () => resolve(file);
+        reader.readAsDataURL(file);
+    });
+}
+
+function hasMostlyEnglishLetters(text) {
+    const letters = (text || '').match(/[A-Za-z]/g) || [];
+    const nonAscii = (text || '').match(/[^\x00-\x7F]/g) || [];
+    if (!text || text.trim().length < 8) return true;
+    return letters.length >= nonAscii.length;
+}
+
+function cleanOcrText(text) {
+    return String(text || '')
+        .replace(/[ \t]+/g, ' ')
+        .replace(/\r/g, '')
+        .replace(/\n{3,}/g, '\n\n')
+        .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '')
+        .trim();
+}
+
+function scoreTextQuality(text) {
+    const t = String(text || '');
+    if (!t.trim()) return 0;
+    const letters = (t.match(/[A-Za-z]/g) || []).length;
+    const digits = (t.match(/[0-9]/g) || []).length;
+    const spaces = (t.match(/\s/g) || []).length;
+    const junk = (t.match(/[^A-Za-z0-9\s.,;:'"!?()\-\/]/g) || []).length;
+    const longRuns = (t.match(/(.)\1{4,}/g) || []).length;
+    const len = t.length;
+
+    const readable = Math.max(0, (letters + digits + spaces - junk) / Math.max(1, len));
+    const penalty = (junk / Math.max(1, len)) + (longRuns * 0.08);
+    return Math.max(0, Math.min(1, readable - penalty));
+}
+
+async function extractBestOcrText(processedFile, bar) {
+    const raw = await ocrSpace(processedFile, bar);
+    const cleaned = cleanOcrText(raw);
+    const score = scoreTextQuality(cleaned);
+    return { text: cleaned, score, engine: 'ocrspace' };
+}
+
+async function ocrSpace(file, bar) {
+    setOcrStatus(`Uploading to OCR.Space (${OCR_SPACE_LANGUAGE})...`);
+    bar.style.width = '25%';
+    const base64 = await fileToBase64(file);
+
+    const formData = new FormData();
+    formData.append('apikey', OCR_SPACE_API_KEY);
+    formData.append('base64Image', `data:image/jpeg;base64,${base64}`);
+    formData.append('language', OCR_SPACE_LANGUAGE);
+    formData.append('OCREngine', OCR_SPACE_ENGINE);
+    formData.append('isOverlayRequired', 'false');
+    formData.append('detectOrientation', 'true');
+    formData.append('scale', 'true');
+    formData.append('isTable', 'false');
+
+    const response = await fetch('https://api.ocr.space/parse/image', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            requests: [{
-                image: { content: b64 },
-                features: [{ type: 'DOCUMENT_TEXT_DETECTION' }]
-            }]
-        })
+        body: formData
     });
+
+    bar.style.width = '80%';
+    if (!response.ok) {
+        throw new Error(`OCR.Space request failed (${response.status}).`);
+    }
+
     const data = await response.json();
-    if (data.error) throw new Error(data.error.message);
+    if (data?.IsErroredOnProcessing) {
+        throw new Error(data?.ErrorMessage?.[0] || 'Cloud OCR processing error.');
+    }
+    const parsed = data?.ParsedResults?.[0]?.ParsedText || '';
+    const text = parsed || data?.text || '';
     bar.style.width = '100%';
-    return data.responses?.[0]?.fullTextAnnotation?.text || '';
+    return String(text || '').trim();
 }
 
-async function ocrClaude(file, bar) {
-    if (!puterReady) {
-        await initializePuter();
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        if (!puterReady) {
-            setOcrStatus('Puter not ready, falling back to Tesseract...', 'error');
-            return await ocrTesseract(file, bar);
-        }
-    }
-    const selectedModel = document.getElementById('claudeModel').value;
-    setOcrStatus('Converting image...');
-    bar.style.width = '20%';
-    const b64 = await fileToBase64(file);
-    bar.style.width = '40%';
-    setOcrStatus('Connecting to Claude via Puter...');
+async function translateTextToEnglish(text) {
+    const source = (text || '').trim();
+    if (!source) return { text: source, translated: false };
+    if (hasMostlyEnglishLetters(source)) return { text: source, translated: false };
+
+    // Translator endpoint.
     try {
-        const response = await puter.ai.chat([
-            {
-                role: "user",
-                content: [
-                    { type: "image_url", image_url: { url: `data:image/jpeg;base64,${b64}` } },
-                    { type: "text", text: "You are an OCR engine. Transcribe any text visible. Output ONLY the transcribed text." }
-                ]
-            }
-        ]);
-        bar.style.width = '80%';
-        let extractedText = '';
-        if (response?.message?.content) {
-            if (Array.isArray(response.message.content)) {
-                for (const item of response.message.content) if (item?.text) extractedText += item.text;
-            } else if (typeof response.message.content === 'string') extractedText = response.message.content;
-        } else if (response?.content) extractedText = response.content;
-        else if (typeof response === 'string') extractedText = response;
-        if (!extractedText || extractedText.trim() === '') throw new Error('No text extracted');
-        bar.style.width = '100%';
-        setOcrStatus('Transcription complete!', 'success');
-        return extractedText.trim();
-    } catch (error) {
-        console.error('Claude OCR error:', error);
-        setOcrStatus('Claude failed, trying Tesseract fallback...', 'error');
-        try {
-            bar.style.width = '20%';
-            const fallbackText = await ocrTesseract(file, bar);
-            bar.style.width = '100%';
-            return fallbackText;
-        } catch (fallbackError) {
-            throw new Error(`OCR failed: ${error.message}`);
-        }
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=${encodeURIComponent(source)}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        const translated = Array.isArray(data?.[0]) ? data[0].map(part => part?.[0] || '').join('') : '';
+        if (translated.trim()) return { text: translated.trim(), translated: true };
+    } catch (e) {
+        console.warn('Web translation unavailable:', e);
     }
+
+    return { text: source, translated: false };
 }
 
 async function runOCR(input) {
@@ -618,15 +645,23 @@ async function runOCR(input) {
     try {
         let text = '';
         let processedFile = file;
-        if (activeOcrEngine === 'claude' && file.type.startsWith('image/')) {
-            setOcrStatus('Preprocessing image...');
-            processedFile = file;
+        if (file.type.startsWith('image/')) {
+            setOcrStatus('Preprocessing image for OCR...');
+            processedFile = await preprocessImageForOCR(file);
         }
-        if (activeOcrEngine === 'google') text = await ocrGoogle(processedFile, bar);
-        else if (activeOcrEngine === 'claude') text = await ocrClaude(processedFile, bar);
-        else text = await ocrTesseract(processedFile, bar);
-        complaintArea.value = text;
-        if (text && text.length > 0) setOcrStatus('âœ“ Text extracted successfully!', 'success');
+        const best = await extractBestOcrText(processedFile, bar);
+        text = best.text;
+
+        if (text && text.trim().length > 0) {
+            setOcrStatus('Detected text. Checking language...');
+            const translated = await translateTextToEnglish(text);
+            complaintArea.value = cleanOcrText(translated.text);
+            if (translated.translated) {
+                setOcrStatus('Text extracted and translated to English.', 'success');
+            } else {
+                setOcrStatus(`Text extracted successfully (${best.engine}).`, 'success');
+            }
+        }
         else setOcrStatus('âš  No text detected', 'error');
     } catch (err) {
         setOcrStatus('Error: ' + err.message, 'error');
@@ -658,7 +693,11 @@ async function submitFIR() {
         return;
     }
 
-    let refID = document.getElementById("refNo").value || reserveNextRefNo();`r`n    if (!refID.startsWith('REF')) {`r`n        refID = reserveNextRefNo();`r`n    }`r`n    document.getElementById("refNo").value = refID;
+    let refID = document.getElementById("refNo").value || reserveNextRefNo();
+    if (!refID.startsWith('REF')) {
+        refID = reserveNextRefNo();
+    }
+    document.getElementById("refNo").value = refID;
     const persons = collectPersonData();
     const submitBtn = document.querySelector('.btn-submit');
     const originalText = submitBtn.textContent;
@@ -729,6 +768,8 @@ async function submitFIR() {
                 img.src = p.imageBase64;
                 img.style.width = '80px'; img.style.height = '80px'; img.style.objectFit = 'cover';
                 img.title = 'Person photo';
+                img.style.cursor = 'pointer';
+                img.onclick = () => openImageViewer(p.imageBase64, 'Person photo');
                 modalImagesDiv.appendChild(img);
             }
         });
@@ -738,6 +779,8 @@ async function submitFIR() {
             img.src = ev.base64;
             img.style.width = '80px'; img.style.height = '80px'; img.style.objectFit = 'cover';
             img.title = ev.details ? `${ev.name} - ${ev.details}` : ev.name;
+            img.style.cursor = 'pointer';
+            img.onclick = () => openImageViewer(ev.base64, img.title);
             modalImagesDiv.appendChild(img);
         });
         if (modalImagesDiv.children.length === 0) modalImagesDiv.innerHTML = '<p>No images attached.</p>';
@@ -810,13 +853,13 @@ function renderFirCardHtml(docId, fir) {
     const allPersons = [...(fir.victims || []), ...(fir.witnesses || []), ...(fir.suspects || []), ...(fir.criminals || [])];
     allPersons.forEach(p => {
         if (p.imageBase64) {
-            html += `<img src="${p.imageBase64}" style="width:60px; height:60px; object-fit:cover; border-radius:8px;" title="Person photo">`;
+            html += `<img src="${p.imageBase64}" style="width:60px; height:60px; object-fit:cover; border-radius:8px; cursor:pointer;" title="Person photo" onclick="openImageViewer('${p.imageBase64}', 'Person photo')">`;
         }
     });
     (fir.evidenceImages || []).forEach(ev => {
         if (ev?.base64) {
             const title = ev.details ? `${ev.name || 'Evidence'} - ${ev.details}` : (ev.name || 'Evidence');
-            html += `<img src="${ev.base64}" style="width:60px; height:60px; object-fit:cover; border-radius:8px;" title="${title}">`;
+            html += `<img src="${ev.base64}" style="width:60px; height:60px; object-fit:cover; border-radius:8px; cursor:pointer;" title="${title}" onclick="openImageViewer('${ev.base64}', '${safeTitle(title)}')">`;
         }
     });
     if (allPersons.length === 0 && (!fir.evidenceImages || fir.evidenceImages.length === 0)) {
@@ -875,7 +918,7 @@ function resetForm() {
     setDate();
     updateStats();
     setOcrStatus('');
-    selectOcrEngine('tesseract');
+    selectOcrEngine('ocrspace');
     currentCoordinates = { lat: null, lng: null };
     document.getElementById('locationStatus').innerHTML = '';
     listenForRefNo();

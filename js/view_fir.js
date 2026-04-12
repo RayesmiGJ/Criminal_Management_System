@@ -9,6 +9,7 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
 
 let allRecords = [];
 let currentEditDocId = null;
@@ -16,6 +17,24 @@ let currentEditData = null;
 let newEvidenceBase64 = [];     // array of {base64, name}
 let existingEvidenceBase64 = []; // array of {base64, name} from Firestore
 const VIEW_FIR_CACHE_KEY = 'viewFirCache_v1';
+
+function openImageViewer(src, caption) {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(2,6,23,.92);display:flex;align-items:center;justify-content:center;z-index:99999;padding:16px;';
+    overlay.innerHTML = `
+        <div style="max-width:92vw;max-height:92vh;text-align:center;">
+            <img src="${src}" alt="Preview" style="max-width:92vw;max-height:84vh;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.5);">
+            <div style="color:#e2e8f0;margin-top:10px;font-size:13px;">${escapeHtml(caption || '')}</div>
+            <button type="button" style="margin-top:10px;background:#1e293b;color:#fff;border:none;padding:8px 14px;border-radius:6px;cursor:pointer;">Close</button>
+        </div>
+    `;
+    const close = () => overlay.remove();
+    overlay.querySelector('button').addEventListener('click', close);
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) close();
+    });
+    document.body.appendChild(overlay);
+}
 
 function escapeAttr(value) {
     return String(value || '')
@@ -41,6 +60,10 @@ function normalizeEvidenceItem(item) {
         name: item.name || 'evidence-image',
         details: item.details || ''
     };
+}
+
+function safeTitle(value) {
+    return String(value || '').replace(/'/g, '&#39;').replace(/"/g, '&quot;');
 }
 
 function normalizeEvidenceArray(arr) {
@@ -210,7 +233,7 @@ function showDetails(record) {
             html += `<div><strong>Address:</strong> ${escapeHtml(v.address || 'N/A')}</div>`;
             html += `<div><strong>ID Proof:</strong> ${v.idProof || 'N/A'}</div>`;
             html += `<div><strong>Occupation:</strong> ${v.occupation || 'N/A'}</div>`;
-            if (v.imageBase64) html += `<div><strong>Photo:</strong> <img src="${v.imageBase64}" style="max-width:150px; border-radius:8px; cursor:pointer;" onclick="window.open('${v.imageBase64}','_blank')"></div>`;
+            if (v.imageBase64) html += `<div><strong>Photo:</strong> <img src="${v.imageBase64}" style="max-width:150px; border-radius:8px; cursor:pointer;" onclick="openImageViewer('${v.imageBase64}','Victim photo')"></div>`;
             html += `</div>`;
         });
     }
@@ -225,7 +248,7 @@ function showDetails(record) {
             html += `<div><strong>Contact:</strong> ${w.contact || 'N/A'}</div>`;
             html += `<div><strong>Address:</strong> ${escapeHtml(w.address || 'N/A')}</div>`;
             html += `<div><strong>Statement:</strong> ${escapeHtml(w.statement || 'N/A')}</div>`;
-            if (w.imageBase64) html += `<div><strong>Photo:</strong> <img src="${w.imageBase64}" style="max-width:150px; border-radius:8px; cursor:pointer;" onclick="window.open('${w.imageBase64}','_blank')"></div>`;
+            if (w.imageBase64) html += `<div><strong>Photo:</strong> <img src="${w.imageBase64}" style="max-width:150px; border-radius:8px; cursor:pointer;" onclick="openImageViewer('${w.imageBase64}','Witness photo')"></div>`;
             html += `</div>`;
         });
     }
@@ -242,7 +265,7 @@ function showDetails(record) {
             html += `<div><strong>Build:</strong> ${s.build || 'N/A'}</div>`;
             html += `<div><strong>Marks:</strong> ${escapeHtml(s.marks || 'N/A')}</div>`;
             html += `<div><strong>Last Seen:</strong> ${escapeHtml(s.lastSeen || 'N/A')}</div>`;
-            if (s.imageBase64) html += `<div><strong>Photo:</strong> <img src="${s.imageBase64}" style="max-width:150px; border-radius:8px; cursor:pointer;" onclick="window.open('${s.imageBase64}','_blank')"></div>`;
+            if (s.imageBase64) html += `<div><strong>Photo:</strong> <img src="${s.imageBase64}" style="max-width:150px; border-radius:8px; cursor:pointer;" onclick="openImageViewer('${s.imageBase64}','Suspect photo')"></div>`;
             html += `</div>`;
         });
     }
@@ -259,7 +282,7 @@ function showDetails(record) {
             html += `<div><strong>Address:</strong> ${escapeHtml(c.address || 'N/A')}</div>`;
             html += `<div><strong>Previous Record:</strong> ${escapeHtml(c.record || 'N/A')}</div>`;
             html += `<div><strong>History:</strong> ${escapeHtml(c.history || 'N/A')}</div>`;
-            if (c.imageBase64) html += `<div><strong>Photo:</strong> <img src="${c.imageBase64}" style="max-width:150px; border-radius:8px; cursor:pointer;" onclick="window.open('${c.imageBase64}','_blank')"></div>`;
+            if (c.imageBase64) html += `<div><strong>Photo:</strong> <img src="${c.imageBase64}" style="max-width:150px; border-radius:8px; cursor:pointer;" onclick="openImageViewer('${c.imageBase64}','Criminal photo')"></div>`;
             html += `</div>`;
         });
     }
@@ -274,7 +297,7 @@ function showDetails(record) {
                 const title = normalized.details ? `${normalized.name} - ${normalized.details}` : normalized.name;
                 html += `
                     <div class="evidence-item">
-                        <img src="${normalized.base64}" class="evidence-img clickable-img" onclick="window.open('${normalized.base64}','_blank')" title="${escapeAttr(title)}">
+                        <img src="${normalized.base64}" class="evidence-img clickable-img" onclick="openImageViewer('${normalized.base64}','${safeTitle(title)}')" title="${escapeAttr(title)}">
                         ${normalized.details ? `<div class="evidence-caption">${escapeHtml(normalized.details)}</div>` : ''}
                     </div>
                 `;
@@ -287,14 +310,14 @@ function showDetails(record) {
         record.evidence.forEach(url => {
             html += `
                 <div class="evidence-item">
-                    <img src="${url}" class="evidence-img clickable-img" onclick="window.open('${url}','_blank')">
+                    <img src="${url}" class="evidence-img clickable-img" onclick="openImageViewer('${url}','Evidence image')">
                 </div>
             `;
         });
         html += `</div>`;
     }
 
-    if (record.judgement) { {
+    if (record.judgement) {
         html += `<div class="section-title"><i class="fas fa-gavel"></i> Court Judgement</div>`;
         html += `<div class="detail-line">${escapeHtml(record.judgement)}</div>`;
     }
@@ -390,7 +413,7 @@ function renderFullEditForm() {
         div.setAttribute('data-idx', idx);
         div.setAttribute('data-existing', isExisting);
         div.innerHTML = `
-            <img src="${normalized.base64}" style="max-width:100px; max-height:80px; border-radius:8px; cursor:pointer;" onclick="window.open('${normalized.base64}','_blank')">
+            <img src="${normalized.base64}" style="max-width:100px; max-height:80px; border-radius:8px; cursor:pointer;" onclick="openImageViewer('${normalized.base64}','${safeTitle(normalized.name)}')">
             <div class="evidence-name">${escapeHtml(normalized.name)}</div>
             <input type="text" class="evidence-detail-input" placeholder="Add image details..." value="${escapeAttr(normalized.details)}" oninput="updateEvidenceDetailsById('${normalized.id}', this.value, ${isExisting})">
             <div class="remove-evidence" onclick="removeEvidenceItem(${idx}, ${isExisting})">Ã—</div>
@@ -405,22 +428,24 @@ function renderPersonSection(type, dataArray) {
     const icon = type === 'victim' ? 'fa-user-injured' : (type === 'witness' ? 'fa-user' : (type === 'suspect' ? 'fa-user-secret' : 'fa-skull-crosswalk'));
     let cardsHtml = '';
     dataArray.forEach((person, idx) => {
-        const personId = `${type}_${Date.now()}_${idx}`;
         const imageBase64 = person.imageBase64 || '';
-        let previewContent = imageBase64 ? `<img src="${imageBase64}" alt="Preview">` : `<i class="fas fa-user"></i><span>Click to upload photo</span>`;
+        const hasImage = !!imageBase64;
+        const previewContent = hasImage
+            ? `<img src="${imageBase64}" alt="Preview">`
+            : `<i class="fas fa-user"></i><span>No photo uploaded</span>`;
+        const previewAction = hasImage
+            ? `openImageViewer('${imageBase64}', '${safeTitle(typeLabel + ' ' + (idx + 1) + ' photo')}')`
+            : `alert('No photo uploaded for this ${typeLabel.toLowerCase()}.')`;
         cardsHtml += `
             <div class="person-card" data-type="${type}" data-idx="${idx}">
                 <div class="person-header">
                     <span class="person-title">${typeLabel} ${idx+1}</span>
-                    <button type="button" class="remove-person" onclick="removePerson('${type}', ${idx})">Remove</button>
                 </div>
                 <div class="person-content">
                     <div class="image-upload-container">
-                        <div class="image-preview" onclick="document.getElementById('${personId}_image').click()">
+                        <div class="image-preview" onclick="${previewAction}" title="${hasImage ? 'Click to preview image' : 'No image available'}" style="cursor:${hasImage ? 'pointer' : 'default'};">
                             ${previewContent}
                         </div>
-                        <input type="file" id="${personId}_image" accept="image/*" style="display:none" onchange="previewAndUploadPersonImage('${type}', ${idx}, this, '${personId}')">
-                        <button type="button" class="remove-image" onclick="removePersonImage('${type}', ${idx}, '${personId}')">Ã—</button>
                     </div>
                     <div class="person-details-container">
                         ${getPersonFields(type, person, idx)}
@@ -475,19 +500,22 @@ function getPersonFields(type, person, idx) {
     return '';
 }
 
+function getPersonCollectionKey(type) {
+    return type === 'witness' ? 'witnesses' : `${type}s`;
+}
+
 window.addPerson = function(type) {
     let newPerson = {};
     if(type === 'victim') newPerson = { name: '', age: '', contact: '', address: '', idProof: '', occupation: '', imageBase64: null };
     else if(type === 'witness') newPerson = { name: '', age: '', contact: '', address: '', statement: '', imageBase64: null };
     else if(type === 'suspect') newPerson = { name: '', age: '', gender: 'Male', height: '', build: '', marks: '', lastSeen: '', imageBase64: null };
     else if(type === 'criminal') newPerson = { name: '', alias: '', age: '', gender: 'Male', address: '', record: '', history: '', imageBase64: null };
-    currentEditData[type+'s'].push(newPerson);
+    currentEditData[getPersonCollectionKey(type)].push(newPerson);
     renderFullEditForm();
 };
 
 window.removePerson = function(type, idx) {
-    currentEditData[type+'s'].splice(idx, 1);
-    renderFullEditForm();
+    alert('Removing victims/witnesses/suspects/criminals is disabled in edit mode.');
 };
 
 window.previewAndUploadPersonImage = async function(type, idx, input, personId) {
@@ -501,7 +529,7 @@ window.previewAndUploadPersonImage = async function(type, idx, input, personId) 
     const removeBtn = card.querySelector('.remove-image');
     if (removeBtn) removeBtn.style.display = 'flex';
     // Store Base64 in currentEditData
-    currentEditData[type+'s'][idx].imageBase64 = base64;
+    currentEditData[getPersonCollectionKey(type)][idx].imageBase64 = base64;
 };
 
 window.removePersonImage = function(type, idx, personId) {
@@ -510,7 +538,7 @@ window.removePersonImage = function(type, idx, personId) {
     previewDiv.innerHTML = `<i class="fas fa-user"></i><span>Click to upload photo</span>`;
     const removeBtn = card.querySelector('.remove-image');
     if (removeBtn) removeBtn.style.display = 'none';
-    currentEditData[type+'s'][idx].imageBase64 = null;
+    currentEditData[getPersonCollectionKey(type)][idx].imageBase64 = null;
 };
 
 async function addNewEvidenceFile(input) {
@@ -540,7 +568,9 @@ window.removeEvidenceItem = function(idx, isExisting) {
 window.setWorkflowStatus = function(status) {
     window.workflowStatus = status;
     document.querySelectorAll('.workflow-btn').forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
+    const buttons = Array.from(document.querySelectorAll('.workflow-btn'));
+    const targetBtn = buttons.find((btn) => btn.textContent.toLowerCase().includes(status.toLowerCase()));
+    if (targetBtn) targetBtn.classList.add('active');
 };
 
 function collectPersons(type) {
@@ -579,7 +609,7 @@ function collectPersons(type) {
             person.history = card.querySelector(`.criminal-history-${idx}`)?.value || '';
         }
         // Preserve existing Base64 if not overwritten by new upload
-        const existing = currentEditData[type+'s']?.[idx];
+        const existing = currentEditData[getPersonCollectionKey(type)]?.[idx];
         if (existing && existing.imageBase64 && !person.imageBase64) person.imageBase64 = existing.imageBase64;
         persons.push(person);
     });
