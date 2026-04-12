@@ -200,7 +200,7 @@ nav {
     border: 1px solid rgba(255,255,255,0.05);
     border-radius: 16px;
     padding: 40px 20px;
-    width: 240px;           /* fixed width for uniform card size */
+    width: 200px;           /* fixed width for uniform card size */
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
