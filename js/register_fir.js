@@ -1,4 +1,4 @@
-// Global variables
+﻿// Global variables
 let personData = { victims: [], witnesses: [], suspects: [], criminals: [] };
 let activeOcrEngine = 'tesseract';
 let puterReady = false;
@@ -6,8 +6,10 @@ let puterReady = false;
 // Store geocoding results for crime hotspot mapping
 let currentCoordinates = { lat: null, lng: null };
 
-// Global array for evidence images (Base64 strings)
-let evidenceImages = []; // each item: { base64: string, name: string }
+// Global evidence collection
+let evidenceImages = []; // each item: { id, base64, name, details }
+const REF_COUNTER_KEY = 'firLocalCounter_v1';
+const FIR_CACHE_KEY = 'firListCache_v1';
 
 // Firebase Config
 const firebaseConfig = {
@@ -36,7 +38,7 @@ function initializePuter() {
     
     statusDiv.style.display = 'block';
     retryBtn.style.display = 'none';
-    statusText.innerHTML = '⏳ Initializing Puter...';
+    statusText.innerHTML = 'â³ Initializing Puter...';
     
     let attempts = 0;
     const maxAttempts = 20;
@@ -47,17 +49,17 @@ function initializePuter() {
         if (typeof puter !== 'undefined') {
             if (puter.ai) {
                 puterReady = true;
-                statusText.innerHTML = '✅ Puter is ready! Claude AI available.';
+                statusText.innerHTML = 'âœ… Puter is ready! Claude AI available.';
                 statusDiv.style.backgroundColor = 'rgba(52, 211, 153, 0.2)';
                 clearInterval(checkPuter);
             } else if (attempts >= maxAttempts) {
-                statusText.innerHTML = '❌ Puter AI not available. Click retry.';
+                statusText.innerHTML = 'âŒ Puter AI not available. Click retry.';
                 statusDiv.style.backgroundColor = 'rgba(239, 68, 68, 0.2)';
                 retryBtn.style.display = 'inline-block';
                 clearInterval(checkPuter);
             }
         } else if (attempts >= maxAttempts) {
-            statusText.innerHTML = '❌ Puter failed to load. Click retry.';
+            statusText.innerHTML = 'âŒ Puter failed to load. Click retry.';
             statusDiv.style.backgroundColor = 'rgba(239, 68, 68, 0.2)';
             retryBtn.style.display = 'inline-block';
             clearInterval(checkPuter);
@@ -65,38 +67,50 @@ function initializePuter() {
     }, 500);
 }
 
-async function listenForRefNo() {
+function readLocalRefCounter() {
+    const n = parseInt(localStorage.getItem(REF_COUNTER_KEY) || '1000', 10);
+    return Number.isFinite(n) && n >= 1000 ? n : 1000;
+}
+
+function writeLocalRefCounter(value) {
+    localStorage.setItem(REF_COUNTER_KEY, String(value));
+}
+
+function reserveNextRefNo() {
+    const nextCounter = readLocalRefCounter() + 1;
+    writeLocalRefCounter(nextCounter);
+    return `REF${nextCounter}`;
+}
+
+function syncCachedFirList(firs) {
     try {
-        const snapshot = await db.collection("firs").get();
-        let maxRef = 1000;
-        
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            const ref = data.refID || data.refNo || '';
-            const match = ref.match(/REF(\d+)/);
-            if (match && match[1]) {
-                const num = parseInt(match[1]);
-                if (num > maxRef) maxRef = num;
-            }
-        });
-        
+        localStorage.setItem(FIR_CACHE_KEY, JSON.stringify({ updatedAt: Date.now(), firs }));
+    } catch (e) {
+        console.warn('Could not cache FIR list:', e);
+    }
+}
+
+async function listenForRefNo() {
+    // Offline-first: always generate from local counter first, then sync upward when online.
+    if (!document.getElementById("refNo").value) {
+        document.getElementById("refNo").value = reserveNextRefNo();
+    }
+
+    try {
         const counterDoc = await db.collection("settings").doc("firCounter").get();
-        
-        if (counterDoc.exists) {
-            let lastRefNo = counterDoc.data().lastRefNo || 1000;
-            if (lastRefNo < maxRef) {
-                await db.collection("settings").doc("firCounter").update({ lastRefNo: maxRef });
-                document.getElementById("refNo").value = "REF" + (maxRef + 1);
-            } else {
-                document.getElementById("refNo").value = "REF" + (lastRefNo + 1);
-            }
-        } else {
-            await db.collection("settings").doc("firCounter").set({ lastRefNo: maxRef });
-            document.getElementById("refNo").value = "REF" + (maxRef + 1);
+        const remoteCounter = counterDoc.exists ? (counterDoc.data().lastRefNo || 1000) : 1000;
+        const localCounter = readLocalRefCounter();
+        const mergedCounter = Math.max(remoteCounter, localCounter);
+        if (mergedCounter !== localCounter) writeLocalRefCounter(mergedCounter);
+        if (mergedCounter !== remoteCounter) {
+            await db.collection("settings").doc("firCounter").set({ lastRefNo: mergedCounter }, { merge: true });
+        }
+        if (!document.getElementById("refNo").value) {
+            document.getElementById("refNo").value = `REF${mergedCounter + 1}`;
         }
     } catch (error) {
-        console.error("Error setting reference number:", error);
-        document.getElementById("refNo").value = "REF" + Date.now().toString().slice(-4);
+        // No internet / permission issues: local counter is enough to stay continuous.
+        console.warn("Reference counter sync unavailable, using local sequence.");
     }
 }
 
@@ -195,7 +209,7 @@ function addPerson(type) {
                     <span>Click to upload photo</span>
                 </div>
                 <input type="file" id="${personId}_image" accept="image/*" style="display:none" onchange="previewPersonImage(this, '${personId}')">
-                <button type="button" class="remove-image" onclick="removePersonImage('${personId}')">×</button>
+                <button type="button" class="remove-image" onclick="removePersonImage('${personId}')">Ã—</button>
             </div>
             <div class="person-details-container">${fields}</div>
         </div>`;
@@ -360,47 +374,76 @@ function collectPersonData() {
     return collectedData;
 }
 
+function createEvidenceItem(base64, name) {
+    return {
+        id: `evidence_${Date.now()}_${Math.random().toString(16).slice(2, 7)}`,
+        base64,
+        name: name || 'evidence-image',
+        details: ''
+    };
+}
+
+function normalizeEvidenceItem(item) {
+    if (!item) return null;
+    if (typeof item === 'string') return createEvidenceItem(item, 'legacy-image');
+    return {
+        id: item.id || `evidence_${Date.now()}_${Math.random().toString(16).slice(2, 7)}`,
+        base64: item.base64 || '',
+        name: item.name || 'evidence-image',
+        details: item.details || ''
+    };
+}
+
+function updateEvidenceDetails(id, value) {
+    const evidence = evidenceImages.find(e => e.id === id);
+    if (evidence) evidence.details = value;
+}
+
 // Evidence Management (Base64 only)
 async function manageMedia(input) {
     const files = Array.from(input.files);
-    const gallery = document.getElementById('mediaGallery');
     const statusDiv = document.getElementById('bgUploadStatus');
     statusDiv.style.display = 'block';
     statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Converting evidence images to Base64...';
-    
+
     for (const file of files) {
         if (file.type.startsWith('image/')) {
             try {
                 const base64 = await compressImageToBase64(file);
-                evidenceImages.push({ base64, name: file.name });
-                // Display thumbnail
-                const item = document.createElement('div');
-                item.className = 'evidence-item';
-                item.innerHTML = `<img src="${base64}" style="width:80px; height:80px; object-fit:cover; border-radius:8px;"><p>${file.name.substring(0,20)}</p><button type="button" class="remove-evidence" onclick="removeEvidenceImage('${file.name}')">✕</button>`;
-                gallery.appendChild(item);
+                evidenceImages.push(createEvidenceItem(base64, file.name));
             } catch (err) {
-                console.error("Evidence image conversion failed", err);
+                console.error('Evidence image conversion failed', err);
             }
         } else {
             alert(`Skipped ${file.name}: only images are supported for Base64 storage.`);
         }
     }
+
     statusDiv.style.display = 'none';
     input.value = '';
+    renderEvidenceGallery();
 }
 
-function removeEvidenceImage(name) {
-    evidenceImages = evidenceImages.filter(img => img.name !== name);
+function removeEvidenceImage(id) {
+    evidenceImages = evidenceImages.filter(img => img.id !== id);
     renderEvidenceGallery();
 }
 
 function renderEvidenceGallery() {
     const gallery = document.getElementById('mediaGallery');
     gallery.innerHTML = '';
+
+    evidenceImages = evidenceImages.map(normalizeEvidenceItem).filter(Boolean);
+
     evidenceImages.forEach(img => {
         const item = document.createElement('div');
         item.className = 'evidence-item';
-        item.innerHTML = `<img src="${img.base64}" style="width:80px; height:80px; object-fit:cover; border-radius:8px;"><p>${img.name.substring(0,20)}</p><button type="button" class="remove-evidence" onclick="removeEvidenceImage('${img.name}')">✕</button>`;
+        item.innerHTML = `
+            <img src="${img.base64}" style="width:100%; height:90px; object-fit:cover; border-radius:8px; cursor:pointer;" title="Click to view full image" onclick="window.open('${img.base64}', '_blank')">
+            <p>${(img.name || '').substring(0, 30)}</p>
+            <input type="text" class="evidence-detail-input" placeholder="Add image details..." value="${(img.details || '').replace(/\"/g, '&quot;')}" oninput="updateEvidenceDetails('${img.id}', this.value)">
+            <button type="button" class="remove-evidence" onclick="removeEvidenceImage('${img.id}')">×</button>
+        `;
         gallery.appendChild(item);
     });
 }
@@ -433,7 +476,7 @@ async function geocodeAddress(address) {
     }
 }
 
-// OCR functions (unchanged – keep all original OCR code)
+// OCR functions (unchanged â€“ keep all original OCR code)
 function selectOcrEngine(engine) {
     activeOcrEngine = engine;
     document.querySelectorAll('.ocr-engine-btn').forEach(b => b.classList.remove('active'));
@@ -583,8 +626,8 @@ async function runOCR(input) {
         else if (activeOcrEngine === 'claude') text = await ocrClaude(processedFile, bar);
         else text = await ocrTesseract(processedFile, bar);
         complaintArea.value = text;
-        if (text && text.length > 0) setOcrStatus('✓ Text extracted successfully!', 'success');
-        else setOcrStatus('⚠ No text detected', 'error');
+        if (text && text.length > 0) setOcrStatus('âœ“ Text extracted successfully!', 'success');
+        else setOcrStatus('âš  No text detected', 'error');
     } catch (err) {
         setOcrStatus('Error: ' + err.message, 'error');
         alert('OCR Error: ' + err.message);
@@ -595,7 +638,7 @@ async function runOCR(input) {
     }
 }
 
-// Submit FIR – store Base64 images directly in Firestore
+// Submit FIR â€“ store Base64 images directly in Firestore
 async function submitFIR() {
     const category = document.getElementById("category").value;
     const incidentLocation = document.getElementById("incidentLocation").value.trim();
@@ -615,7 +658,7 @@ async function submitFIR() {
         return;
     }
 
-    let refID = document.getElementById("refNo").value;
+    let refID = document.getElementById("refNo").value || reserveNextRefNo();`r`n    if (!refID.startsWith('REF')) {`r`n        refID = reserveNextRefNo();`r`n    }`r`n    document.getElementById("refNo").value = refID;
     const persons = collectPersonData();
     const submitBtn = document.querySelector('.btn-submit');
     const originalText = submitBtn.textContent;
@@ -655,7 +698,7 @@ async function submitFIR() {
             witnesses: persons.witnesses,
             suspects: persons.suspects,
             criminals: persons.criminals,
-            evidenceImages: evidenceImages, // array of {base64, name}
+            evidenceImages: evidenceImages.map(normalizeEvidenceItem).filter(Boolean),
             latitude: coordinates.lat,
             longitude: coordinates.lng,
             geocoded: !!coordinates.lat,
@@ -672,7 +715,7 @@ async function submitFIR() {
         // Show success modal
         document.getElementById("modalRef").innerText = "Ref: " + refID;
         let summaryText = `Victims: ${firData.victimCount}, Witnesses: ${firData.witnessCount}, Suspects: ${firData.suspectCount}, Criminals: ${firData.criminalCount}`;
-        if (firData.geocoded) summaryText += `\n📍 Location mapped for crime hotspot`;
+        if (firData.geocoded) summaryText += `\nðŸ“ Location mapped for crime hotspot`;
         document.getElementById("modalSummary").innerText = summaryText;
 
         // Display images in modal
@@ -694,7 +737,7 @@ async function submitFIR() {
             const img = document.createElement('img');
             img.src = ev.base64;
             img.style.width = '80px'; img.style.height = '80px'; img.style.objectFit = 'cover';
-            img.title = ev.name;
+            img.title = ev.details ? `${ev.name} - ${ev.details}` : ev.name;
             modalImagesDiv.appendChild(img);
         });
         if (modalImagesDiv.children.length === 0) modalImagesDiv.innerHTML = '<p>No images attached.</p>';
@@ -718,52 +761,71 @@ async function showAllFIRs() {
     modal.style.display = 'flex';
 
     try {
-        const snapshot = await db.collection("firs").orderBy("timestamp", "desc").get();
-        if (snapshot.empty) {
+        const cachedRaw = localStorage.getItem(FIR_CACHE_KEY);
+        if (cachedRaw) {
+            const cached = JSON.parse(cachedRaw);
+            if (cached?.firs?.length) {
+                container.innerHTML = '';
+                cached.firs.forEach(fir => container.insertAdjacentHTML('beforeend', renderFirCardHtml(fir.id, fir)));
+            }
+        }
+
+        const snapshot = await db.collection("firs").orderBy("timestamp", "desc").limit(300).get();
+        if (snapshot.empty && !container.innerHTML.trim()) {
             container.innerHTML = '<p>No FIRs found.</p>';
             return;
         }
 
+        const fresh = [];
         let html = '';
         snapshot.forEach(doc => {
             const fir = doc.data();
-            html += `
+            fresh.push({ id: doc.id, ...fir });
+            html += renderFirCardHtml(doc.id, fir);
+        });
+
+        if (html) container.innerHTML = html;
+        if (fresh.length) syncCachedFirList(fresh);
+    } catch (error) {
+        console.error("Error retrieving FIRs:", error);
+        if (!container.innerHTML.trim()) {
+            container.innerHTML = '<p style="color: #ef4444;">Error loading FIRs. Check console.</p>';
+        }
+    }
+}
+
+function renderFirCardHtml(docId, fir) {
+    let html = `
                 <div style="border: 1px solid #334155; border-radius: 16px; margin-bottom: 20px; padding: 15px; background: #0f172a;">
                     <h4 style="color: var(--accent-gold);">${fir.refID}</h4>
                     <p><strong>Date:</strong> ${fir.date}</p>
                     <p><strong>Category:</strong> ${fir.category}</p>
                     <p><strong>Location:</strong> ${fir.incidentLocation}</p>
-                    <p><strong>Description:</strong> ${fir.incidentDescription.substring(0, 100)}${fir.incidentDescription.length > 100 ? '...' : ''}</p>
-                    <p><strong>Victims:</strong> ${fir.victimCount} | <strong>Witnesses:</strong> ${fir.witnessCount} | <strong>Suspects:</strong> ${fir.suspectCount} | <strong>Criminals:</strong> ${fir.criminalCount}</p>
+                    <p><strong>Description:</strong> ${(fir.incidentDescription || '').substring(0, 100)}${(fir.incidentDescription || '').length > 100 ? '...' : ''}</p>
+                    <p><strong>Victims:</strong> ${fir.victimCount || 0} | <strong>Witnesses:</strong> ${fir.witnessCount || 0} | <strong>Suspects:</strong> ${fir.suspectCount || 0} | <strong>Criminals:</strong> ${fir.criminalCount || 0}</p>
                     <div style="margin-top: 10px;">
                         <strong>Images:</strong><br>
                         <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px;">
             `;
-            // Person images
-            const allPersons = [...(fir.victims || []), ...(fir.witnesses || []), ...(fir.suspects || []), ...(fir.criminals || [])];
-            allPersons.forEach(p => {
-                if (p.imageBase64) {
-                    html += `<img src="${p.imageBase64}" style="width:60px; height:60px; object-fit:cover; border-radius:8px;" title="Person photo">`;
-                }
-            });
-            // Evidence images
-            (fir.evidenceImages || []).forEach(ev => {
-                if (ev.base64) {
-                    html += `<img src="${ev.base64}" style="width:60px; height:60px; object-fit:cover; border-radius:8px;" title="${ev.name}">`;
-                }
-            });
-            if (allPersons.length === 0 && (!fir.evidenceImages || fir.evidenceImages.length === 0)) {
-                html += `<span style="color:#64748b;">No images</span>`;
-            }
-            html += `</div></div><hr style="border-color:#334155;">`;
-            html += `<button class="btn-submit" style="background: #2563eb; padding: 6px 12px; font-size: 0.8rem; margin-top: 8px;" onclick="viewFirDetails('${doc.id}')">View Full Details</button>`;
-            html += `</div>`;
-        });
-        container.innerHTML = html;
-    } catch (error) {
-        console.error("Error retrieving FIRs:", error);
-        container.innerHTML = '<p style="color: #ef4444;">Error loading FIRs. Check console.</p>';
+    const allPersons = [...(fir.victims || []), ...(fir.witnesses || []), ...(fir.suspects || []), ...(fir.criminals || [])];
+    allPersons.forEach(p => {
+        if (p.imageBase64) {
+            html += `<img src="${p.imageBase64}" style="width:60px; height:60px; object-fit:cover; border-radius:8px;" title="Person photo">`;
+        }
+    });
+    (fir.evidenceImages || []).forEach(ev => {
+        if (ev?.base64) {
+            const title = ev.details ? `${ev.name || 'Evidence'} - ${ev.details}` : (ev.name || 'Evidence');
+            html += `<img src="${ev.base64}" style="width:60px; height:60px; object-fit:cover; border-radius:8px;" title="${title}">`;
+        }
+    });
+    if (allPersons.length === 0 && (!fir.evidenceImages || fir.evidenceImages.length === 0)) {
+        html += `<span style="color:#64748b;">No images</span>`;
     }
+    html += `</div></div><hr style="border-color:#334155;">`;
+    html += `<button class="btn-submit" style="background: #2563eb; padding: 6px 12px; font-size: 0.8rem; margin-top: 8px;" onclick="viewFirDetails('${docId}')">View Full Details</button>`;
+    html += `</div>`;
+    return html;
 }
 
 async function viewFirDetails(docId) {
@@ -773,7 +835,7 @@ async function viewFirDetails(docId) {
         return;
     }
     const fir = doc.data();
-    // Show details in a nested alert or a new modal – for simplicity we use a formatted alert
+    // Show details in a nested alert or a new modal â€“ for simplicity we use a formatted alert
     let details = `FIR: ${fir.refID}\nDate: ${fir.date}\nCategory: ${fir.category}\nLocation: ${fir.incidentLocation}\nDescription: ${fir.incidentDescription}\nComplaint: ${fir.complaint || 'N/A'}\nProperty Seizure: ${fir.propertySeizure || 'N/A'}\n\nVictims:\n`;
     (fir.victims || []).forEach((v, i) => {
         details += `  ${i+1}. ${v.name || 'N/A'} (Age: ${v.age || '?'}, Contact: ${v.contact || 'N/A'})\n`;
@@ -822,3 +884,4 @@ function resetForm() {
 
 function closeModal() { document.getElementById("resultModal").style.display = 'none'; }
 function setDate() { document.getElementById("date").value = new Date().toLocaleDateString("en-IN"); }
+

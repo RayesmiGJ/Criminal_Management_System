@@ -1,4 +1,4 @@
-// ==================== FIREBASE CONFIGURATION ====================
+﻿// ==================== FIREBASE CONFIGURATION ====================
 const firebaseConfig = {
     apiKey: "AIzaSyBnMI6S8fig-fl8exIAt5tDz9qWWrWGHAM",
     authDomain: "crime-management-fdd43.firebaseapp.com",
@@ -20,6 +20,7 @@ let currentEditDocId = null;
 let currentEditData = null;
 let newEvidenceBase64 = [];
 let existingEvidenceBase64 = [];
+const SEARCH_CACHE_KEY = 'searchCasesCache_v1';
 
 // ==================== SMART CASE LINKING ENGINE (with spelling tolerance) ====================
 class SmartCaseLinkingEngine {
@@ -150,87 +151,87 @@ class SmartCaseLinkingEngine {
                     isExactIdMatch = true;
                     totalScore += 100;
                     matchedKeywords.push(keyword);
-                    matchDetails.push(`🎯 Exact Case ID match: ${keyword}`);
+                    matchDetails.push(`ðŸŽ¯ Exact Case ID match: ${keyword}`);
                 }
                 else if (caseData.refID.toLowerCase().includes(keyword)) {
                     totalScore += 60;
                     matchedKeywords.push(keyword);
-                    matchDetails.push(`📋 Case ID contains: ${keyword}`);
+                    matchDetails.push(`ðŸ“‹ Case ID contains: ${keyword}`);
                 }
                 else if (caseData.victimName.toLowerCase().includes(keyword)) {
                     totalScore += 45;
                     matchedKeywords.push(keyword);
-                    matchDetails.push(`👤 Victim name contains: ${keyword}`);
+                    matchDetails.push(`ðŸ‘¤ Victim name contains: ${keyword}`);
                 }
                 else if (this.fuzzyMatchInText(keyword, caseData.victimName)) {
                     totalScore += 35;
                     matchedKeywords.push(keyword);
-                    matchDetails.push(`👤 Victim name (fuzzy): ${keyword}`);
+                    matchDetails.push(`ðŸ‘¤ Victim name (fuzzy): ${keyword}`);
                 }
                 else if (caseData.suspectName && caseData.suspectName.toLowerCase().includes(keyword)) {
                     totalScore += 45;
                     matchedKeywords.push(keyword);
-                    matchDetails.push(`🕵️ Suspect name contains: ${keyword}`);
+                    matchDetails.push(`ðŸ•µï¸ Suspect name contains: ${keyword}`);
                 }
                 else if (caseData.suspectName && this.fuzzyMatchInText(keyword, caseData.suspectName)) {
                     totalScore += 35;
                     matchedKeywords.push(keyword);
-                    matchDetails.push(`🕵️ Suspect name (fuzzy): ${keyword}`);
+                    matchDetails.push(`ðŸ•µï¸ Suspect name (fuzzy): ${keyword}`);
                 }
                 else if (caseData.criminalName && caseData.criminalName.toLowerCase().includes(keyword)) {
                     totalScore += 45;
                     matchedKeywords.push(keyword);
-                    matchDetails.push(`⚠️ Criminal name contains: ${keyword}`);
+                    matchDetails.push(`âš ï¸ Criminal name contains: ${keyword}`);
                 }
                 else if (caseData.criminalName && this.fuzzyMatchInText(keyword, caseData.criminalName)) {
                     totalScore += 35;
                     matchedKeywords.push(keyword);
-                    matchDetails.push(`⚠️ Criminal name (fuzzy): ${keyword}`);
+                    matchDetails.push(`âš ï¸ Criminal name (fuzzy): ${keyword}`);
                 }
                 else if (caseData.category.toLowerCase().includes(keyword)) {
                     totalScore += 40;
                     matchedKeywords.push(keyword);
-                    matchDetails.push(`🎭 Crime type: ${keyword}`);
+                    matchDetails.push(`ðŸŽ­ Crime type: ${keyword}`);
                 }
                 else if (this.fuzzyMatchInText(keyword, caseData.category)) {
                     totalScore += 30;
                     matchedKeywords.push(keyword);
-                    matchDetails.push(`🎭 Crime type (fuzzy): ${keyword}`);
+                    matchDetails.push(`ðŸŽ­ Crime type (fuzzy): ${keyword}`);
                 }
                 else if (caseData.phone && caseData.phone.includes(keyword)) {
                     totalScore += 40;
                     matchedKeywords.push(keyword);
-                    matchDetails.push(`📞 Phone number: ${keyword}`);
+                    matchDetails.push(`ðŸ“ž Phone number: ${keyword}`);
                 }
                 else if (caseData.location && caseData.location.toLowerCase().includes(keyword)) {
                     totalScore += 35;
                     matchedKeywords.push(keyword);
-                    matchDetails.push(`📍 Location: ${keyword}`);
+                    matchDetails.push(`ðŸ“ Location: ${keyword}`);
                 }
                 else if (caseData.location && this.fuzzyMatchInText(keyword, caseData.location)) {
                     totalScore += 25;
                     matchedKeywords.push(keyword);
-                    matchDetails.push(`📍 Location (fuzzy): ${keyword}`);
+                    matchDetails.push(`ðŸ“ Location (fuzzy): ${keyword}`);
                 }
                 else if (caseData.complaint.toLowerCase().includes(keyword)) {
                     totalScore += 30;
                     matchedKeywords.push(keyword);
-                    matchDetails.push(`📝 Description contains: ${keyword}`);
+                    matchDetails.push(`ðŸ“ Description contains: ${keyword}`);
                 }
                 else if (this.fuzzyMatchInText(keyword, caseData.complaint)) {
                     totalScore += 20;
                     matchedKeywords.push(keyword);
-                    matchDetails.push(`📝 Description (fuzzy): ${keyword}`);
+                    matchDetails.push(`ðŸ“ Description (fuzzy): ${keyword}`);
                 }
                 else if (docText.includes(keyword)) {
                     totalScore += 15;
                     matchedKeywords.push(keyword);
-                    matchDetails.push(`🔍 Found in case details: ${keyword}`);
+                    matchDetails.push(`ðŸ” Found in case details: ${keyword}`);
                 }
                 else if (this.fuzzyMatchInText(keyword, docText)) {
                     totalScore += 12;
                     matchedKeywords.push(keyword);
-                    matchDetails.push(`🔍 Fuzzy match in case details: ${keyword}`);
+                    matchDetails.push(`ðŸ” Fuzzy match in case details: ${keyword}`);
                 }
             }
             
@@ -240,13 +241,13 @@ class SmartCaseLinkingEngine {
                 if (semanticScore > 0.3) {
                     const boost = Math.round(semanticScore * 40);
                     totalScore += boost;
-                    matchDetails.push(`🔗 Semantically related to case ${anchorCase.refID} (${Math.round(semanticScore * 100)}% similar)`);
+                    matchDetails.push(`ðŸ”— Semantically related to case ${anchorCase.refID} (${Math.round(semanticScore * 100)}% similar)`);
                 }
                 const anchorKeywords = anchorText.split(/\W+/).filter(k => k.length > 3);
                 const sharedKeywords = anchorKeywords.filter(k => docText.includes(k));
                 if (sharedKeywords.length > 0) {
                     totalScore += Math.min(sharedKeywords.length * 8, 30);
-                    matchDetails.push(`🔑 Shares keywords with case ${anchorCase.refID}: ${sharedKeywords.slice(0, 3).join(', ')}`);
+                    matchDetails.push(`ðŸ”‘ Shares keywords with case ${anchorCase.refID}: ${sharedKeywords.slice(0, 3).join(', ')}`);
                 }
             }
             
@@ -288,24 +289,24 @@ class SmartCaseLinkingEngine {
         const scores = [], reasons = [];
         if (case1.category && case2.category) {
             const crimeMatch = matchType === 'exact' ? (case1.category === case2.category ? 1 : 0) : this.fuzzyMatch(case1.category, case2.category);
-            if (crimeMatch > 0.7) reasons.push('🎯 Same crime category');
+            if (crimeMatch > 0.7) reasons.push('ðŸŽ¯ Same crime category');
             scores.push({ weight: 0.30, value: crimeMatch });
         }
         if (case1.complaint && case2.complaint) {
             const moSim = this.textSimilarity(case1.complaint, case2.complaint);
-            if (moSim > 0.5) reasons.push('📝 Similar modus operandi');
+            if (moSim > 0.5) reasons.push('ðŸ“ Similar modus operandi');
             scores.push({ weight: 0.25, value: moSim });
         }
         const name1 = case1.victimName || case1.suspectName || '';
         const name2 = case2.victimName || case2.suspectName || '';
         if (name1 && name2) {
             const nameMatch = this.fuzzyMatch(name1, name2);
-            if (nameMatch > 0.7) reasons.push('👤 Same/similar person name');
+            if (nameMatch > 0.7) reasons.push('ðŸ‘¤ Same/similar person name');
             scores.push({ weight: 0.20, value: nameMatch });
         }
         if (case1.phone && case2.phone) {
             const phoneMatch = this.fuzzyMatch(case1.phone, case2.phone);
-            if (phoneMatch > 0.8) reasons.push('📞 Same phone number');
+            if (phoneMatch > 0.8) reasons.push('ðŸ“ž Same phone number');
             scores.push({ weight: 0.15, value: phoneMatch });
         }
         const kw1 = (case1.complaint + ' ' + case1.category).toLowerCase().split(/\W+/);
@@ -313,7 +314,7 @@ class SmartCaseLinkingEngine {
         const common = kw1.filter(k => kw2.includes(k) && k.length > 3);
         if (common.length > 0) {
             const kwScore = Math.min(common.length / 5, 1);
-            if (kwScore > 0.3) reasons.push(`🔑 Common keywords: ${common.slice(0, 3).join(', ')}`);
+            if (kwScore > 0.3) reasons.push(`ðŸ”‘ Common keywords: ${common.slice(0, 3).join(', ')}`);
             scores.push({ weight: 0.10, value: kwScore });
         }
         let total = 0, weight = 0;
@@ -353,6 +354,17 @@ async function loadAllCases() {
     const resultsDiv = document.getElementById('resultsContainer');
     resultsDiv.innerHTML = '<div class="spinner"></div><div style="text-align:center;">Loading cases...</div>';
     try {
+        const cachedRaw = localStorage.getItem(SEARCH_CACHE_KEY);
+        if (cachedRaw) {
+            const cached = JSON.parse(cachedRaw);
+            if (Array.isArray(cached.cases) && cached.cases.length) {
+                allCases = cached.cases;
+                linkingEngine.loadCases(allCases);
+                document.getElementById('totalCases').textContent = allCases.length;
+                resultsDiv.innerHTML = `<div class="empty-state"><i class="fas fa-check-circle" style="font-size:48px;margin-bottom:15px;color:var(--success);"></i><p>${allCases.length} cases loaded from cache!</p><p style="font-size:0.8rem;margin-top:10px;">Refreshing with live data...</p></div>`;
+            }
+        }
+
         const snapshot = await db.collection('firs').get();
         allCases = [];
         for (const doc of snapshot.docs) {
@@ -409,11 +421,14 @@ async function loadAllCases() {
             });
         }
         linkingEngine.loadCases(allCases);
+        localStorage.setItem(SEARCH_CACHE_KEY, JSON.stringify({ savedAt: Date.now(), cases: allCases }));
         document.getElementById('totalCases').textContent = allCases.length;
-        resultsDiv.innerHTML = `<div class="empty-state"><i class="fas fa-check-circle" style="font-size:48px;margin-bottom:15px;color:var(--success);"></i><p>${allCases.length} cases loaded successfully!</p><p style="font-size:0.8rem;margin-top:10px;">✨ Now searching across ALL case fields including victims, suspects, criminals, and photos!</p></div>`;
+        resultsDiv.innerHTML = `<div class="empty-state"><i class="fas fa-check-circle" style="font-size:48px;margin-bottom:15px;color:var(--success);"></i><p>${allCases.length} cases loaded successfully!</p><p style="font-size:0.8rem;margin-top:10px;">Now searching across ALL case fields including victims, suspects, criminals, and photos.</p></div>`;
     } catch (error) {
         console.error(error);
-        resultsDiv.innerHTML = `<div class="empty-state"><p style="color:var(--danger);">Error loading cases: ${error.message}</p></div>`;
+        if (!allCases.length) {
+            resultsDiv.innerHTML = `<div class="empty-state"><p style="color:var(--danger);">Error loading cases: ${error.message}</p></div>`;
+        }
     }
 }
 
@@ -421,15 +436,15 @@ async function loadAllCases() {
 function displaySearchResults(results, searchTerm) {
     const resultsDiv = document.getElementById('resultsContainer');
     if (results.length === 0) {
-        resultsDiv.innerHTML = `<div class="empty-state"><i class="fas fa-search" style="font-size:48px;margin-bottom:15px;"></i><p>No cases found matching "${escapeHtml(searchTerm)}"</p><p style="font-size:0.8rem;">Try different keywords or remove filters</p><p style="font-size:0.8rem;margin-top:5px;">💡 Tip: Use multiple keywords like "John theft phone" or a full paragraph description</p></div>`;
+        resultsDiv.innerHTML = `<div class="empty-state"><i class="fas fa-search" style="font-size:48px;margin-bottom:15px;"></i><p>No cases found matching "${escapeHtml(searchTerm)}"</p><p style="font-size:0.8rem;">Try different keywords or remove filters</p><p style="font-size:0.8rem;margin-top:5px;">ðŸ’¡ Tip: Use multiple keywords like "John theft phone" or a full paragraph description</p></div>`;
         return;
     }
     const topResult = results[0];
     const hasSemantic = results.some(r => r.matchDetails && r.matchDetails.some(d => d.includes('semantically')));
     resultsDiv.innerHTML = `
         <div class="explanation-box">
-            <div class="explanation-title"><i class="fas fa-search"></i> Semantic Search Results for: "${escapeHtml(searchTerm)}" ${hasSemantic ? '<span class="semantic-badge">✨ Semantic Matches Found</span>' : ''}</div>
-            <div style="font-size:0.85rem;color:var(--text-dim);">Found ${results.length} matching cases | Best match: ${topResult.score}% relevance ${hasSemantic ? '<br>🔗 <strong>Including semantically related cases</strong>' : ''}</div>
+            <div class="explanation-title"><i class="fas fa-search"></i> Semantic Search Results for: "${escapeHtml(searchTerm)}" ${hasSemantic ? '<span class="semantic-badge">âœ¨ Semantic Matches Found</span>' : ''}</div>
+            <div style="font-size:0.85rem;color:var(--text-dim);">Found ${results.length} matching cases | Best match: ${topResult.score}% relevance ${hasSemantic ? '<br>ðŸ”— <strong>Including semantically related cases</strong>' : ''}</div>
         </div>
         <div class="results-table">
             <table><thead><tr><th style="width:30px;"></th><th>Case ID</th><th>Crime Type</th><th>Victim Name</th><th>Status</th><th>Match %</th><th>Actions</th></tr></thead><tbody>
@@ -531,7 +546,7 @@ async function universalSearch() {
     const crimeFilter = document.getElementById('crimeTypeFilter').value;
     const statusFilter = document.getElementById('statusFilter').value;
     const resultsDiv = document.getElementById('resultsContainer');
-    resultsDiv.innerHTML = '<div class="spinner"></div><div style="text-align:center;">🔍 Performing semantic search across all cases...</div>';
+    resultsDiv.innerHTML = '<div class="spinner"></div><div style="text-align:center;">ðŸ” Performing semantic search across all cases...</div>';
     setTimeout(() => {
         const start = performance.now();
         const searchResults = linkingEngine.universalSearch(searchTerm, { crimeType: crimeFilter, status: statusFilter });
@@ -604,3 +619,6 @@ if (sessionStorage.getItem('isLoggedIn') !== 'true') {
 } else {
     loadAllCases();
 }
+
+
+

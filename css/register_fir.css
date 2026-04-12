@@ -316,7 +316,10 @@
             border-radius: 8px; 
             padding: 5px; 
             text-align: center; 
-            position: relative; 
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
         .evidence-item i { 
             font-size: 2rem; 
@@ -329,6 +332,31 @@
             overflow: hidden; 
             text-overflow: ellipsis; 
             white-space: nowrap; 
+        }
+        .evidence-detail-input {
+            width: 100%;
+            font-size: 0.72rem;
+            padding: 6px;
+            border-radius: 6px;
+            border: 1px solid #334155;
+            background: #111827;
+            color: var(--text-main);
+        }
+        .remove-evidence {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(239, 68, 68, 0.9);
+            color: #fff;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .btn-add-media { 
             background: rgba(56, 189, 248, 0.1); 

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Search | SecureCloud Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/prompt_results.css">
+</head>
+<body>
+<script src="auth-check.js"></script>
+<nav>
+    <a href="home.html">Home</a>
+    <a href="about_us.html">About Us</a>
+    <a href="martyrs.html">Martyrs</a>
+    <a href="contact_us.html">Contact Us</a>
+</nav>
+
+<div class="container">
+    <div class="header">
+        <h1><i class="fas fa-message"></i> Prompt-Based Case Finder</h1>
+        <p>Type a full prompt and get matching FIRs instantly</p>
+    </div>
+
+    <div class="prompt-card">
+        <label for="promptInput">Describe the case you are looking for</label>
+        <textarea id="promptInput" placeholder="Example: Night-time theft near MG Road, gold chain snatched, suspect on bike..."></textarea>
+        <div class="prompt-actions">
+            <button class="btn" onclick="runPromptSearch()"><i class="fas fa-search"></i> Find Matches</button>
+            <span class="hint" id="cacheHint"></span>
+        </div>
+    </div>
+
+    <div class="results-header">
+        <div class="stat">
+            <span class="stat-label">Total Cases</span>
+            <span class="stat-value" id="totalCases">0</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">Matches</span>
+            <span class="stat-value" id="matchCount">0</span>
+        </div>
+        <div class="stat">
+            <span class="stat-label">Processing</span>
+            <span class="stat-value" id="processingTime">0ms</span>
+        </div>
+    </div>
+
+    <div id="resultsContainer" class="results-grid">
+        <div class="empty-state">
+            Enter a prompt above to search across FIRs, victims, suspects, locations, and descriptions.
+        </div>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="js/prompt_results.js"></script>
+</body>
+</html>

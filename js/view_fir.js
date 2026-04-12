@@ -1,4 +1,4 @@
-// Firebase Config (must match your registration page)
+﻿// Firebase Config (must match your registration page)
 const firebaseConfig = {
     apiKey: "AIzaSyBnMI6S8fig-fl8exIAt5tDz9qWWrWGHAM",
     authDomain: "crime-management-fdd43.firebaseapp.com",
@@ -15,6 +15,43 @@ let currentEditDocId = null;
 let currentEditData = null;
 let newEvidenceBase64 = [];     // array of {base64, name}
 let existingEvidenceBase64 = []; // array of {base64, name} from Firestore
+const VIEW_FIR_CACHE_KEY = 'viewFirCache_v1';
+
+function escapeAttr(value) {
+    return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
+function normalizeEvidenceItem(item) {
+    if (!item) return null;
+    if (typeof item === 'string') {
+        return {
+            id: `evidence_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`,
+            base64: item,
+            name: 'evidence-image',
+            details: ''
+        };
+    }
+    return {
+        id: item.id || `evidence_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`,
+        base64: item.base64 || '',
+        name: item.name || 'evidence-image',
+        details: item.details || ''
+    };
+}
+
+function normalizeEvidenceArray(arr) {
+    return (arr || []).map(normalizeEvidenceItem).filter(Boolean);
+}
+
+function updateEvidenceDetailsById(id, value, isExisting) {
+    const target = isExisting ? existingEvidenceBase64 : newEvidenceBase64;
+    const item = target.find(e => e.id === id);
+    if (item) item.details = value;
+}
 
 // Helper: compress image to Base64 (max 800px, quality 0.6)
 async function compressImageToBase64(file) {
@@ -51,32 +88,33 @@ async function loadFIRData() {
     const categories = new Set();
     allRecords = [];
     try {
-        const snapshot = await db.collection("firs").get();
-        tableBody.innerHTML = "";
+        const cachedRaw = localStorage.getItem(VIEW_FIR_CACHE_KEY);
+        if (cachedRaw) {
+            const cached = JSON.parse(cachedRaw);
+            if (Array.isArray(cached.records) && cached.records.length) {
+                renderFIRRows(cached.records, categories);
+            }
+        }
+
+        const snapshot = await db.collection("firs").orderBy("timestamp", "desc").limit(400).get();
+        const freshRecords = [];
         snapshot.forEach(doc => {
             const record = doc.data();
             record.id = doc.id;
-            allRecords.push(record);
-            const victimName = record.victims?.[0]?.name || record.victimName || '';
-            const victimContact = record.victims?.[0]?.contact || record.victimContact || '';
-            const status = record.status || 'Pending';
-            const isClosed = (status === 'Case Closed');
-            const row = tableBody.insertRow();
-            row.innerHTML = `
-                <td class="refCol">${record.refID || record.refNo || ''}</td>
-                <td>${record.date || ''}</td>
-                <td>${record.category || ''}</td>
-                <td>${escapeHtml(victimName)}</td>
-                <td>${escapeHtml(victimContact)}</td>
-                <td><span class="${getStatusClass(status)}">${status}</span></td>
-                <td><button class="btn-edit" onclick="openEditModal('${doc.id}')" ${isClosed ? 'disabled' : ''}>${isClosed ? 'Closed' : 'Edit Case'}</button></td>
-            `;
-            row.cells[0].onclick = () => showDetails(record);
-            if (record.category) categories.add(record.category);
+            freshRecords.push(record);
         });
+
+        if (freshRecords.length) {
+            localStorage.setItem(VIEW_FIR_CACHE_KEY, JSON.stringify({ savedAt: Date.now(), records: freshRecords }));
+            categories.clear();
+            renderFIRRows(freshRecords, categories);
+        } else if (!allRecords.length) {
+            tableBody.innerHTML = "<tr><td colspan='7'>No FIR records found<\/td><\/tr>";
+        }
+
         const catFilter = document.getElementById("categoryFilter");
         if (catFilter) {
-            catFilter.innerHTML = '<option value="">All Categories</option>';
+            catFilter.innerHTML = '<option value=\"\">All Categories</option>';
             categories.forEach(c => {
                 const opt = document.createElement("option");
                 opt.value = c;
@@ -86,8 +124,40 @@ async function loadFIRData() {
         }
     } catch(e) {
         console.error(e);
-        tableBody.innerHTML = "<tr><td colspan='7'>Error loading data<\/td><\/tr>";
+        if (!allRecords.length) {
+            tableBody.innerHTML = "<tr><td colspan='7'>Error loading data<\/td><\/tr>";
+        }
     }
+}
+
+function renderFIRRows(records, categories) {
+    const tableBody = document.querySelector("#firTable tbody");
+    tableBody.innerHTML = "";
+    allRecords = [];
+
+    records.forEach(record => {
+            const normalized = {
+                ...record,
+                evidenceImages: (record.evidenceImages || []).map(normalizeEvidenceItem).filter(Boolean)
+            };
+            allRecords.push(normalized);
+            const victimName = record.victims?.[0]?.name || record.victimName || '';
+            const victimContact = record.victims?.[0]?.contact || record.victimContact || '';
+            const status = record.status || 'Pending';
+            const isClosed = (status === 'Case Closed');
+            const row = tableBody.insertRow();
+            row.innerHTML = `
+                <td class="refCol">${normalized.refID || normalized.refNo || ''}</td>
+                <td>${normalized.date || ''}</td>
+                <td>${normalized.category || ''}</td>
+                <td>${escapeHtml(victimName)}</td>
+                <td>${escapeHtml(victimContact)}</td>
+                <td><span class="${getStatusClass(status)}">${status}</span></td>
+                <td><button class="btn-edit" onclick="openEditModal('${normalized.id}')" ${isClosed ? 'disabled' : ''}>${isClosed ? 'Closed' : 'Edit Case'}</button></td>
+            `;
+            row.cells[0].onclick = () => showDetails(normalized);
+            if (normalized.category) categories.add(normalized.category);
+        });
 }
 
 function getStatusClass(status) {
@@ -140,7 +210,7 @@ function showDetails(record) {
             html += `<div><strong>Address:</strong> ${escapeHtml(v.address || 'N/A')}</div>`;
             html += `<div><strong>ID Proof:</strong> ${v.idProof || 'N/A'}</div>`;
             html += `<div><strong>Occupation:</strong> ${v.occupation || 'N/A'}</div>`;
-            if (v.imageBase64) html += `<div><strong>Photo:</strong> <img src="${v.imageBase64}" style="max-width:150px; border-radius:8px;"></div>`;
+            if (v.imageBase64) html += `<div><strong>Photo:</strong> <img src="${v.imageBase64}" style="max-width:150px; border-radius:8px; cursor:pointer;" onclick="window.open('${v.imageBase64}','_blank')"></div>`;
             html += `</div>`;
         });
     }
@@ -155,7 +225,7 @@ function showDetails(record) {
             html += `<div><strong>Contact:</strong> ${w.contact || 'N/A'}</div>`;
             html += `<div><strong>Address:</strong> ${escapeHtml(w.address || 'N/A')}</div>`;
             html += `<div><strong>Statement:</strong> ${escapeHtml(w.statement || 'N/A')}</div>`;
-            if (w.imageBase64) html += `<div><strong>Photo:</strong> <img src="${w.imageBase64}" style="max-width:150px; border-radius:8px;"></div>`;
+            if (w.imageBase64) html += `<div><strong>Photo:</strong> <img src="${w.imageBase64}" style="max-width:150px; border-radius:8px; cursor:pointer;" onclick="window.open('${w.imageBase64}','_blank')"></div>`;
             html += `</div>`;
         });
     }
@@ -172,7 +242,7 @@ function showDetails(record) {
             html += `<div><strong>Build:</strong> ${s.build || 'N/A'}</div>`;
             html += `<div><strong>Marks:</strong> ${escapeHtml(s.marks || 'N/A')}</div>`;
             html += `<div><strong>Last Seen:</strong> ${escapeHtml(s.lastSeen || 'N/A')}</div>`;
-            if (s.imageBase64) html += `<div><strong>Photo:</strong> <img src="${s.imageBase64}" style="max-width:150px; border-radius:8px;"></div>`;
+            if (s.imageBase64) html += `<div><strong>Photo:</strong> <img src="${s.imageBase64}" style="max-width:150px; border-radius:8px; cursor:pointer;" onclick="window.open('${s.imageBase64}','_blank')"></div>`;
             html += `</div>`;
         });
     }
@@ -189,7 +259,7 @@ function showDetails(record) {
             html += `<div><strong>Address:</strong> ${escapeHtml(c.address || 'N/A')}</div>`;
             html += `<div><strong>Previous Record:</strong> ${escapeHtml(c.record || 'N/A')}</div>`;
             html += `<div><strong>History:</strong> ${escapeHtml(c.history || 'N/A')}</div>`;
-            if (c.imageBase64) html += `<div><strong>Photo:</strong> <img src="${c.imageBase64}" style="max-width:150px; border-radius:8px;"></div>`;
+            if (c.imageBase64) html += `<div><strong>Photo:</strong> <img src="${c.imageBase64}" style="max-width:150px; border-radius:8px; cursor:pointer;" onclick="window.open('${c.imageBase64}','_blank')"></div>`;
             html += `</div>`;
         });
     }
@@ -199,10 +269,15 @@ function showDetails(record) {
         html += `<div class="section-title"><i class="fas fa-cloud-upload-alt"></i> Evidence Files</div>`;
         html += `<div class="evidence-grid">`;
         record.evidenceImages.forEach(ev => {
-            if (ev.base64) {
-                html += `<img src="${ev.base64}" class="evidence-img" onclick="window.open('${ev.base64}','_blank')">`;
-            } else if (typeof ev === 'string') {
-                html += `<img src="${ev}" class="evidence-img" onclick="window.open('${ev}','_blank')">`;
+            const normalized = normalizeEvidenceItem(ev);
+            if (normalized?.base64) {
+                const title = normalized.details ? `${normalized.name} - ${normalized.details}` : normalized.name;
+                html += `
+                    <div class="evidence-item">
+                        <img src="${normalized.base64}" class="evidence-img clickable-img" onclick="window.open('${normalized.base64}','_blank')" title="${escapeAttr(title)}">
+                        ${normalized.details ? `<div class="evidence-caption">${escapeHtml(normalized.details)}</div>` : ''}
+                    </div>
+                `;
             }
         });
         html += `</div>`;
@@ -210,12 +285,16 @@ function showDetails(record) {
         html += `<div class="section-title"><i class="fas fa-cloud-upload-alt"></i> Evidence Files</div>`;
         html += `<div class="evidence-grid">`;
         record.evidence.forEach(url => {
-            html += `<img src="${url}" class="evidence-img" onclick="window.open('${url}','_blank')">`;
+            html += `
+                <div class="evidence-item">
+                    <img src="${url}" class="evidence-img clickable-img" onclick="window.open('${url}','_blank')">
+                </div>
+            `;
         });
         html += `</div>`;
     }
 
-    if (record.judgement) {
+    if (record.judgement) { {
         html += `<div class="section-title"><i class="fas fa-gavel"></i> Court Judgement</div>`;
         html += `<div class="detail-line">${escapeHtml(record.judgement)}</div>`;
     }
@@ -246,7 +325,7 @@ async function openEditModal(docId) {
         if(!currentEditData.suspects) currentEditData.suspects = [];
         if(!currentEditData.criminals) currentEditData.criminals = [];
         // Convert evidenceImages array to existingEvidenceBase64
-        existingEvidenceBase64 = currentEditData.evidenceImages || [];
+        existingEvidenceBase64 = normalizeEvidenceArray(currentEditData.evidenceImages);
         newEvidenceBase64 = [];
         renderFullEditForm();
     }
@@ -293,23 +372,29 @@ function renderFullEditForm() {
             <textarea id="editPropertySeizure" rows="3" placeholder="List all seized items...">${escapeHtml(currentEditData.propertySeizure || '')}</textarea>
         </div>
         <div class="status-workflow">
-            <button class="workflow-btn ${currentEditData.status === 'Pending' ? 'active' : ''}" onclick="setWorkflowStatus('Pending')">📋 Pending</button>
-            <button class="workflow-btn ${currentEditData.status === 'Arrested' ? 'active' : ''}" onclick="setWorkflowStatus('Arrested')">⛓️ Mark as Arrested</button>
+            <button class="workflow-btn ${currentEditData.status === 'Pending' ? 'active' : ''}" onclick="setWorkflowStatus('Pending')">ðŸ“‹ Pending</button>
+            <button class="workflow-btn ${currentEditData.status === 'Arrested' ? 'active' : ''}" onclick="setWorkflowStatus('Arrested')">â›“ï¸ Mark as Arrested</button>
         </div>
         <button class="save-btn" onclick="saveFullCaseUpdates()"><i class="fas fa-save"></i> Save All Changes</button>
     `;
     // Render evidence grid
     const evidenceDiv = document.getElementById("evidenceList");
     evidenceDiv.innerHTML = '';
-    [...existingEvidenceBase64, ...newEvidenceBase64].forEach((item, idx) => {
+    const mergedEvidence = [...existingEvidenceBase64, ...newEvidenceBase64];
+    mergedEvidence.forEach((item, idx) => {
         const isExisting = idx < existingEvidenceBase64.length;
-        const base64 = item.base64 || item;
-        const name = item.name || 'evidence';
+        const normalized = normalizeEvidenceItem(item);
+        if (!normalized) return;
         const div = document.createElement('div');
         div.className = 'evidence-item-edit';
         div.setAttribute('data-idx', idx);
         div.setAttribute('data-existing', isExisting);
-        div.innerHTML = `<img src="${base64}" style="max-width:100px; max-height:80px; border-radius:8px;"><div class="remove-evidence" onclick="removeEvidenceItem(${idx}, ${isExisting})">×</div>`;
+        div.innerHTML = `
+            <img src="${normalized.base64}" style="max-width:100px; max-height:80px; border-radius:8px; cursor:pointer;" onclick="window.open('${normalized.base64}','_blank')">
+            <div class="evidence-name">${escapeHtml(normalized.name)}</div>
+            <input type="text" class="evidence-detail-input" placeholder="Add image details..." value="${escapeAttr(normalized.details)}" oninput="updateEvidenceDetailsById('${normalized.id}', this.value, ${isExisting})">
+            <div class="remove-evidence" onclick="removeEvidenceItem(${idx}, ${isExisting})">Ã—</div>
+        `;
         evidenceDiv.appendChild(div);
     });
     window.workflowStatus = currentEditData.status || 'Pending';
@@ -335,7 +420,7 @@ function renderPersonSection(type, dataArray) {
                             ${previewContent}
                         </div>
                         <input type="file" id="${personId}_image" accept="image/*" style="display:none" onchange="previewAndUploadPersonImage('${type}', ${idx}, this, '${personId}')">
-                        <button type="button" class="remove-image" onclick="removePersonImage('${type}', ${idx}, '${personId}')">×</button>
+                        <button type="button" class="remove-image" onclick="removePersonImage('${type}', ${idx}, '${personId}')">Ã—</button>
                     </div>
                     <div class="person-details-container">
                         ${getPersonFields(type, person, idx)}
@@ -437,7 +522,7 @@ async function addNewEvidenceFile(input) {
         return;
     }
     const base64 = await compressImageToBase64(file);
-    newEvidenceBase64.push({ base64, name: file.name });
+    newEvidenceBase64.push(normalizeEvidenceItem({ base64, name: file.name, details: "" }));
     renderFullEditForm();
     input.value = '';
 }
@@ -507,7 +592,7 @@ async function saveFullCaseUpdates() {
     const suspects = collectPersons('suspect');
     const criminals = collectPersons('criminal');
     const propertySeizure = document.getElementById("editPropertySeizure")?.value || '';
-    const allEvidence = [...existingEvidenceBase64, ...newEvidenceBase64];
+    const allEvidence = normalizeEvidenceArray([...existingEvidenceBase64, ...newEvidenceBase64]);
     const updatePayload = {
         victims,
         witnesses,
@@ -555,3 +640,7 @@ function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m =>
 
 // Initialize on page load
 window.onload = loadFIRData;
+
+
+
+
