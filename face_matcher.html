@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>AI Face Matcher | FIR Management</title>
+    <title>AI Face Matcher + Smart Linking | SecureCloud</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -13,7 +13,7 @@
     
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script> 
     
     <link rel="stylesheet" href="css/face_matcher.css">
 </head>
@@ -25,56 +25,70 @@
         <a href="martyrs.html">Martyrs</a>
         <a href="contact_us.html">Contact Us</a>
     </nav>
-    
+
     <div class="container">
-        <h2><i class="fas fa-face-smile"></i> Face Recognition</h2>
-        <div class="section-sub">Upload a suspect image to cross‑match across all FIRs</div>
-        
+        <h2><i class="fas fa-face-smile"></i> Face Recognition </h2>
+        <div class="section-sub">Upload a suspect image → cross‑match faces → find similar cases</div>
+
         <div class="two-columns">
-            <!-- LEFT: Upload area -->
-            <div class="upload-side">
-                <div class="upload-card">
-                    <div class="image-preview-area" id="previewArea" onclick="document.getElementById('faceInput').click()">
-                        <i class="fas fa-camera-retro placeholder-icon"></i>
-                        <p>Click to select image</p>
-                        <img id="previewImg" class="preview-img" alt="Preview">
-                    </div>
-                    <input type="file" id="faceInput" accept="image/*" style="display:none" onchange="handleImageUpload(this)">
-                    
-                    <div class="btn-group">
-                        <button class="btn btn-purple" onclick="matchFaceFromUpload()">
-                            <i class="fas fa-fingerprint"></i> Match Face
-                        </button>
-                        <button class="btn btn-outline" onclick="refreshPage()">
-                            <i class="fas fa-sync-alt"></i> Refresh
-                        </button>
-                        <button class="btn btn-gold" onclick="window.location.href='search.html'">
-                            <i class="fas fa-link"></i> Smart Linking →
-                        </button>
-                    </div>
+            <!-- LEFT: Upload Area -->
+            <div class="upload-card">
+                <div class="image-preview-area" id="previewArea" onclick="document.getElementById('faceInput').click()">
+                    <i class="fas fa-camera-retro placeholder-icon"></i>
+                    <p>Click to select image</p>
+                    <img id="previewImg" class="preview-img" alt="Preview">
+                </div>
+                <input type="file" id="faceInput" accept="image/*" style="display:none" onchange="handleImageUpload(this)">
+                <div class="btn-group">
+                    <button class="btn btn-purple" onclick="matchFaceFromUpload()">
+                        <i class="fas fa-fingerprint"></i> Match Face
+                    </button>
+                    <button class="btn btn-outline" onclick="refreshPage()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
                 </div>
             </div>
-            
-            <!-- RIGHT: Results -->
-            <div class="results-side">
-                <div class="results-panel">
-                    <div class="panel-header">
-                        <i class="fas fa-list-ul"></i> Matched Persons
-                        <span class="result-count" id="resultCount">0 results</span>
-                    </div>
-                    <div id="resultsContainer" class="results-container">
-                        <div class="empty-state">
-                            <i class="fas fa-search"></i>
-                            <p>No matches yet</p>
-                            <small>Upload a face and click "Match Face"</small>
-                        </div>
+
+            <!-- RIGHT: Face Match Results -->
+            <div class="results-panel">
+                <div class="panel-header">
+                    <i class="fas fa-list-ul"></i> Matched Persons
+                    <span class="result-count" id="resultCount">0 results</span>
+                </div>
+                <div id="resultsContainer" class="results-container">
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <p>No matches yet</p>
+                        <small>Upload a face and click "Match Face"</small>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Smart Linking Results Section -->
+        <div id="similarCasesSection" style="margin-top: 30px; display: none;">
+            <h3 style="color: var(--accent-gold);"><i class="fas fa-link"></i> Smart Linking – Similar Cases</h3>
+            <div id="similarCasesContainer" class="results-grid"></div>
+        </div>
     </div>
-    
-    <div id="faceModelStatus"><i class="fas fa-microchip"></i> Initializing AI...</div>   
+
+    <!-- Modals -->
+    <div id="caseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-info-circle"></i> Complete Case Details</h2>
+                <button class="close-modal" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <div id="fullscreenModal" class="fullscreen-modal">
+        <button class="close-fullscreen" onclick="closeFullscreen()">&times;</button>
+        <img id="fullscreenImage" class="fullscreen-img" src="" alt="Fullscreen Image">
+    </div>
+
+    <div id="faceModelStatus"><i class="fas fa-microchip"></i> Initializing AI...</div>
     <script src="js/face_matcher.js"></script>
 </body>
 </html>
